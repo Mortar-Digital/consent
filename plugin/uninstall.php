@@ -17,7 +17,7 @@ wp_clear_scheduled_hook('md_consent_purge_log');
 
 if (defined('MD_CONSENT_DELETE_DATA_ON_UNINSTALL') && MD_CONSENT_DELETE_DATA_ON_UNINSTALL === true) {
     global $wpdb;
-    $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $wpdb->prefix . 'md_consent_log'));
+    $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $wpdb->prefix . 'md_consent_log')); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- dropping the plugin's own table.
     delete_option('md_consent_settings');
     delete_option('md_consent_log_schema');
 }

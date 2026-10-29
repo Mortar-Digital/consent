@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint, analyse and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The lowest supported PHP, so syntax newer than the plugin allows fails here.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: composer validate --strict --no-check-version
+      - run: composer install --no-interaction --no-progress
+      - run: pnpm install --frozen-lockfile
+
+      - run: composer lint
+      - run: composer format:check
+      - run: composer sniff
+      - run: composer analyse
+      - run: pnpm test
+
+      - name: Build plugin zip
+        run: bin/build-plugin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mortar-consent
+          path: build/mortar-consent-*.zip
+          if-no-files-found: error
+
+  phpunit:
+    name: PHPUnit (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+
+      - run: composer install --no-interaction --no-progress
+      - run: vendor/bin/phpunit

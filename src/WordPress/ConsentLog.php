@@ -7,6 +7,8 @@ namespace MortarDigital\Consent\WordPress;
 use MortarDigital\Consent\ConsentRecord;
 use MortarDigital\Consent\Csv;
 
+// phpcs:disable WordPress.DB.DirectDatabaseQuery -- the plugin's own table, which no WordPress API covers; rows are written once and read only on admin screens, so there is nothing to cache.
+
 /**
  * Storage for consent records in a dedicated table. All queries go through
  * $wpdb->prepare(); rows hold no IP address, user agent or user id.
@@ -138,6 +140,6 @@ final class ConsentLog
             'granted' => $r['granted'] === '' ? [] : explode('.', (string) $r['granted']),
             'method' => (string) $r['method'],
             'createdAt' => str_replace(' ', 'T', (string) $r['created_at']) . 'Z',
-        ], is_array($rows) ? $rows : []));
+        ], array_filter(is_array($rows) ? $rows : [], is_array(...))));
     }
 }

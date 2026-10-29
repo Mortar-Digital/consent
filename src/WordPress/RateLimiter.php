@@ -57,9 +57,10 @@ final class RateLimiter
      */
     public static function clientIp(): string
     {
-        $ip = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- validated below.
+        $ip = is_string($_SERVER['REMOTE_ADDR'] ?? null) ? $_SERVER['REMOTE_ADDR'] : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- validated below.
+        $filtered = apply_filters('md_consent_client_ip', filter_var($ip, FILTER_VALIDATE_IP) !== false ? $ip : 'unknown');
 
-        return (string) apply_filters('md_consent_client_ip', filter_var($ip, FILTER_VALIDATE_IP) !== false ? $ip : 'unknown');
+        return is_string($filtered) && $filtered !== '' ? $filtered : 'unknown';
     }
 
     private function increment(string $key): int
@@ -70,7 +71,8 @@ final class RateLimiter
 
             return $count === false ? PHP_INT_MAX : $count;
         }
-        $count = (int) get_transient($key) + 1;
+        $stored = get_transient($key);
+        $count = (is_numeric($stored) ? (int) $stored : 0) + 1;
         set_transient($key, $count, $this->windowSeconds);
 
         return $count;

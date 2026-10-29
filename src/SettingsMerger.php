@@ -70,9 +70,10 @@ final class SettingsMerger
         );
         if (isset($stored['texts'])) {
             $texts = is_array($stored['texts']) ? $stored['texts'] : [];
+            $defaultTexts = is_array($defaults['texts'] ?? null) ? $defaults['texts'] : [];
             $stored['texts'] = array_filter(
                 array_intersect_key($texts, array_flip(Config::TEXT_KEYS)),
-                static fn (mixed $t, string $key): bool => is_string($t) && trim($t) !== '' && $t !== ($defaults['texts'][$key] ?? null),
+                static fn (mixed $t, string $key): bool => is_string($t) && trim($t) !== '' && $t !== ($defaultTexts[$key] ?? null),
                 ARRAY_FILTER_USE_BOTH,
             );
             if ($stored['texts'] === []) {

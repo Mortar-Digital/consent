@@ -74,7 +74,8 @@ final class EmbedGate
             return $content;
         }
         if (($block['blockName'] ?? '') === 'core/embed') {
-            $slug = is_string($block['attrs']['providerNameSlug'] ?? null) ? $block['attrs']['providerNameSlug'] : '';
+            $attrs = is_array($block['attrs'] ?? null) ? $block['attrs'] : [];
+            $slug = is_string($attrs['providerNameSlug'] ?? null) ? $attrs['providerNameSlug'] : '';
 
             return $this->gateEmbedBlock($content, $slug !== '' ? $slug : $this->providerFromHtml($content)[0]);
         }

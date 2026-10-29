@@ -102,7 +102,7 @@ final class Renderer
         $headingId = function_exists('wp_unique_id') ? wp_unique_id('md-consent-declaration-') : 'md-consent-declaration';
         ob_start();
         ?>
-<div <?php echo $wrapperAttributes; /* Built by get_block_wrapper_attributes(), which escapes. */ ?>>
+<div <?php echo $wrapperAttributes; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by get_block_wrapper_attributes(), which escapes. */ ?>>
 <?php foreach ($this->config->policy->categories->all() as $category) : ?>
 <section class="md-consent-declaration__category" aria-labelledby="<?php echo esc_attr($headingId . '-' . $category->id); ?>">
 <h3 id="<?php echo esc_attr($headingId . '-' . $category->id); ?>"><?php echo esc_html($category->label); ?><?php if ($category->required) : ?> <span class="md-consent-declaration__always">(<?php echo esc_html($this->config->texts['always_active']); ?>)</span><?php endif; ?></h3>
@@ -134,7 +134,7 @@ final class Renderer
 </section>
 <?php endforeach; ?>
 <?php if ($showSettingsButton) : ?>
-<p><?php echo $this->settingsButton(''); /* Escaped inside. */ ?></p>
+<p><?php echo $this->settingsButton(''); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. */ ?></p>
 <?php endif; ?>
 </div>
         <?php

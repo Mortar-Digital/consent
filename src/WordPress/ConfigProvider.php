@@ -116,7 +116,7 @@ final class ConfigProvider
             Config::fromArray(SettingsMerger::merge($this->defaults(), $value, $this->overrides()));
         } catch (InvalidConfiguration $e) {
             if (function_exists('add_settings_error')) {
-                add_settings_error(self::OPTION, 'invalid', $e->getMessage());
+                add_settings_error(self::OPTION, 'invalid', esc_html($e->getMessage()));
             }
 
             return $old;
@@ -136,10 +136,44 @@ final class ConfigProvider
         $defaults = self::rawDefaults();
         $defaults['categories'] = array_map(
             static fn (array $c): array => Category::fromArray($c)->toArray(),
-            $defaults['categories'],
+            self::defaultCategories(),
         );
 
         return $defaults;
+    }
+
+    /** @return list<array{id: string, label: string, description: string, required?: bool, cookies?: list<array<string, string>>}> */
+    private static function defaultCategories(): array
+    {
+        return [
+            [
+                'id' => 'necessary',
+                'label' => __('Strictly necessary', 'mortar-consent'),
+                'description' => __('Needed for the site to work, for example keeping it secure and remembering your cookie choices. These cannot be switched off.', 'mortar-consent'),
+                'required' => true,
+                'cookies' => [[
+                    'name' => 'md_consent',
+                    'provider' => (string) wp_parse_url(home_url(), PHP_URL_HOST),
+                    'purpose' => __('Remembers your cookie choices.', 'mortar-consent'),
+                    'duration' => __('Until your consent expires', 'mortar-consent'),
+                ]],
+            ],
+            [
+                'id' => 'functional',
+                'label' => __('Functional', 'mortar-consent'),
+                'description' => __('Remember preferences you set and enable embedded content such as videos and maps.', 'mortar-consent'),
+            ],
+            [
+                'id' => 'analytics',
+                'label' => __('Analytics', 'mortar-consent'),
+                'description' => __('Help us understand how visitors use the site so we can improve it.', 'mortar-consent'),
+            ],
+            [
+                'id' => 'marketing',
+                'label' => __('Marketing', 'mortar-consent'),
+                'description' => __('Used to show relevant adverts and measure campaigns, sometimes by third parties.', 'mortar-consent'),
+            ],
+        ];
     }
 
     /** @return array<string, mixed> */
@@ -148,35 +182,6 @@ final class ConfigProvider
         return [
             'policy_version' => 1,
             'lifetime_days' => 365,
-            'categories' => [
-                [
-                    'id' => 'necessary',
-                    'label' => __('Strictly necessary', 'mortar-consent'),
-                    'description' => __('Needed for the site to work, for example keeping it secure and remembering your cookie choices. These cannot be switched off.', 'mortar-consent'),
-                    'required' => true,
-                    'cookies' => [[
-                        'name' => 'md_consent',
-                        'provider' => (string) wp_parse_url(home_url(), PHP_URL_HOST),
-                        'purpose' => __('Remembers your cookie choices.', 'mortar-consent'),
-                        'duration' => __('Until your consent expires', 'mortar-consent'),
-                    ]],
-                ],
-                [
-                    'id' => 'functional',
-                    'label' => __('Functional', 'mortar-consent'),
-                    'description' => __('Remember preferences you set and enable embedded content such as videos and maps.', 'mortar-consent'),
-                ],
-                [
-                    'id' => 'analytics',
-                    'label' => __('Analytics', 'mortar-consent'),
-                    'description' => __('Help us understand how visitors use the site so we can improve it.', 'mortar-consent'),
-                ],
-                [
-                    'id' => 'marketing',
-                    'label' => __('Marketing', 'mortar-consent'),
-                    'description' => __('Used to show relevant adverts and measure campaigns, sometimes by third parties.', 'mortar-consent'),
-                ],
-            ],
             'scripts' => [],
             'texts' => [
                 'banner_title' => __('Cookies on this site', 'mortar-consent'),
@@ -239,24 +244,26 @@ final class ConfigProvider
     private static function failClosed(array $defaults, mixed $filtered, InvalidConfiguration $error): Config
     {
         $message = 'md-consent: invalid configuration, using defaults: ' . $error->getMessage();
-        if (function_exists('wp_trigger_error')) {
-            wp_trigger_error(__METHOD__, $message, E_USER_WARNING);
-        }
-        error_log($message);
+        wp_trigger_error(__METHOD__, $message, E_USER_WARNING);
+        // wp_trigger_error() is silent without WP_DEBUG; a site quietly running
+        // on defaults must still leave a trace in production.
+        error_log($message); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
-        $optional = array_values(array_map(
-            static fn (array $c): string => $c['id'],
-            array_filter($defaults['categories'], static fn (array $c): bool => empty($c['required'])),
-        ));
+        $optional = array_column(
+            array_values(array_filter(self::defaultCategories(), static fn (array $c): bool => empty($c['required']))),
+            'id',
+        );
         $scripts = is_array($filtered) && is_array($filtered['scripts'] ?? null) ? $filtered['scripts'] : [];
+        $gated = [];
         foreach ($scripts as $key => $value) {
             // Gate both map keys and list-shaped typos such as ['google-analytics'].
             foreach ([$key, $value] as $handle) {
                 if (is_string($handle) && $handle !== '' && strlen($handle) <= 200 && ! in_array($handle, $optional, true)) {
-                    $defaults['scripts'][$handle] = $optional;
+                    $gated[$handle] = $optional;
                 }
             }
         }
+        $defaults['scripts'] = $gated;
 
         // Dropping Consent Mode would leave ungated Google tags with no
         // "denied" default, which Google treats as granted. Keep it on with

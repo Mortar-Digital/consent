@@ -238,7 +238,7 @@ final class Config
         if (str_starts_with($url, '/') && ! str_starts_with($url, '//')) {
             return ! preg_match('/[\s\\\\]/', $url);
         }
-        $scheme = parse_url($url, PHP_URL_SCHEME);
+        $scheme = parse_url($url, PHP_URL_SCHEME); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- this layer does not load WordPress.
 
         return in_array($scheme, ['http', 'https'], true) && filter_var($url, FILTER_VALIDATE_URL) !== false;
     }

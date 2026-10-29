@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!--
+  WordPress security, i18n and prefix rules: what plugin review and Plugin
+  Check look for. Formatting is php-cs-fixer's job (PSR-12), so the WordPress
+  whitespace and naming-style sniffs are not used.
+-->
+<ruleset name="Mortar Consent">
+    <file>src</file>
+    <file>plugin</file>
+    <file>functions.php</file>
+
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <arg value="sp"/>
+
+    <config name="minimum_wp_version" value="6.5"/>
+
+    <rule ref="WordPress.Security">
+        <!--
+          Exception messages are plain text, escaped where they are shown:
+          settings errors use esc_html(), REST errors are JSON, and logs are
+          not HTML.
+        -->
+        <exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped"/>
+    </rule>
+    <rule ref="WordPress.DB"/>
+    <rule ref="WordPress.PHP.DevelopmentFunctions"/>
+    <rule ref="WordPress.PHP.DiscouragedPHPFunctions"/>
+    <rule ref="WordPress.PHP.RestrictedPHPFunctions"/>
+    <rule ref="WordPress.WP.AlternativeFunctions"/>
+    <rule ref="WordPress.WP.DeprecatedFunctions"/>
+    <rule ref="WordPress.WP.DeprecatedParameters"/>
+    <rule ref="WordPress.WP.DiscouragedFunctions"/>
+    <rule ref="WordPress.WP.EnqueuedResources"/>
+    <rule ref="WordPress.WP.GlobalVariablesOverride"/>
+
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="mortar-consent"/>
+            </property>
+        </properties>
+    </rule>
+
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="md_consent"/>
+                <element value="MortarDigital\Consent"/>
+            </property>
+        </properties>
+    </rule>
+</ruleset>
