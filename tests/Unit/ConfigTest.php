@@ -39,7 +39,7 @@ final class ConfigTest extends TestCase
         self::assertTrue($config->logEnabled);
         self::assertSame(1095, $config->logRetentionDays);
         self::assertSame([
-            'cookie' => ['name' => 'md_consent', 'domain' => ''],
+            'cookie' => ['name' => 'mortar_consent', 'domain' => ''],
             'policyVersion' => 1,
             'lifetime' => 365 * 86400,
             'categories' => [

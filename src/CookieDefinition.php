@@ -20,11 +20,11 @@ final class CookieDefinition
         public readonly string $duration = '',
     ) {
         if (preg_match(self::NAME_PATTERN, $name) !== 1) {
-            throw new InvalidConfiguration(sprintf('Invalid cookie name pattern "%s".', substr($name, 0, 100)));
+            throw new InvalidConfiguration(esc_html(sprintf('Invalid cookie name pattern "%s".', substr($name, 0, 100))));
         }
         foreach (['provider' => $provider, 'purpose' => $purpose, 'duration' => $duration] as $field => $value) {
             if (strlen($value) > self::MAX_TEXT) {
-                throw new InvalidConfiguration(sprintf('Cookie "%s" %s is too long.', $name, $field));
+                throw new InvalidConfiguration(esc_html(sprintf('Cookie "%s" %s is too long.', $name, $field)));
             }
         }
     }
@@ -42,7 +42,7 @@ final class CookieDefinition
         foreach (['provider', 'purpose', 'duration'] as $field) {
             $value = $data[$field] ?? '';
             if (! is_string($value)) {
-                throw new InvalidConfiguration(sprintf('Cookie "%s" %s must be a string.', $data['name'], $field));
+                throw new InvalidConfiguration(esc_html(sprintf('Cookie "%s" %s must be a string.', $data['name'], $field)));
             }
             $text[$field] = $value;
         }

@@ -6,7 +6,7 @@ import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { BASE, ARTIFACTS, wp, launch, context } from './lib.mjs';
 
-const fixture = (name) => `/var/www/html/web/app/mu-plugins/md-consent/tests/e2e/fixture/${name}`;
+const fixture = (name) => `/var/www/html/web/app/mu-plugins/mortar-consent/tests/e2e/fixture/${name}`;
 
 let browser, page, errors;
 let putBody = null;
@@ -21,23 +21,23 @@ before(async () => {
 		}
 	});
 	const split = tags.indexOf('<script');
-	await page.route(`${BASE}/md-consent-e2e-admin`, (route) => route.fulfill({
+	await page.route(`${BASE}/mortar-consent-e2e-admin`, (route) => route.fulfill({
 		contentType: 'text/html',
-		body: `<!doctype html><html><head><meta charset="utf-8">${tags.slice(0, split)}</head><body class="wp-admin wp-core-ui"><div class="wrap"><h1>Cookie consent</h1><div id="md-consent-admin"></div></div>${tags.slice(split)}</body></html>`,
+		body: `<!doctype html><html><head><meta charset="utf-8">${tags.slice(0, split)}</head><body class="wp-admin wp-core-ui"><div class="wrap"><h1>Cookie consent</h1><div id="mortar-consent-admin"></div></div>${tags.slice(split)}</body></html>`,
 	}));
-	await page.route(/md-consent(\/|%2F)v1(\/|%2F)settings/, (route) => {
+	await page.route(/mortar-consent(\/|%2F)v1(\/|%2F)settings/, (route) => {
 		if (route.request().method() !== 'GET') {
 			putBody = JSON.parse(route.request().postData());
 			return route.fulfill({ json: { ...settings, effective: putBody.settings } });
 		}
 		return route.fulfill({ json: settings });
 	});
-	await page.route(/md-consent(\/|%2F)v1(\/|%2F)records/, (route) => route.fulfill({ json: {
+	await page.route(/mortar-consent(\/|%2F)v1(\/|%2F)records/, (route) => route.fulfill({ json: {
 		summary: { 'accept-all': 12, 'reject-all': 7, custom: 3 },
 		records: [{ id: 1, consentId: '3f1c2a9e-8b7d-4c2e-9f10-2a3b4c5d6e7f', policyVersion: 1, granted: ['analytics'], method: 'custom', createdAt: '2026-10-26T18:01:40Z' }],
 	} }));
-	await page.goto(`${BASE}/md-consent-e2e-admin`);
-	await page.waitForSelector('.md-consent-admin');
+	await page.goto(`${BASE}/mortar-consent-e2e-admin`);
+	await page.waitForSelector('.mortar-consent-admin');
 });
 
 after(async () => {
@@ -48,7 +48,7 @@ test('general tab edits lifetime and bumps the policy version', async () => {
 	await page.getByLabel('Consent lasts (days)').fill('180');
 	page.once('dialog', (d) => d.accept());
 	await page.getByRole('button', { name: 'Ask all visitors again' }).click();
-	assert.match(await page.textContent('.md-consent-version'), /Version \d+\s*Visitors asked again on save/);
+	assert.match(await page.textContent('.mortar-consent-version'), /Version \d+\s*Visitors asked again on save/);
 	await page.screenshot({ path: `${ARTIFACTS}/admin-general.png`, fullPage: true });
 });
 
@@ -85,7 +85,7 @@ test('wording and consent log tabs', async () => {
 	await page.getByLabel('"Accept all" button').fill('Allow all');
 	assert.equal(await page.getByRole('button', { name: 'Reset to default' }).count(), 1);
 	await page.getByRole('tab', { name: 'Consent log' }).click();
-	await page.locator('.md-consent-stat', { hasText: 'Accepted all' }).getByText('12', { exact: false }).waitFor();
+	await page.locator('.mortar-consent-stat', { hasText: 'Accepted all' }).getByText('12', { exact: false }).waitFor();
 });
 
 test('saved settings have the expected shape and pass server validation', async () => {

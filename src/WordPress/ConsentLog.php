@@ -16,14 +16,14 @@ use MortarDigital\Consent\Csv;
 final class ConsentLog
 {
     private const SCHEMA_VERSION = '1';
-    public const SCHEMA_OPTION = 'md_consent_log_schema';
+    public const SCHEMA_OPTION = 'mortar_consent_log_schema';
     private const PURGE_BATCH = 5000;
 
     public function table(): string
     {
         global $wpdb;
 
-        return $wpdb->prefix . 'md_consent_log';
+        return $wpdb->prefix . 'mortar_consent_log';
     }
 
     /** Creates or upgrades the table; cheap no-op once the schema is current. */

@@ -5,9 +5,10 @@
   whitespace and naming-style sniffs are not used.
 -->
 <ruleset name="Mortar Consent">
-    <file>src</file>
-    <file>plugin</file>
+    <file>mortar-consent.php</file>
+    <file>uninstall.php</file>
     <file>functions.php</file>
+    <file>src</file>
 
     <arg name="extensions" value="php"/>
     <arg name="colors"/>
@@ -15,14 +16,7 @@
 
     <config name="minimum_wp_version" value="6.5"/>
 
-    <rule ref="WordPress.Security">
-        <!--
-          Exception messages are plain text, escaped where they are shown:
-          settings errors use esc_html(), REST errors are JSON, and logs are
-          not HTML.
-        -->
-        <exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped"/>
-    </rule>
+    <rule ref="WordPress.Security"/>
     <rule ref="WordPress.DB"/>
     <rule ref="WordPress.PHP.DevelopmentFunctions"/>
     <rule ref="WordPress.PHP.DiscouragedPHPFunctions"/>
@@ -45,7 +39,7 @@
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>
             <property name="prefixes" type="array">
-                <element value="md_consent"/>
+                <element value="mortar_consent"/>
                 <element value="MortarDigital\Consent"/>
             </property>
         </properties>

@@ -6,12 +6,12 @@ namespace MortarDigital\Consent\WordPress;
 
 /**
  * Settings → Cookie consent. The screen itself is a small React app
- * (assets/admin.js) that talks to the md-consent/v1 REST routes.
+ * (assets/admin.js) that talks to the mortar-consent/v1 REST routes.
  */
 final class AdminPage
 {
-    private const SLUG = 'md-consent';
-    private const EXPORT_ACTION = 'md_consent_export';
+    private const SLUG = 'mortar-consent';
+    private const EXPORT_ACTION = 'mortar_consent_export';
 
     private string $hook = '';
 
@@ -55,8 +55,8 @@ final class AdminPage
         ?>
 <div class="wrap">
 <h1><?php esc_html_e('Cookie consent', 'mortar-consent'); ?></h1>
-<p class="md-consent-intro"><?php esc_html_e('Choose what visitors are asked, which scripts and embeds wait for their consent, and review the choices they make.', 'mortar-consent'); ?></p>
-<div id="md-consent-admin"><p class="md-consent-loading"><?php esc_html_e('Loading…', 'mortar-consent'); ?></p></div>
+<p class="mortar-consent-intro"><?php esc_html_e('Choose what visitors are asked, which scripts and embeds wait for their consent, and review the choices they make.', 'mortar-consent'); ?></p>
+<div id="mortar-consent-admin"><p class="mortar-consent-loading"><?php esc_html_e('Loading…', 'mortar-consent'); ?></p></div>
 <noscript><p><?php esc_html_e('This screen needs JavaScript.', 'mortar-consent'); ?></p></noscript>
 </div>
         <?php
@@ -72,12 +72,12 @@ final class AdminPage
 
             return $mtime === false ? '0' : (string) $mtime;
         };
-        wp_enqueue_script('md-consent-admin', $this->url . '/assets/admin.js', ['wp-element', 'wp-components', 'wp-api-fetch', 'wp-i18n'], $version($this->dir . '/assets/admin.js'), ['in_footer' => true]);
-        wp_set_script_translations('md-consent-admin', 'mortar-consent');
-        wp_add_inline_script('md-consent-admin', 'window.mdConsentAdmin = ' . wp_json_encode([
+        wp_enqueue_script('mortar-consent-admin', $this->url . '/assets/admin.js', ['wp-element', 'wp-components', 'wp-api-fetch', 'wp-i18n'], $version($this->dir . '/assets/admin.js'), ['in_footer' => true]);
+        wp_set_script_translations('mortar-consent-admin', 'mortar-consent');
+        wp_add_inline_script('mortar-consent-admin', 'window.mortarConsentAdmin = ' . wp_json_encode([
             'exportUrl' => wp_nonce_url(admin_url('admin-post.php?action=' . self::EXPORT_ACTION), self::EXPORT_ACTION),
         ], JSON_HEX_TAG | JSON_HEX_AMP) . ';', 'before');
-        wp_enqueue_style('md-consent-admin', $this->url . '/assets/admin.css', ['wp-components'], $version($this->dir . '/assets/admin.css'));
+        wp_enqueue_style('mortar-consent-admin', $this->url . '/assets/admin.css', ['wp-components'], $version($this->dir . '/assets/admin.css'));
     }
 
     /** Streams the consent log as CSV. Capability and nonce checked first. */

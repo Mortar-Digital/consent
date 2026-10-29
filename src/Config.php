@@ -107,7 +107,7 @@ final class Config
         foreach (self::TEXT_KEYS as $key) {
             $text = $texts[$key] ?? null;
             if (! is_string($text) || trim($text) === '' || strlen($text) > self::MAX_TEXT_LENGTH) {
-                throw new InvalidConfiguration(sprintf('Text "%s" must be a non-empty string under %d bytes.', $key, self::MAX_TEXT_LENGTH));
+                throw new InvalidConfiguration(esc_html(sprintf('Text "%s" must be a non-empty string under %d bytes.', $key, self::MAX_TEXT_LENGTH)));
             }
             $cleanTexts[$key] = $text;
         }
@@ -130,7 +130,7 @@ final class Config
         $logEnabled = $data['log_enabled'] ?? true;
         $retention = $data['log_retention_days'] ?? 1095;
         if (! is_bool($logEnabled) || ! is_int($retention) || $retention < self::MIN_RETENTION_DAYS || $retention > self::MAX_RETENTION_DAYS) {
-            throw new InvalidConfiguration(sprintf('"log_enabled" must be a boolean and "log_retention_days" between %d and %d.', self::MIN_RETENTION_DAYS, self::MAX_RETENTION_DAYS));
+            throw new InvalidConfiguration(esc_html(sprintf('"log_enabled" must be a boolean and "log_retention_days" between %d and %d.', self::MIN_RETENTION_DAYS, self::MAX_RETENTION_DAYS)));
         }
 
         $consentMode = $data['consent_mode'] ?? ['enabled' => false, 'signals' => []];
@@ -153,7 +153,7 @@ final class Config
         }
         foreach ($gpc as $id) {
             if (! is_string($id) || ! $registry->isOptional($id)) {
-                throw new InvalidConfiguration(sprintf('"gpc_categories" refers to "%s", which is not an optional category.', is_string($id) ? $id : gettype($id)));
+                throw new InvalidConfiguration(esc_html(sprintf('"gpc_categories" refers to "%s", which is not an optional category.', is_string($id) ? $id : gettype($id))));
             }
         }
 
@@ -192,7 +192,7 @@ final class Config
         }
         $check = static function (string $id, string $what) use ($registry): void {
             if ($id !== '' && ! $registry->isOptional($id)) {
-                throw new InvalidConfiguration(sprintf('%s refers to "%s", which is not an optional category.', $what, $id));
+                throw new InvalidConfiguration(esc_html(sprintf('%s refers to "%s", which is not an optional category.', $what, $id)));
             }
         };
         $check($embeds['category'], 'The embed category');

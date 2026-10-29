@@ -22,7 +22,7 @@ final class ConsentPolicy
             throw new InvalidConfiguration('Policy version must be a positive integer.');
         }
         if ($lifetimeDays < 1 || $lifetimeDays > self::MAX_LIFETIME_DAYS) {
-            throw new InvalidConfiguration(sprintf('Consent lifetime must be between 1 and %d days.', self::MAX_LIFETIME_DAYS));
+            throw new InvalidConfiguration(esc_html(sprintf('Consent lifetime must be between 1 and %d days.', self::MAX_LIFETIME_DAYS)));
         }
     }
 

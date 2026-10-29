@@ -16,7 +16,7 @@ namespace MortarDigital\Consent\WordPress;
  */
 final class RateLimiter
 {
-    private const GROUP = 'md_consent_rl';
+    private const GROUP = 'mortar_consent_rl';
 
     public function __construct(
         private readonly string $prefix,
@@ -32,11 +32,13 @@ final class RateLimiter
         $clientKey = $this->prefix . substr(hash_hmac('sha256', self::bucket($client) . '|' . $window, wp_salt('nonce')), 0, 32);
         $globalKey = $this->prefix . 'all_' . $window;
 
-        if ($this->increment($globalKey) > $this->global) {
+        // Per client first, so one noisy client cannot use up the site-wide
+        // budget and lock everyone else out of logging.
+        if ($this->increment($clientKey) > $this->perClient) {
             return false;
         }
 
-        return $this->increment($clientKey) <= $this->perClient;
+        return $this->increment($globalKey) <= $this->global;
     }
 
     /** Collapses IPv6 addresses to their /64 prefix; IPv4 is used as is. */
@@ -58,7 +60,7 @@ final class RateLimiter
     public static function clientIp(): string
     {
         $ip = is_string($_SERVER['REMOTE_ADDR'] ?? null) ? $_SERVER['REMOTE_ADDR'] : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- validated below.
-        $filtered = apply_filters('md_consent_client_ip', filter_var($ip, FILTER_VALIDATE_IP) !== false ? $ip : 'unknown');
+        $filtered = apply_filters('mortar_consent_client_ip', filter_var($ip, FILTER_VALIDATE_IP) !== false ? $ip : 'unknown');
 
         return is_string($filtered) && $filtered !== '' ? $filtered : 'unknown';
     }

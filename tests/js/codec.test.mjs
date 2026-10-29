@@ -11,7 +11,7 @@ const fixture = JSON.parse(readFileSync(new URL('../fixtures/cookie-codec.json',
 const context = {};
 context.globalThis = context;
 runInNewContext(source, context);
-const { decode, encode, isCurrent, pattern } = context.mdConsentCodec;
+const { decode, encode, isCurrent, pattern } = context.mortarConsentCodec;
 
 test('cookie regex matches the PHP codec (also reused by the Consent Mode head snippet)', () => {
 	assert.equal(pattern, fixture.pattern);

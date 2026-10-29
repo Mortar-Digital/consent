@@ -8,5 +8,5 @@ use PhpCsFixer\Finder;
 return (new Config())
     ->setRules(['@PSR12' => true])
     ->setFinder(Finder::create()
-        ->in([__DIR__ . '/src', __DIR__ . '/plugin', __DIR__ . '/tests'])
-        ->append([__FILE__, __DIR__ . '/functions.php', __DIR__ . '/bin/lint']));
+        ->in([__DIR__ . '/src', __DIR__ . '/tests'])
+        ->append([__FILE__, __DIR__ . '/mortar-consent.php', __DIR__ . '/uninstall.php', __DIR__ . '/functions.php', __DIR__ . '/bin/lint']));

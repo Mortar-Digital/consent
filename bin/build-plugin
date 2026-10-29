@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds the standalone plugin zip from this package:
+# Builds the WordPress.org plugin zip from the files that ship:
 #   bin/build-plugin            -> build/mortar-consent-<version>.zip
 # Requires development dependencies (composer install; pnpm install).
 set -euo pipefail
@@ -9,9 +9,15 @@ cd "$ROOT"
 composer lint
 node --test --test-isolation=none tests/js/build.test.mjs
 
-VERSION="$(php -r 'echo json_decode(file_get_contents($argv[1]), true)["version"];' "$ROOT/composer.json")"
+# The plugin header is the one place the version is set.
+VERSION="$(sed -n 's/^ \* Version: *//p' "$ROOT/mortar-consent.php")"
 if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-  echo "Expected a stable x.y.z version in composer.json" >&2
+  echo "Expected a stable x.y.z Version in mortar-consent.php" >&2
+  exit 1
+fi
+STABLE="$(sed -n 's/^Stable tag: *//p' "$ROOT/readme.txt")"
+if [[ "$STABLE" != "$VERSION" ]]; then
+  echo "readme.txt Stable tag ($STABLE) does not match the plugin Version ($VERSION)" >&2
   exit 1
 fi
 OUT="$ROOT/build"
@@ -20,13 +26,9 @@ STAGE="$OUT/mortar-consent"
 rm -rf "$STAGE" "$OUT/mortar-consent-$VERSION.zip"
 mkdir -p "$STAGE/assets" "$STAGE/languages"
 
-cp -R "$ROOT/src" "$ROOT/blocks" "$ROOT/functions.php" "$STAGE/"
-cp "$ROOT/assets/consent.js" "$ROOT/assets/consent.min.js" "$ROOT/assets/consent.css" "$ROOT/assets/admin.js" "$ROOT/assets/admin.css" "$STAGE/assets/"
-cp "$ROOT/LICENSE" "$STAGE/"
-cp "$ROOT/plugin/uninstall.php" "$STAGE/"
-for file in mortar-consent.php readme.txt; do
-  sed "s/__VERSION__/$VERSION/g" "$ROOT/plugin/$file" > "$STAGE/$file"
-done
+cp -R "$ROOT/src" "$ROOT/blocks" "$STAGE/"
+cp "$ROOT/mortar-consent.php" "$ROOT/uninstall.php" "$ROOT/functions.php" "$ROOT/readme.txt" "$ROOT/LICENSE" "$STAGE/"
+cp "$ROOT/assets/consent.js" "$ROOT/assets/consent.min.js" "$ROOT/assets/consent-mode.js" "$ROOT/assets/consent.css" "$ROOT/assets/admin.js" "$ROOT/assets/admin.css" "$STAGE/assets/"
 
 # Fail on any PHP syntax error in what ships.
 find "$STAGE" -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null

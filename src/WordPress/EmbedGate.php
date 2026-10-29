@@ -97,7 +97,7 @@ final class EmbedGate
             return $content;
         }
         $inner = substr($content, $start, $end - $start);
-        if (trim($inner) === '' || str_contains($inner, 'data-md-consent-embed')) {
+        if (trim($inner) === '' || str_contains($inner, 'data-mortar-consent-embed')) {
             return $content;
         }
 
@@ -183,10 +183,10 @@ final class EmbedGate
         $label = $this->config->policy->categories->get($category)->label;
 
         return sprintf(
-            '<div class="md-consent-embed" data-md-consent-embed="%1$s" data-md-consent-provider="%2$s"><template>%3$s</template>'
-            . '<div class="md-consent-embed__placeholder"><p class="md-consent-embed__notice">%4$s</p>'
-            . '<p class="md-consent-embed__actions"><button type="button" class="md-consent-embed__button wp-element-button" data-md-consent-embed-load>%5$s</button> '
-            . '<button type="button" class="md-consent-embed__button wp-element-button" data-md-consent-embed-allow>%6$s</button></p></div></div>',
+            '<div class="mortar-consent-embed" data-mortar-consent-embed="%1$s" data-mortar-consent-provider="%2$s"><template>%3$s</template>'
+            . '<div class="mortar-consent-embed__placeholder"><p class="mortar-consent-embed__notice">%4$s</p>'
+            . '<p class="mortar-consent-embed__actions"><button type="button" class="mortar-consent-embed__button wp-element-button" data-mortar-consent-embed-load>%5$s</button> '
+            . '<button type="button" class="mortar-consent-embed__button wp-element-button" data-mortar-consent-embed-allow>%6$s</button></p></div></div>',
             esc_attr($category),
             esc_attr($provider),
             $original, // Already-rendered embed markup, kept verbatim inside an inert template.

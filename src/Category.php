@@ -24,13 +24,13 @@ final class Category
         array $cookies = [],
     ) {
         if (preg_match('/^' . self::ID_PATTERN . '$/D', $id) !== 1) {
-            throw new InvalidConfiguration(sprintf('Category id "%s" must be lowercase letters, digits, "_" or "-", starting with a letter (max 32).', $id));
+            throw new InvalidConfiguration(esc_html(sprintf('Category id "%s" must be lowercase letters, digits, "_" or "-", starting with a letter (max 32).', $id)));
         }
         if (trim($label) === '' || strlen($label) > 200 || strlen($description) > 2000) {
-            throw new InvalidConfiguration(sprintf('Category "%s" needs a label (max 200 bytes) and a description under 2000 bytes.', $id));
+            throw new InvalidConfiguration(esc_html(sprintf('Category "%s" needs a label (max 200 bytes) and a description under 2000 bytes.', $id)));
         }
         if (! array_is_list($cookies)) {
-            throw new InvalidConfiguration(sprintf('Category "%s" cookies must be a list.', $id));
+            throw new InvalidConfiguration(esc_html(sprintf('Category "%s" cookies must be a list.', $id)));
         }
         $this->cookies = array_map(
             static fn (mixed $c): CookieDefinition => $c instanceof CookieDefinition ? $c : CookieDefinition::from($c),
@@ -61,14 +61,14 @@ final class Category
     {
         foreach (['id', 'label'] as $key) {
             if (! isset($data[$key]) || ! is_string($data[$key])) {
-                throw new InvalidConfiguration(sprintf('Each category needs a string "%s".', $key));
+                throw new InvalidConfiguration(esc_html(sprintf('Each category needs a string "%s".', $key)));
             }
         }
         $description = $data['description'] ?? '';
         $required = $data['required'] ?? false;
         $cookies = $data['cookies'] ?? [];
         if (! is_string($description) || ! is_bool($required) || ! is_array($cookies) || ! array_is_list($cookies)) {
-            throw new InvalidConfiguration(sprintf('Category "%s" has an invalid description, required flag or cookie list.', $data['id']));
+            throw new InvalidConfiguration(esc_html(sprintf('Category "%s" has an invalid description, required flag or cookie list.', $data['id'])));
         }
 
         return new self($data['id'], $data['label'], $description, $required, $cookies);

@@ -33,7 +33,7 @@ test('minified codec matches the source codec', () => {
 		const context = {};
 		context.globalThis = context;
 		runInNewContext(readFileSync(path, 'utf8'), context);
-		return context.mdConsentCodec;
+		return context.mortarConsentCodec;
 	};
 	const source = load(sourcePath);
 	const min = load(minPath);

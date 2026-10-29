@@ -57,29 +57,29 @@
 
 	// Loaded outside a browser (unit tests): expose the codec only.
 	if (typeof document === 'undefined') {
-		globalThis.mdConsentCodec = codec;
+		globalThis.mortarConsentCodec = codec;
 		return;
 	}
 
-	const root = document.getElementById('md-consent');
-	const configElement = document.getElementById('md-consent-config');
+	const root = document.getElementById('mortar-consent');
+	const configElement = document.getElementById('mortar-consent-config');
 	if (!root || !configElement) {
 		return;
 	}
 
 	/** @type {Config} */
 	const config = JSON.parse(configElement.textContent || '{}');
-	const banner = /** @type {HTMLElement | null} */ (root.querySelector('#md-consent-banner'));
-	const dialog = /** @type {HTMLDialogElement | null} */ (root.querySelector('#md-consent-dialog'));
-	const form = /** @type {HTMLFormElement | null} */ (root.querySelector('[data-md-consent-form]'));
-	const reopen = /** @type {HTMLElement | null} */ (root.querySelector('.md-consent__reopen'));
+	const banner = /** @type {HTMLElement | null} */ (root.querySelector('#mortar-consent-banner'));
+	const dialog = /** @type {HTMLDialogElement | null} */ (root.querySelector('#mortar-consent-dialog'));
+	const form = /** @type {HTMLFormElement | null} */ (root.querySelector('[data-mortar-consent-form]'));
+	const reopen = /** @type {HTMLElement | null} */ (root.querySelector('.mortar-consent__reopen'));
 	const optionalIds = config.categories.filter((c) => !c.required).map((c) => c.id);
 	// Global Privacy Control: "Accept all" leaves these categories off. The
 	// visitor can still switch them on individually in the preferences.
 	const gpc = /** @type {any} */ (navigator).globalPrivacyControl === true;
 	const acceptAllIds = gpc ? optionalIds.filter((id) => !(config.gpc || []).includes(id)) : optionalIds;
 	if (gpc) {
-		for (const notice of root.querySelectorAll('[data-md-consent-gpc]')) {
+		for (const notice of root.querySelectorAll('[data-mortar-consent-gpc]')) {
 			/** @type {HTMLElement} */ (notice).hidden = false;
 		}
 	}
@@ -174,15 +174,15 @@
 
 	/** @param {HTMLScriptElement} placeholder */
 	function activate(placeholder) {
-		placeholder.removeAttribute('data-md-consent');
+		placeholder.removeAttribute('data-mortar-consent');
 		chain = chain.then(() => {
 			const script = document.createElement('script');
 			for (const { name, value } of placeholder.attributes) {
-				if (name !== 'type' && name !== 'data-md-type' && name !== 'nonce') {
+				if (name !== 'type' && name !== 'data-mortar-consent-type' && name !== 'nonce') {
 					script.setAttribute(name, value);
 				}
 			}
-			const type = placeholder.getAttribute('data-md-type');
+			const type = placeholder.getAttribute('data-mortar-consent-type');
 			if (type) {
 				script.type = type;
 			}
@@ -209,15 +209,15 @@
 	}
 
 	function activateAllowed() {
-		const placeholders = document.querySelectorAll('script[type="text/plain"][data-md-consent]');
+		const placeholders = document.querySelectorAll('script[type="text/plain"][data-mortar-consent]');
 		for (const placeholder of /** @type {NodeListOf<HTMLScriptElement>} */ (placeholders)) {
-			const needs = (placeholder.getAttribute('data-md-consent') || '').split(/\s+/).filter(Boolean);
+			const needs = (placeholder.getAttribute('data-mortar-consent') || '').split(/\s+/).filter(Boolean);
 			if (needs.length > 0 && needs.every(has)) {
 				activate(placeholder);
 			}
 		}
-		for (const embed of document.querySelectorAll('[data-md-consent-embed]')) {
-			if (has(embed.getAttribute('data-md-consent-embed') || '')) {
+		for (const embed of document.querySelectorAll('[data-mortar-consent-embed]')) {
+			if (has(embed.getAttribute('data-mortar-consent-embed') || '')) {
 				activateEmbed(embed, false);
 			}
 		}
@@ -256,7 +256,7 @@
 	 * @param {Element} control
 	 */
 	function isGenuineEmbed(container, control) {
-		const placeholder = control.closest('.md-consent-embed__placeholder');
+		const placeholder = control.closest('.mortar-consent-embed__placeholder');
 		return container.querySelector(':scope > template') !== null
 			&& placeholder !== null
 			&& placeholder.parentElement === container;
@@ -291,7 +291,7 @@
 	function announce(initial) {
 		const categories = Object.fromEntries(config.categories.map((c) => [c.id, has(c.id)]));
 		syncIntegrations();
-		document.dispatchEvent(new CustomEvent('md-consent:change', { detail: { categories, initial } }));
+		document.dispatchEvent(new CustomEvent('mortar-consent:change', { detail: { categories, initial } }));
 	}
 
 	/** @param {boolean} visible */
@@ -363,13 +363,13 @@
 		if (!dialog || !form) {
 			return;
 		}
-		for (const input of form.querySelectorAll('input[name="md-consent-category"]')) {
+		for (const input of form.querySelectorAll('input[name="mortar-consent-category"]')) {
 			const box = /** @type {HTMLInputElement} */ (input);
 			box.checked = current !== null && current.granted.includes(box.value);
 		}
 		// Shown so visitors can quote it if they ask what they agreed to.
-		const meta = /** @type {HTMLElement | null} */ (form.querySelector('[data-md-consent-meta]'));
-		const idSlot = form.querySelector('[data-md-consent-id]');
+		const meta = /** @type {HTMLElement | null} */ (form.querySelector('[data-mortar-consent-meta]'));
+		const idSlot = form.querySelector('[data-mortar-consent-id]');
 		if (meta && idSlot) {
 			meta.hidden = current === null;
 			idSlot.textContent = current ? current.consentId : '';
@@ -384,7 +384,7 @@
 			return [];
 		}
 
-		return [...form.querySelectorAll('input[name="md-consent-category"]:checked')]
+		return [...form.querySelectorAll('input[name="mortar-consent-category"]:checked')]
 			.map((input) => /** @type {HTMLInputElement} */ (input).value);
 	}
 
@@ -393,33 +393,33 @@
 		if (!target) {
 			return;
 		}
-		const opener = target.closest('[data-md-consent-open], a[href="#cookie-settings"]');
+		const opener = target.closest('[data-mortar-consent-open], a[href="#cookie-settings"]');
 		if (opener) {
 			event.preventDefault();
 			openPreferences();
 			return;
 		}
-		const embedControl = target.closest('[data-md-consent-embed-load], [data-md-consent-embed-allow]');
-		const embed = embedControl && embedControl.closest('[data-md-consent-embed]');
+		const embedControl = target.closest('[data-mortar-consent-embed-load], [data-mortar-consent-embed-allow]');
+		const embed = embedControl && embedControl.closest('[data-mortar-consent-embed]');
 		// Only real placeholders count: they hold a <template> (which post
 		// content filtering strips) and the button sits in the generated
 		// placeholder. Otherwise a contributor could put a look-alike
 		// "allow" button in a post and forge consent with one click.
 		if (embedControl && embed && isGenuineEmbed(embed, embedControl)) {
-			if (embedControl.hasAttribute('data-md-consent-embed-load')) {
+			if (embedControl.hasAttribute('data-mortar-consent-embed-load')) {
 				// Consent for this one embed only; nothing is stored.
 				activateEmbed(embed, true);
 			} else {
-				const category = embed.getAttribute('data-md-consent-embed') || '';
+				const category = embed.getAttribute('data-mortar-consent-embed') || '';
 				save([...(current ? current.granted : []), category], 'custom');
 			}
 			return;
 		}
-		const control = target.closest('[data-md-consent-action]');
+		const control = target.closest('[data-mortar-consent-action]');
 		if (!control || !root.contains(control)) {
 			return;
 		}
-		switch (control.getAttribute('data-md-consent-action')) {
+		switch (control.getAttribute('data-mortar-consent-action')) {
 			case 'accept-all':
 				save(acceptAllIds, 'accept-all');
 				break;
@@ -468,7 +468,7 @@
 	}
 
 	/** Public API for themes and integrations; defined before the first event fires. */
-	Object.defineProperty(window, 'mdConsent', {
+	Object.defineProperty(window, 'mortarConsent', {
 		value: Object.freeze({
 			/** @param {string} id */
 			has,

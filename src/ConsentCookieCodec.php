@@ -14,7 +14,7 @@ namespace MortarDigital\Consent;
  */
 final class ConsentCookieCodec
 {
-    public const COOKIE_NAME = 'md_consent';
+    public const COOKIE_NAME = 'mortar_consent';
     public const SCHEMA = 1;
     private const MAX_LENGTH = 1024;
 

@@ -38,7 +38,7 @@ The theme owns presentation through CSS custom properties and theme.json tokens.
 
 ### Consent state
 
-- **Cookie:** first-party `md_consent`, strictly necessary, `Secure; SameSite=Lax; Path=/`, written client-side. It contains a compact JSON of `{v: policyVersion, c: {category: bool}, id: uuid, t: unixTime}`.
+- **Cookie:** first-party `mortar_consent`, strictly necessary, `Secure; SameSite=Lax; Path=/`, written client-side. It contains a compact JSON of `{v: policyVersion, c: {category: bool}, id: uuid, t: unixTime}`.
 - **Server reads** the cookie only for `wp_has_consent()` checks. The HTML never varies per visitor, so full-page caches stay valid.
 
 ### Script gating
@@ -53,14 +53,14 @@ The theme owns presentation through CSS custom properties and theme.json tokens.
 
 - **Google Consent Mode v2:** a default-deny `gtag('consent','default',…)` is emitted early in `<head>`, and `update` is sent on change. Categories map to `ad_storage`, `ad_user_data`, `ad_personalization`, `analytics_storage`, and so on.
 - **WP Consent API:** when the plugin is present, register as the consent provider so `wp_has_consent()` reflects our state.
-- **JS API:** `window.mdConsent.get()`, `.has(category)`, `.open()`, plus a `md-consent:change` event.
+- **JS API:** `window.mortarConsent.get()`, `.has(category)`, `.open()`, plus a `mortar-consent:change` event.
 
 ### Consent log
 
-- **Endpoint:** `POST /wp-json/md-consent/v1/records`. It is public and cache-safe, needs no nonce, and accepts a JSON body only.
+- **Endpoint:** `POST /wp-json/mortar-consent/v1/records`. It is public and cache-safe, needs no nonce, and accepts a JSON body only.
 - **Validation:** strict schema, 2 KB body cap, and only known categories and the current policy version are accepted.
 - **Rate limiting:** a transient keyed on HMAC(IP, salt). The IP is never persisted.
-- **Storage:** a custom table `{prefix}md_consent_records` holding `id`, `consent_id`, `choices` (JSON), `policy_version`, `created_at` and `source` (banner/settings/gpc). Access is through `$wpdb->prepare` only.
+- **Storage:** a custom table `{prefix}mortar_consent_records` holding `id`, `consent_id`, `choices` (JSON), `policy_version`, `created_at` and `source` (banner/settings/gpc). Access is through `$wpdb->prepare` only.
 - **Retention:** purged by WP-Cron (default 3 years, configurable).
 - **Admin:** a capability-gated list and CSV export, with CSV formula-injection escaping.
 
@@ -68,7 +68,7 @@ The theme owns presentation through CSS custom properties and theme.json tokens.
 
 - **Settings:** `register_setting` with full REST schemas (`show_in_rest`), stored in one option.
 - **Settings screen:** manage categories (name, description, required flag), the cookie declaration, banner copy, policy version bump, expiry, script handle → category map, and Consent Mode mapping.
-- **Code overrides:** `md_consent_config` filter plus `MD_CONSENT_LOCKED` constant/env. Locked fields render read-only in the UI.
+- **Code overrides:** `mortar_consent_config` filter plus `MORTAR_CONSENT_LOCKED` constant/env. Locked fields render read-only in the UI.
 - **Capability:** `manage_options` by default, filterable.
 - **Blocks:** "Cookie settings button" and "Cookie declaration". Shortcode fallbacks are provided.
 - **i18n:** all strings are translatable, and admin-entered copy is filterable for multilingual plugins.
@@ -107,14 +107,14 @@ Phase 3 is built (2026-10-26). Notes:
 
 Phase 2 is built (2026-10-26). Changes from the plan:
 
-- Admin settings use their own `md-consent/v1/settings` route instead of the core settings endpoint, so validation errors reach the screen.
-- Code overrides come from `md_consent_overrides`, and the keys it sets are locked in the UI.
+- Admin settings use their own `mortar-consent/v1/settings` route instead of the core settings endpoint, so validation errors reach the screen.
+- Code overrides come from `mortar_consent_overrides`, and the keys it sets are locked in the UI.
 - The admin screen is plain JS on the editor's bundled React, with no build step.
 
 Phase 1 is built (2026-10-26). Two things changed from the plan:
 
 - The frontend is plain JavaScript (`// @ts-check`) rather than compiled TypeScript, so the package needs no build step.
-- The styles are scoped under `.md-consent` rather than a cascade layer. Theme element resets beat layered rules.
+- The styles are scoped under `.mortar-consent` rather than a cascade layer. Theme element resets beat layered rules.
 
 1. **Core:**
    - Package skeleton and the PHP domain model with tests.
@@ -130,5 +130,5 @@ Phase 1 is built (2026-10-26). Two things changed from the plan:
 
 ## Open items
 
-- Product and plugin name (working slug: `md-consent`).
+- Product and plugin name (working slug: `mortar-consent`).
 - Whether to add a local, opt-in cookie scanner later. The scanner would be crawl-based and must not call third-party services.

@@ -72,10 +72,10 @@ final class ScriptGate
         }
         $type = $attributes['type'] ?? '';
         if (is_string($type) && $type !== '' && $type !== 'text/javascript') {
-            $attributes['data-md-type'] = $type;
+            $attributes['data-mortar-consent-type'] = $type;
         }
         $attributes['type'] = 'text/plain';
-        $attributes['data-md-consent'] = implode(' ', $categories);
+        $attributes['data-mortar-consent'] = implode(' ', $categories);
 
         return $attributes;
     }

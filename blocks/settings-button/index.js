@@ -7,10 +7,10 @@
 	const { createElement: el } = wp.element;
 	const { __ } = wp.i18n;
 
-	registerBlockType('md-consent/settings-button', {
+	registerBlockType('mortar-consent/settings-button', {
 		edit({ attributes, setAttributes }) {
 			return el(RichText, {
-				...useBlockProps({ className: 'md-consent-open' }),
+				...useBlockProps({ className: 'mortar-consent-open' }),
 				tagName: 'span',
 				value: attributes.label,
 				placeholder: __('Cookie settings', 'mortar-consent'),

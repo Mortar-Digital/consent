@@ -19,11 +19,11 @@ final class ScriptMap
             }
             $ids = is_string($ids) ? [$ids] : $ids;
             if (! is_array($ids) || $ids === [] || ! array_is_list($ids)) {
-                throw new InvalidConfiguration(sprintf('Script "%s" must map to a category id or list of ids.', $handle));
+                throw new InvalidConfiguration(esc_html(sprintf('Script "%s" must map to a category id or list of ids.', $handle)));
             }
             foreach ($ids as $id) {
                 if (! is_string($id) || ! $categories->isOptional($id)) {
-                    throw new InvalidConfiguration(sprintf('Script "%s" maps to "%s", which is not an optional category.', $handle, is_string($id) ? $id : gettype($id)));
+                    throw new InvalidConfiguration(esc_html(sprintf('Script "%s" maps to "%s", which is not an optional category.', $handle, is_string($id) ? $id : gettype($id))));
                 }
             }
             $this->map[$handle] = array_values(array_unique($ids));

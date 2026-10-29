@@ -17,7 +17,7 @@ final class CategoryRegistry
         }
         foreach ($categories as $category) {
             if (isset($this->categories[$category->id])) {
-                throw new InvalidConfiguration(sprintf('Duplicate category id "%s".', $category->id));
+                throw new InvalidConfiguration(esc_html(sprintf('Duplicate category id "%s".', $category->id)));
             }
             $this->categories[$category->id] = $category;
         }
@@ -30,7 +30,7 @@ final class CategoryRegistry
 
     public function get(string $id): Category
     {
-        return $this->categories[$id] ?? throw new InvalidConfiguration(sprintf('Unknown category "%s".', $id));
+        return $this->categories[$id] ?? throw new InvalidConfiguration(esc_html(sprintf('Unknown category "%s".', $id)));
     }
 
     public function isOptional(string $id): bool

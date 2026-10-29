@@ -13,7 +13,7 @@ if (! defined('ABSPATH') || (defined('WP_ENV') ? WP_ENV : wp_get_environment_typ
 }
 
 // Consent Mode on, via a code override (also exercises locking).
-add_filter('md_consent_overrides', static fn (): array => ['consent_mode' => ['enabled' => true, 'signals' => [
+add_filter('mortar_consent_overrides', static fn (): array => ['consent_mode' => ['enabled' => true, 'signals' => [
     'ad_storage' => ['marketing'],
     'ad_user_data' => ['marketing'],
     'ad_personalization' => ['marketing'],
@@ -23,7 +23,7 @@ add_filter('md_consent_overrides', static fn (): array => ['consent_mode' => ['e
     'security_storage' => ['necessary'],
 ]]]);
 
-add_filter('md_consent_config', static function (array $config): array {
+add_filter('mortar_consent_config', static function (array $config): array {
     $config['scripts']['md-test-analytics'] = 'analytics';
     foreach ($config['categories'] as &$category) {
         if ($category['id'] === 'analytics') {
@@ -35,7 +35,7 @@ add_filter('md_consent_config', static function (array $config): array {
 });
 
 add_action('wp_enqueue_scripts', static function (): void {
-    $src = WPMU_PLUGIN_URL . '/md-consent/tests/e2e/fixture/tracker.js';
+    $src = WPMU_PLUGIN_URL . '/mortar-consent/tests/e2e/fixture/tracker.js';
     wp_enqueue_script('md-test-analytics', $src, [], '1', ['in_footer' => true]);
     wp_add_inline_script('md-test-analytics', 'window.mdTestBefore = 1; window.mdTestLog = (window.mdTestLog||[]).concat("before");', 'before');
     wp_add_inline_script('md-test-analytics', 'window.mdTestLog = (window.mdTestLog||[]).concat("after");', 'after');
@@ -44,5 +44,5 @@ add_action('wp_enqueue_scripts', static function (): void {
 });
 
 add_action('wp_footer', static function (): void {
-    echo '<script type="text/plain" data-md-consent="marketing">window.mdTestLog = (window.mdTestLog||[]).concat("marketing-inline");</script>';
+    echo '<script type="text/plain" data-mortar-consent="marketing">window.mdTestLog = (window.mdTestLog||[]).concat("marketing-inline");</script>';
 }, 50);

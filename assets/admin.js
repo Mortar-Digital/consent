@@ -8,7 +8,7 @@
 	} = wp.components;
 	const apiFetch = wp.apiFetch;
 	const { __, _n, sprintf } = wp.i18n;
-	const boot = window.mdConsentAdmin || {};
+	const boot = window.mortarConsentAdmin || {};
 
 	const TEXT_LABELS = {
 		banner_title: __('Banner title', 'mortar-consent'),
@@ -109,22 +109,22 @@
 		return Number.isNaN(n) ? 0 : n;
 	};
 
-	const badge = (text, tone) => el('span', { className: 'md-consent-badge' + (tone ? ` md-consent-badge--${tone}` : '') }, text);
+	const badge = (text, tone) => el('span', { className: 'mortar-consent-badge' + (tone ? ` mortar-consent-badge--${tone}` : '') }, text);
 
 	/** A settings group: heading and explanation beside its controls (stacked on narrow screens). */
 	function Section({ title, description, aside, wide, children }) {
 		return el(
 			'section',
-			{ className: 'md-consent-section' + (wide ? ' md-consent-section--wide' : '') },
-			el('div', { className: 'md-consent-section__intro' },
+			{ className: 'mortar-consent-section' + (wide ? ' mortar-consent-section--wide' : '') },
+			el('div', { className: 'mortar-consent-section__intro' },
 				el('h2', null, title, aside && ' ', aside),
 				description && el('p', null, description)
 			),
-			el('div', { className: 'md-consent-section__body' }, children)
+			el('div', { className: 'mortar-consent-section__body' }, children)
 		);
 	}
 
-	const Fields = ({ children }) => el(Card, null, el(CardBody, { className: 'md-consent-fields' }, children));
+	const Fields = ({ children }) => el(Card, null, el(CardBody, { className: 'mortar-consent-fields' }, children));
 
 	function App() {
 		const [data, setData] = useState(null);
@@ -142,7 +142,7 @@
 		};
 
 		useEffect(() => {
-			apiFetch({ path: '/md-consent/v1/settings' })
+			apiFetch({ path: '/mortar-consent/v1/settings' })
 				.then(load)
 				.catch((error) => setNotice({ status: 'error', message: error.message }));
 		}, []);
@@ -166,7 +166,7 @@
 		if (!draft) {
 			return notice
 				? el(Notice, { status: notice.status, isDismissible: false }, notice.message)
-				: el('p', { className: 'md-consent-loading' }, el(Spinner), __('Loading settings…', 'mortar-consent'));
+				: el('p', { className: 'mortar-consent-loading' }, el(Spinner), __('Loading settings…', 'mortar-consent'));
 		}
 
 		const isLocked = (key) => data.locked.includes(key);
@@ -176,7 +176,7 @@
 		const save = () => {
 			setSaving(true);
 			setNotice(null);
-			apiFetch({ path: '/md-consent/v1/settings', method: 'PUT', data: { settings: fromDraft(draft) } })
+			apiFetch({ path: '/mortar-consent/v1/settings', method: 'PUT', data: { settings: fromDraft(draft) } })
 				.then((payload) => {
 					load(payload);
 					setJustSaved(true);
@@ -197,22 +197,22 @@
 
 		let status = null;
 		if (saving) {
-			status = el('span', { className: 'md-consent-savebar__status' }, __('Saving…', 'mortar-consent'));
+			status = el('span', { className: 'mortar-consent-savebar__status' }, __('Saving…', 'mortar-consent'));
 		} else if (dirty) {
-			status = el('span', { className: 'md-consent-savebar__status md-consent-savebar__status--dirty' }, __('You have unsaved changes.', 'mortar-consent'));
+			status = el('span', { className: 'mortar-consent-savebar__status mortar-consent-savebar__status--dirty' }, __('You have unsaved changes.', 'mortar-consent'));
 		} else if (justSaved) {
-			status = el('span', { className: 'md-consent-savebar__status md-consent-savebar__status--saved' }, __('Settings saved.', 'mortar-consent'));
+			status = el('span', { className: 'mortar-consent-savebar__status mortar-consent-savebar__status--saved' }, __('Settings saved.', 'mortar-consent'));
 		}
 
 		return el(
 			'div',
-			{ className: 'md-consent-admin' },
+			{ className: 'mortar-consent-admin' },
 			notice && el(Notice, { status: notice.status, onRemove: () => setNotice(null) }, notice.message),
-			el(TabPanel, { tabs, className: 'md-consent-admin__tabs' }, (tab) => el('div', { className: 'md-consent-admin__panel' }, tab.render())),
+			el(TabPanel, { tabs, className: 'mortar-consent-admin__tabs' }, (tab) => el('div', { className: 'mortar-consent-admin__panel' }, tab.render())),
 			el(
 				'div',
-				{ className: 'md-consent-savebar' },
-				el('p', { role: 'status', className: 'md-consent-savebar__live' }, status),
+				{ className: 'mortar-consent-savebar' },
+				el('p', { role: 'status', className: 'mortar-consent-savebar__live' }, status),
 				el(Button, { variant: 'primary', onClick: save, isBusy: saving, disabled: saving || !dirty, accessibleWhenDisabled: true, __next40pxDefaultSize: true }, __('Save settings', 'mortar-consent'))
 			)
 		);
@@ -228,10 +228,10 @@
 				description: __('Raise the version when you add a new tracker or change how cookies are used. Every visitor is asked for consent again.', 'mortar-consent'),
 			},
 			el(Card, null, el(CardBody, null,
-				el('div', { className: 'md-consent-version' },
+				el('div', { className: 'mortar-consent-version' },
 					el('div', null,
-						el('span', { className: 'md-consent-version__label' }, __('Current version', 'mortar-consent')),
-						el('span', { className: 'md-consent-version__value' },
+						el('span', { className: 'mortar-consent-version__label' }, __('Current version', 'mortar-consent')),
+						el('span', { className: 'mortar-consent-version__value' },
 							sprintf(__('Version %d', 'mortar-consent'), draft.policy_version),
 							bumped && badge(__('Visitors asked again on save', 'mortar-consent'), 'warning')
 						)
@@ -257,7 +257,7 @@
 			},
 			el(Fields, null,
 				el(TextControl, {
-					className: 'md-consent-field--short',
+					className: 'mortar-consent-field--short',
 					label: __('Consent lasts (days)', 'mortar-consent'),
 					type: 'number',
 					min: 1,
@@ -313,7 +313,7 @@
 					__nextHasNoMarginBottom: true,
 				}),
 				el(TextControl, {
-					className: 'md-consent-field--short',
+					className: 'mortar-consent-field--short',
 					label: __('Keep log records for (days)', 'mortar-consent'),
 					type: 'number',
 					min: 30,
@@ -345,14 +345,14 @@
 			['duration', __('Duration', 'mortar-consent'), __('1 year', 'mortar-consent')],
 		];
 
-		const title = (category) => el('span', { className: 'md-consent-category-title' },
+		const title = (category) => el('span', { className: 'mortar-consent-category-title' },
 			category.label || category.id,
 			' ',
 			el('code', null, category.id),
 			' ',
 			category.required && badge(__('Always on', 'mortar-consent'), 'success'),
 			category.required && ' ',
-			el('span', { className: 'md-consent-category-title__meta' }, sprintf(_n('%d cookie', '%d cookies', category.cookies.length, 'mortar-consent'), category.cookies.length))
+			el('span', { className: 'mortar-consent-category-title__meta' }, sprintf(_n('%d cookie', '%d cookies', category.cookies.length, 'mortar-consent'), category.cookies.length))
 		);
 
 		return el(
@@ -363,25 +363,25 @@
 				title: __('Categories', 'mortar-consent'),
 				description: __('Categories appear in the preferences dialog. Cookies listed here appear in the Cookie declaration block, and are deleted when a visitor refuses or withdraws that category.', 'mortar-consent'),
 			},
-			el(Panel, { className: 'md-consent-categories' }, draft.categories.map((category, index) =>
+			el(Panel, { className: 'mortar-consent-categories' }, draft.categories.map((category, index) =>
 				el(
 					PanelBody,
 					{ key: category.id, title: title(category), initialOpen: false },
 					el(TextControl, { label: __('Name', 'mortar-consent'), value: category.label, disabled: locked, onChange: (v) => update(index, { label: v }), __nextHasNoMarginBottom: true, __next40pxDefaultSize: true }),
 					el(TextareaControl, { label: __('Description', 'mortar-consent'), value: category.description, rows: 3, disabled: locked, onChange: (v) => update(index, { description: v }), __nextHasNoMarginBottom: true }),
 					category.required && el('p', { className: 'description' }, __('Strictly necessary: always on, visitors cannot switch it off.', 'mortar-consent')),
-					el('div', { className: 'md-consent-table-wrap' },
-						el('table', { className: 'md-consent-table md-consent-table--edit' },
+					el('div', { className: 'mortar-consent-table-wrap' },
+						el('table', { className: 'mortar-consent-table mortar-consent-table--edit' },
 							el('thead', null, el('tr', null,
 								cookieFields.map(([field, label]) => el('th', { key: field, scope: 'col' }, label)),
-								el('th', { className: 'md-consent-table__action' }, el('span', { className: 'screen-reader-text' }, __('Actions', 'mortar-consent')))
+								el('th', { className: 'mortar-consent-table__action' }, el('span', { className: 'screen-reader-text' }, __('Actions', 'mortar-consent')))
 							)),
 							el('tbody', null, category.cookies.length === 0
-								? el('tr', null, el('td', { colSpan: 5 }, el('p', { className: 'md-consent-empty' }, __('No cookies listed yet. End a name with * to match a prefix, for example _ga_*.', 'mortar-consent'))))
+								? el('tr', null, el('td', { colSpan: 5 }, el('p', { className: 'mortar-consent-empty' }, __('No cookies listed yet. End a name with * to match a prefix, for example _ga_*.', 'mortar-consent'))))
 								: category.cookies.map((cookie, cookieIndex) =>
 									el('tr', { key: cookieIndex },
 										cookieFields.map(([field, label, placeholder]) =>
-											el('td', { key: field, className: field === 'name' ? 'md-consent-mono' : undefined }, el(TextControl, {
+											el('td', { key: field, className: field === 'name' ? 'mortar-consent-mono' : undefined }, el(TextControl, {
 												label,
 												hideLabelFromVision: true,
 												value: cookie[field],
@@ -392,7 +392,7 @@
 												__next40pxDefaultSize: true,
 											}))
 										),
-										el('td', { className: 'md-consent-table__action' }, el(Button, {
+										el('td', { className: 'mortar-consent-table__action' }, el(Button, {
 											variant: 'tertiary',
 											isDestructive: true,
 											size: 'compact',
@@ -404,7 +404,7 @@
 								))
 						)
 					),
-					el('div', { className: 'md-consent-actions' },
+					el('div', { className: 'mortar-consent-actions' },
 						el(Button, {
 							variant: 'secondary',
 							disabled: locked,
@@ -427,7 +427,7 @@
 			},
 			el(Card, null, el(CardBody, null,
 				el('form', {
-					className: 'md-consent-inline-form',
+					className: 'mortar-consent-inline-form',
 					onSubmit: (e) => {
 						e.preventDefault();
 						if (idValid && !idTaken) {
@@ -475,8 +475,8 @@
 					onChange: (enabled) => set('consent_mode', { ...cm, enabled }),
 					__nextHasNoMarginBottom: true,
 				}),
-				cm.enabled && el('div', { className: 'md-consent-table-wrap' },
-					el('table', { className: 'md-consent-table' },
+				cm.enabled && el('div', { className: 'mortar-consent-table-wrap' },
+					el('table', { className: 'mortar-consent-table' },
 						el('thead', null, el('tr', null,
 							el('th', { scope: 'col' }, __('Signal', 'mortar-consent')),
 							el('th', { scope: 'col' }, __('Granted when the visitor allows', 'mortar-consent'))
@@ -485,10 +485,10 @@
 							const ids = cm.signals[signal] || [];
 							const required = ids.length > 0 && ids.every((id) => draft.categories.some((c) => c.id === id && c.required));
 							return el('tr', { key: signal },
-								el('th', { scope: 'row' }, SIGNAL_LABELS[signal], el('code', { className: 'md-consent-table__sub' }, signal)),
+								el('th', { scope: 'row' }, SIGNAL_LABELS[signal], el('code', { className: 'mortar-consent-table__sub' }, signal)),
 								el('td', null, required
 									? badge(__('Always granted (strictly necessary)', 'mortar-consent'), 'success')
-									: el('fieldset', { className: 'md-consent-checks' },
+									: el('fieldset', { className: 'mortar-consent-checks' },
 										el('legend', { className: 'screen-reader-text' }, SIGNAL_LABELS[signal]),
 										optional.map((c) => el(CheckboxControl, {
 											key: c.id,
@@ -526,8 +526,8 @@
 			},
 			el(Fields, null,
 				optional.length === 0
-					? el('p', { className: 'md-consent-empty' }, __('There are no optional categories yet.', 'mortar-consent'))
-					: el('fieldset', { className: 'md-consent-checks md-consent-checks--stack' },
+					? el('p', { className: 'mortar-consent-empty' }, __('There are no optional categories yet.', 'mortar-consent'))
+					: el('fieldset', { className: 'mortar-consent-checks mortar-consent-checks--stack' },
 						el('legend', { className: 'screen-reader-text' }, __('Categories left off for GPC visitors', 'mortar-consent')),
 						optional.map((c) => el(CheckboxControl, {
 							key: c.id,
@@ -555,18 +555,18 @@
 				title: __('Gated scripts', 'mortar-consent'),
 				description: __('Scripts registered in WordPress (by handle) only run once the visitor allows every ticked category. Scripts that depend on them wait too.', 'mortar-consent'),
 			},
-			el('div', { className: 'md-consent-table-wrap' },
-				el('table', { className: 'md-consent-table md-consent-table--edit' },
+			el('div', { className: 'mortar-consent-table-wrap' },
+				el('table', { className: 'mortar-consent-table mortar-consent-table--edit' },
 					el('thead', null, el('tr', null,
 						el('th', { scope: 'col', style: { width: '40%' } }, __('Script handle', 'mortar-consent')),
 						el('th', { scope: 'col' }, __('Runs once the visitor allows', 'mortar-consent')),
-						el('th', { className: 'md-consent-table__action' }, el('span', { className: 'screen-reader-text' }, __('Actions', 'mortar-consent')))
+						el('th', { className: 'mortar-consent-table__action' }, el('span', { className: 'screen-reader-text' }, __('Actions', 'mortar-consent')))
 					)),
 					el('tbody', null, draft.scripts.length === 0
-						? el('tr', null, el('td', { colSpan: 3 }, el('p', { className: 'md-consent-empty' }, __('No scripts are gated yet, so every registered script runs straight away.', 'mortar-consent'))))
+						? el('tr', null, el('td', { colSpan: 3 }, el('p', { className: 'mortar-consent-empty' }, __('No scripts are gated yet, so every registered script runs straight away.', 'mortar-consent'))))
 						: draft.scripts.map((row, index) =>
 							el('tr', { key: index },
-								el('td', { className: 'md-consent-mono' }, el(TextControl, {
+								el('td', { className: 'mortar-consent-mono' }, el(TextControl, {
 									label: __('Script handle', 'mortar-consent'),
 									hideLabelFromVision: true,
 									placeholder: 'google-analytics',
@@ -576,7 +576,7 @@
 									__nextHasNoMarginBottom: true,
 									__next40pxDefaultSize: true,
 								})),
-								el('td', null, el('fieldset', { className: 'md-consent-checks' },
+								el('td', null, el('fieldset', { className: 'mortar-consent-checks' },
 									el('legend', { className: 'screen-reader-text' }, __('Required categories', 'mortar-consent')),
 									optional.map((c) => el(CheckboxControl, {
 										key: c.id,
@@ -588,7 +588,7 @@
 									})),
 									row.categories.length === 0 && badge(__('Not gated', 'mortar-consent'), 'warning')
 								)),
-								el('td', { className: 'md-consent-table__action' }, el(Button, {
+								el('td', { className: 'mortar-consent-table__action' }, el(Button, {
 									variant: 'tertiary',
 									isDestructive: true,
 									size: 'compact',
@@ -608,7 +608,7 @@
 			},
 			el(Card, null, el(CardBody, null,
 				el('p', { style: { marginTop: 0 } }, __('Change the type to text/plain and name the categories it needs:', 'mortar-consent')),
-				el('pre', { className: 'md-consent-code' }, el('code', null, '<script type="text/plain" data-md-consent="analytics" src="…"></script>'))
+				el('pre', { className: 'mortar-consent-code' }, el('code', null, '<script type="text/plain" data-mortar-consent="analytics" src="…"></script>'))
 			)))
 		);
 	}
@@ -634,7 +634,7 @@
 					__nextHasNoMarginBottom: true,
 					__next40pxDefaultSize: true,
 				}),
-				changed && el('div', { className: 'md-consent-text-field__tools' },
+				changed && el('div', { className: 'mortar-consent-text-field__tools' },
 					badge(__('Customised', 'mortar-consent'), 'info'),
 					!locked && el(Button, {
 						variant: 'link',
@@ -664,7 +664,7 @@
 		const fetchRecords = (consentId) => {
 			setError(null);
 			setLoading(true);
-			const path = '/md-consent/v1/records' + (consentId ? `?consent_id=${encodeURIComponent(consentId)}` : '');
+			const path = '/mortar-consent/v1/records' + (consentId ? `?consent_id=${encodeURIComponent(consentId)}` : '');
 			apiFetch({ path })
 				.then((payload) => {
 					setResult(payload);
@@ -685,24 +685,24 @@
 			error && el(Notice, { status: 'error', isDismissible: false }, error),
 			el(Section, { wide: true, title: __('Last 30 days', 'mortar-consent') },
 				result
-					? el('dl', { className: 'md-consent-stats' },
-						el('div', { className: 'md-consent-stat' }, el('dt', null, __('Choices recorded', 'mortar-consent')), el('dd', null, total.toLocaleString())),
+					? el('dl', { className: 'mortar-consent-stats' },
+						el('div', { className: 'mortar-consent-stat' }, el('dt', null, __('Choices recorded', 'mortar-consent')), el('dd', null, total.toLocaleString())),
 						methods.map((method) => {
 							const n = result.summary[method] || 0;
-							return el('div', { key: method, className: 'md-consent-stat' },
+							return el('div', { key: method, className: 'mortar-consent-stat' },
 								el('dt', null, METHOD_LABELS[method] || method),
-								el('dd', null, n.toLocaleString(), total > 0 && el('span', { className: 'md-consent-stat__share' }, `${Math.round((n / total) * 100)}%`))
+								el('dd', null, n.toLocaleString(), total > 0 && el('span', { className: 'mortar-consent-stat__share' }, `${Math.round((n / total) * 100)}%`))
 							);
 						})
 					)
-					: el('p', { className: 'md-consent-loading' }, el(Spinner), __('Loading records…', 'mortar-consent'))
+					: el('p', { className: 'mortar-consent-loading' }, el(Spinner), __('Loading records…', 'mortar-consent'))
 			),
 			el(Section, {
 				wide: true,
 				title: __('Records', 'mortar-consent'),
 				description: __('Newest first. Download the CSV for the full log.', 'mortar-consent'),
 			},
-			el('div', { className: 'md-consent-toolbar' },
+			el('div', { className: 'mortar-consent-toolbar' },
 				el('form', {
 					role: 'search',
 					onSubmit: (e) => {
@@ -730,8 +730,8 @@
 				),
 				el(Button, { variant: 'secondary', href: boot.exportUrl, __next40pxDefaultSize: true }, __('Download CSV', 'mortar-consent'))
 			),
-			result && el('div', { className: 'md-consent-table-wrap' },
-				el('table', { className: 'md-consent-table' },
+			result && el('div', { className: 'mortar-consent-table-wrap' },
+				el('table', { className: 'mortar-consent-table' },
 					el('thead', null, el('tr', null,
 						el('th', { scope: 'col' }, __('Time (UTC)', 'mortar-consent')),
 						el('th', { scope: 'col' }, __('Consent ID', 'mortar-consent')),
@@ -740,11 +740,11 @@
 						el('th', { scope: 'col' }, __('Policy', 'mortar-consent'))
 					)),
 					el('tbody', null, result.records.length === 0
-						? el('tr', null, el('td', { colSpan: 5 }, el('p', { className: 'md-consent-empty' }, searched
+						? el('tr', null, el('td', { colSpan: 5 }, el('p', { className: 'mortar-consent-empty' }, searched
 							? __('No records for that consent ID.', 'mortar-consent')
 							: __('No records yet.', 'mortar-consent'))))
 						: result.records.map((r) => el('tr', { key: r.id },
-							el('td', { className: 'md-consent-log-time' }, r.createdAt.replace('T', ' ').replace('Z', '')),
+							el('td', { className: 'mortar-consent-log-time' }, r.createdAt.replace('T', ' ').replace('Z', '')),
 							el('td', null, el('code', null, r.consentId)),
 							el('td', null, badge(METHOD_LABELS[r.method] || r.method, METHOD_TONES[r.method])),
 							el('td', null, r.granted.join(', ') || '—'),
@@ -755,7 +755,7 @@
 		);
 	}
 
-	const root = document.getElementById('md-consent-admin');
+	const root = document.getElementById('mortar-consent-admin');
 	if (root) {
 		createRoot(root).render(el(App));
 	}

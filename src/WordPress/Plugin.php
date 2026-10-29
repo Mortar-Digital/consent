@@ -12,7 +12,7 @@ use MortarDigital\Consent\ConsentCookieCodec;
  */
 final class Plugin
 {
-    public const PURGE_HOOK = 'md_consent_purge_log';
+    public const PURGE_HOOK = 'mortar_consent_purge_log';
 
     private static ?self $instance = null;
 
@@ -47,13 +47,12 @@ final class Plugin
 
     public function init(): void
     {
-        // Loaded as an MU package or as the standalone plugin build.
+        // WordPress loads translations for regular plugins on its own; an
+        // MU-plugin install has to load them itself.
         if (str_starts_with(wp_normalize_path($this->dir), wp_normalize_path(WPMU_PLUGIN_DIR))) {
             load_muplugin_textdomain('mortar-consent', basename($this->dir) . '/languages');
-        } else {
-            load_plugin_textdomain('mortar-consent', false, basename($this->dir) . '/languages');
         }
-        register_setting('md_consent', ConfigProvider::OPTION, [
+        register_setting('mortar_consent', ConfigProvider::OPTION, [
             'type' => 'object',
             'default' => [],
             'show_in_rest' => false,
@@ -82,9 +81,9 @@ final class Plugin
          *
          * @param array{per_client: int, global: int} $limits
          */
-        $limits = apply_filters('md_consent_rate_limits', ['per_client' => 20, 'global' => 2000]);
+        $limits = apply_filters('mortar_consent_rate_limits', ['per_client' => 20, 'global' => 2000]);
         $rest = new RestController($this->configProvider, $this->log, new RateLimiter(
-            'md_consent_rl_',
+            'mortar_consent_rl_',
             max(1, (int) ($limits['per_client'] ?? 20)),
             max(1, (int) ($limits['global'] ?? 2000)),
             600,
@@ -114,7 +113,7 @@ final class Plugin
     {
         // Minified build (pnpm build) unless SCRIPT_DEBUG asks for the readable source.
         $runtime = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? 'assets/consent.js' : 'assets/consent.min.js';
-        wp_enqueue_script('md-consent', $this->url . '/' . $runtime, [], $this->version($runtime), [
+        wp_enqueue_script('mortar-consent', $this->url . '/' . $runtime, [], $this->version($runtime), [
             'strategy' => 'defer',
             'in_footer' => false,
         ]);
@@ -123,8 +122,8 @@ final class Plugin
          * Whether to load the fallback stylesheet. Themes that fully style the
          * banner can return false; most only need the CSS custom properties.
          */
-        if (apply_filters('md_consent_load_styles', true)) {
-            wp_enqueue_style('md-consent', $this->url . '/assets/consent.css', [], $this->version('assets/consent.css'));
+        if (apply_filters('mortar_consent_load_styles', true)) {
+            wp_enqueue_style('mortar-consent', $this->url . '/assets/consent.css', [], $this->version('assets/consent.css'));
         }
     }
 
@@ -138,8 +137,8 @@ final class Plugin
         // resolve symlinks, which breaks URLs when the package is symlinked.
         $editorDeps = ['wp-blocks', 'wp-block-editor', 'wp-components', 'wp-element', 'wp-i18n', 'wp-server-side-render'];
         foreach (['settings-button', 'cookie-declaration'] as $block) {
-            wp_register_script("md-consent-{$block}-editor", "{$this->url}/blocks/{$block}/index.js", $editorDeps, $this->version("blocks/{$block}/index.js"), ['in_footer' => true]);
-            wp_set_script_translations("md-consent-{$block}-editor", 'mortar-consent');
+            wp_register_script("mortar-consent-{$block}-editor", "{$this->url}/blocks/{$block}/index.js", $editorDeps, $this->version("blocks/{$block}/index.js"), ['in_footer' => true]);
+            wp_set_script_translations("mortar-consent-{$block}-editor", 'mortar-consent');
         }
 
         register_block_type($this->dir . '/blocks/settings-button', [
@@ -147,20 +146,20 @@ final class Plugin
             'render_callback' => static fn (array $attributes): string => $renderer->settingsButton(
                 is_string($attributes['label'] ?? null) ? html_entity_decode(wp_strip_all_tags($attributes['label']), ENT_QUOTES | ENT_HTML5, 'UTF-8') : '',
                 // wp-element-button picks up the theme.json button styles.
-                get_block_wrapper_attributes(['class' => 'md-consent-open wp-element-button']),
+                get_block_wrapper_attributes(['class' => 'mortar-consent-open wp-element-button']),
             ),
         ]);
         register_block_type($this->dir . '/blocks/cookie-declaration', [
             'render_callback' => static fn (array $attributes): string => $renderer->declaration(
                 ($attributes['showSettingsButton'] ?? true) === true,
-                get_block_wrapper_attributes(['class' => 'md-consent-declaration']),
+                get_block_wrapper_attributes(['class' => 'mortar-consent-declaration']),
             ),
         ]);
 
-        add_shortcode('md_cookie_settings', static fn (mixed $atts): string => $renderer->settingsButton(
+        add_shortcode('mortar_consent_settings', static fn (mixed $atts): string => $renderer->settingsButton(
             is_array($atts) && is_string($atts['label'] ?? null) ? $atts['label'] : '',
         ));
-        add_shortcode('md_cookie_declaration', static fn (): string => $renderer->declaration(true, 'class="md-consent-declaration"'));
+        add_shortcode('mortar_consent_declaration', static fn (): string => $renderer->declaration(true, 'class="mortar-consent-declaration"'));
     }
 
     private function scheduleRetention(int $retentionDays): void

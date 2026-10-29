@@ -3,7 +3,7 @@
 /**
  * Plugin Name:       Mortar Consent
  * Description:       Cookie consent that is opt-in, lets visitors choose and change their mind, and never calls third-party services.
- * Version:           __VERSION__
+ * Version:           0.1.0
  * Requires at least: 6.5
  * Requires PHP:      8.2
  * Author:            Mortar Digital

@@ -1,7 +1,7 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
-  "name": "md-consent/cookie-declaration",
+  "name": "mortar-consent/cookie-declaration",
   "title": "Cookie declaration",
   "category": "widgets",
   "icon": "list-view",
@@ -20,5 +20,5 @@
     "spacing": { "margin": true, "padding": true },
     "typography": { "fontSize": true }
   },
-  "editorScript": "md-consent-cookie-declaration-editor"
+  "editorScript": "mortar-consent-cookie-declaration-editor"
 }

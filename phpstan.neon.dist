@@ -6,5 +6,6 @@ parameters:
     paths:
         - src
         - functions.php
-        - plugin
+        - mortar-consent.php
+        - uninstall.php
     treatPhpDocTypesAsCertain: false

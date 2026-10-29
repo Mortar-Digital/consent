@@ -12,12 +12,12 @@ use MortarDigital\Consent\SettingsMerger;
 /**
  * Builds the site config from, lowest precedence first: translated defaults,
  * settings saved in the admin screen, and code overrides
- * (`md_consent_overrides`, which also lock those keys in the UI). The
- * `md_consent_config` filter runs last as an escape hatch.
+ * (`mortar_consent_overrides`, which also lock those keys in the UI). The
+ * `mortar_consent_config` filter runs last as an escape hatch.
  */
 final class ConfigProvider
 {
-    public const OPTION = 'md_consent_settings';
+    public const OPTION = 'mortar_consent_settings';
 
     private ?Config $config = null;
 
@@ -31,11 +31,11 @@ final class ConfigProvider
 
         /**
          * Final say over the configuration. Changes made here are not shown
-         * in the admin screen; prefer `md_consent_overrides`.
+         * in the admin screen; prefer `mortar_consent_overrides`.
          *
          * @param array<string, mixed> $config
          */
-        $filtered = apply_filters('md_consent_config', $merged);
+        $filtered = apply_filters('mortar_consent_config', $merged);
 
         try {
             $this->config = Config::fromArray(is_array($filtered) ? $filtered : []);
@@ -57,13 +57,13 @@ final class ConfigProvider
     /**
      * Code-level settings, e.g. from a site MU-plugin or theme:
      *
-     *     add_filter('md_consent_overrides', fn () => ['scripts' => ['ga' => 'analytics']]);
+     *     add_filter('mortar_consent_overrides', fn () => ['scripts' => ['ga' => 'analytics']]);
      *
      * @return array<string, mixed>
      */
     public function overrides(): array
     {
-        $overrides = apply_filters('md_consent_overrides', []);
+        $overrides = apply_filters('mortar_consent_overrides', []);
 
         return is_array($overrides) ? array_intersect_key($overrides, array_flip(SettingsMerger::EDITABLE_KEYS)) : [];
     }
@@ -116,7 +116,8 @@ final class ConfigProvider
             Config::fromArray(SettingsMerger::merge($this->defaults(), $value, $this->overrides()));
         } catch (InvalidConfiguration $e) {
             if (function_exists('add_settings_error')) {
-                add_settings_error(self::OPTION, 'invalid', esc_html($e->getMessage()));
+                // Messages are HTML-escaped when thrown.
+                add_settings_error(self::OPTION, 'invalid', $e->getMessage());
             }
 
             return $old;
@@ -152,7 +153,7 @@ final class ConfigProvider
                 'description' => __('Needed for the site to work, for example keeping it secure and remembering your cookie choices. These cannot be switched off.', 'mortar-consent'),
                 'required' => true,
                 'cookies' => [[
-                    'name' => 'md_consent',
+                    'name' => 'mortar_consent',
                     'provider' => (string) wp_parse_url(home_url(), PHP_URL_HOST),
                     'purpose' => __('Remembers your cookie choices.', 'mortar-consent'),
                     'duration' => __('Until your consent expires', 'mortar-consent'),
@@ -243,7 +244,7 @@ final class ConfigProvider
      */
     private static function failClosed(array $defaults, mixed $filtered, InvalidConfiguration $error): Config
     {
-        $message = 'md-consent: invalid configuration, using defaults: ' . $error->getMessage();
+        $message = 'mortar-consent: invalid configuration, using defaults: ' . wp_specialchars_decode($error->getMessage(), ENT_QUOTES);
         wp_trigger_error(__METHOD__, $message, E_USER_WARNING);
         // wp_trigger_error() is silent without WP_DEBUG; a site quietly running
         // on defaults must still leave a trace in production.

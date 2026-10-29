@@ -9,7 +9,7 @@
 	const ServerSideRender = wp.serverSideRender;
 	const { __ } = wp.i18n;
 
-	registerBlockType('md-consent/cookie-declaration', {
+	registerBlockType('mortar-consent/cookie-declaration', {
 		edit({ attributes, setAttributes }) {
 			return el(
 				Fragment,
@@ -30,7 +30,7 @@
 				el(
 					'div',
 					useBlockProps(),
-					el(Disabled, null, el(ServerSideRender, { block: 'md-consent/cookie-declaration', attributes }))
+					el(Disabled, null, el(ServerSideRender, { block: 'mortar-consent/cookie-declaration', attributes }))
 				)
 			);
 		},

@@ -1,35 +1,35 @@
 /*
  * Fallback styles for the consent banner and preferences dialog.
  *
- * Themes restyle it by setting the --md-consent-* custom properties (or with
- * more specific selectors). Rules are scoped under .md-consent.
+ * Themes restyle it by setting the --mortar-consent-* custom properties (or with
+ * more specific selectors). Rules are scoped under .mortar-consent.
  *
  * All three choice buttons share one style on purpose: rejecting must be as
  * prominent as accepting.
  */
-.md-consent {
-	--_bg: var(--md-consent-bg, #fff);
-	--_fg: var(--md-consent-fg, #14161a);
-	--_muted: var(--md-consent-muted, color-mix(in srgb, var(--_fg) 72%, var(--_bg)));
-	--_border: var(--md-consent-border, color-mix(in srgb, var(--_fg) 18%, var(--_bg)));
-	--_button-bg: var(--md-consent-button-bg, var(--_fg));
-	--_button-fg: var(--md-consent-button-fg, var(--_bg));
-	--_focus: var(--md-consent-focus, var(--_fg));
-	--_radius: var(--md-consent-radius, 4px);
-	--_shadow: var(--md-consent-shadow, 0 0.5rem 2rem rgb(0 0 0 / 0.18));
-	--_gap: var(--md-consent-gap, 1rem);
+.mortar-consent {
+	--_bg: var(--mortar-consent-bg, #fff);
+	--_fg: var(--mortar-consent-fg, #14161a);
+	--_muted: var(--mortar-consent-muted, color-mix(in srgb, var(--_fg) 72%, var(--_bg)));
+	--_border: var(--mortar-consent-border, color-mix(in srgb, var(--_fg) 18%, var(--_bg)));
+	--_button-bg: var(--mortar-consent-button-bg, var(--_fg));
+	--_button-fg: var(--mortar-consent-button-fg, var(--_bg));
+	--_focus: var(--mortar-consent-focus, var(--_fg));
+	--_radius: var(--mortar-consent-radius, 4px);
+	--_shadow: var(--mortar-consent-shadow, 0 0.5rem 2rem rgb(0 0 0 / 0.18));
+	--_gap: var(--mortar-consent-gap, 1rem);
 
 	font: inherit;
-	font-family: var(--md-consent-font, inherit);
+	font-family: var(--mortar-consent-font, inherit);
 	line-height: 1.5;
 }
 
-.md-consent [hidden] {
+.mortar-consent [hidden] {
 	display: none !important;
 }
 
-.md-consent .md-consent__banner,
-.md-consent .md-consent__dialog {
+.mortar-consent .mortar-consent__banner,
+.mortar-consent .mortar-consent__dialog {
 	box-sizing: border-box;
 	background: var(--_bg);
 	color: var(--_fg);
@@ -38,17 +38,17 @@
 	box-shadow: var(--_shadow);
 }
 
-.md-consent .md-consent__banner {
+.mortar-consent .mortar-consent__banner {
 	position: fixed;
 	inset: auto var(--_gap) var(--_gap) var(--_gap);
-	z-index: var(--md-consent-z-index, 99999);
-	max-width: var(--md-consent-banner-width, 34rem);
+	z-index: var(--mortar-consent-z-index, 99999);
+	max-width: var(--mortar-consent-banner-width, 34rem);
 	max-height: calc(100dvh - 2 * var(--_gap));
 	overflow-y: auto;
 	padding: 1.25rem;
 }
 
-.md-consent .md-consent__dialog {
+.mortar-consent .mortar-consent__dialog {
 	/* Themes often reset margin to 0, which un-centres a modal dialog. */
 	margin: auto;
 	width: min(36rem, calc(100% - 2 * var(--_gap)));
@@ -57,11 +57,11 @@
 	overflow: hidden;
 }
 
-.md-consent .md-consent__dialog::backdrop {
-	background: var(--md-consent-backdrop, rgb(0 0 0 / 0.5));
+.mortar-consent .mortar-consent__dialog::backdrop {
+	background: var(--mortar-consent-backdrop, rgb(0 0 0 / 0.5));
 }
 
-.md-consent .md-consent__form {
+.mortar-consent .mortar-consent__form {
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
@@ -71,14 +71,14 @@
 	overflow-y: auto;
 }
 
-.md-consent .md-consent__dialog-header {
+.mortar-consent .mortar-consent__dialog-header {
 	display: flex;
 	align-items: start;
 	justify-content: space-between;
 	gap: 1rem;
 }
 
-.md-consent .md-consent__title {
+.mortar-consent .mortar-consent__title {
 	margin: 0 0 0.5rem;
 	font: inherit;
 	font-size: 1.125rem;
@@ -87,24 +87,24 @@
 	color: inherit;
 }
 
-.md-consent .md-consent__body,
-.md-consent .md-consent__description {
+.mortar-consent .mortar-consent__body,
+.mortar-consent .mortar-consent__description {
 	margin: 0;
 	font-size: 0.9375rem;
 }
 
-.md-consent .md-consent__description {
+.mortar-consent .mortar-consent__description {
 	margin-top: 0.25rem;
 	color: var(--_muted);
 }
 
-.md-consent .md-consent__link {
+.mortar-consent .mortar-consent__link {
 	color: inherit;
 	text-decoration: underline;
 	text-underline-offset: 0.15em;
 }
 
-.md-consent .md-consent__actions {
+.mortar-consent .mortar-consent__actions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem;
@@ -112,7 +112,7 @@
 }
 
 /* Keep the choices reachable while the category list scrolls. */
-.md-consent .md-consent__form > .md-consent__actions {
+.mortar-consent .mortar-consent__form > .mortar-consent__actions {
 	position: sticky;
 	bottom: -1.25rem;
 	margin: 0 -1.25rem -1.25rem;
@@ -121,8 +121,8 @@
 	border-top: 1px solid var(--_border);
 }
 
-.md-consent .md-consent__button,
-.md-consent .md-consent__reopen {
+.mortar-consent .mortar-consent__button,
+.mortar-consent .mortar-consent__reopen {
 	flex: 1 1 auto;
 	min-height: 2.75rem;
 	padding: 0.5rem 1rem;
@@ -137,11 +137,11 @@
 	cursor: pointer;
 }
 
-.md-consent .md-consent__button:hover {
+.mortar-consent .mortar-consent__button:hover {
 	background: color-mix(in srgb, var(--_button-bg) 85%, var(--_button-fg));
 }
 
-.md-consent .md-consent__close {
+.mortar-consent .mortar-consent__close {
 	display: grid;
 	place-items: center;
 	flex: none;
@@ -158,36 +158,36 @@
 	cursor: pointer;
 }
 
-.md-consent .md-consent__categories {
+.mortar-consent .mortar-consent__categories {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 	border-top: 1px solid var(--_border);
 }
 
-.md-consent .md-consent__category {
+.mortar-consent .mortar-consent__category {
 	padding: 0.875rem 0;
 	border-bottom: 1px solid var(--_border);
 }
 
-.md-consent .md-consent__category-header {
+.mortar-consent .mortar-consent__category-header {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
 }
 
-.md-consent .md-consent__label {
+.mortar-consent .mortar-consent__label {
 	flex: 1;
 	font-weight: 600;
 	cursor: pointer;
 }
 
-.md-consent .md-consent__always {
+.mortar-consent .mortar-consent__always {
 	font-size: 0.875rem;
 	color: var(--_muted);
 }
 
-.md-consent .md-consent__switch {
+.mortar-consent .mortar-consent__switch {
 	appearance: none;
 	position: relative;
 	flex: none;
@@ -200,7 +200,7 @@
 	cursor: pointer;
 }
 
-.md-consent .md-consent__switch::before {
+.mortar-consent .mortar-consent__switch::before {
 	content: "";
 	position: absolute;
 	top: 2px;
@@ -211,24 +211,24 @@
 	background: var(--_fg);
 }
 
-.md-consent .md-consent__switch:checked {
+.mortar-consent .mortar-consent__switch:checked {
 	background: var(--_fg);
 }
 
-.md-consent .md-consent__switch:checked::before {
+.mortar-consent .mortar-consent__switch:checked::before {
 	left: calc(100% - 1.5rem + 6px);
 	background: var(--_bg);
 }
 
-.md-consent .md-consent__switch:disabled {
+.mortar-consent .mortar-consent__switch:disabled {
 	cursor: not-allowed;
 	opacity: 0.6;
 }
 
-.md-consent .md-consent__reopen {
+.mortar-consent .mortar-consent__reopen {
 	position: fixed;
 	inset: auto auto var(--_gap) var(--_gap);
-	z-index: var(--md-consent-z-index, 99999);
+	z-index: var(--mortar-consent-z-index, 99999);
 	flex: none;
 	min-height: 2.5rem;
 	padding: 0.375rem 0.875rem;
@@ -236,34 +236,34 @@
 	box-shadow: var(--_shadow);
 }
 
-.md-consent :focus-visible {
+.mortar-consent :focus-visible {
 	outline: 3px solid var(--_focus);
 	outline-offset: 2px;
 }
 
 @media (max-width: 30rem) {
-	.md-consent .md-consent__banner {
+	.mortar-consent .mortar-consent__banner {
 		inset: auto 0 0 0;
 		max-width: none;
 		border-radius: var(--_radius) var(--_radius) 0 0;
 	}
 
-	.md-consent .md-consent__actions {
+	.mortar-consent .mortar-consent__actions {
 		flex-direction: column;
 	}
 }
 
 @media (prefers-reduced-motion: no-preference) {
-	.md-consent .md-consent__banner:not([hidden]) {
-		animation: md-consent-in 240ms cubic-bezier(0.16, 1, 0.3, 1);
+	.mortar-consent .mortar-consent__banner:not([hidden]) {
+		animation: mortar-consent-in 240ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
 
-	.md-consent .md-consent__switch::before {
+	.mortar-consent .mortar-consent__switch::before {
 		transition: left 160ms ease;
 	}
 }
 
-@keyframes md-consent-in {
+@keyframes mortar-consent-in {
 	from {
 		opacity: 0;
 		transform: translateY(0.75rem);
@@ -272,55 +272,55 @@
 
 /* Windows High Contrast and similar: fall back to native controls. */
 @media (forced-colors: active) {
-	.md-consent .md-consent__switch {
+	.mortar-consent .mortar-consent__switch {
 		appearance: auto;
 		width: auto;
 		height: auto;
 	}
 
-	.md-consent .md-consent__switch::before {
+	.mortar-consent .mortar-consent__switch::before {
 		content: none;
 	}
 
-	.md-consent .md-consent__button,
-	.md-consent .md-consent__reopen {
+	.mortar-consent .mortar-consent__button,
+	.mortar-consent .mortar-consent__reopen {
 		border-color: ButtonText;
 	}
 }
 
-/* Cookie declaration block. Lives outside .md-consent, inside page content. */
-.md-consent-declaration__category + .md-consent-declaration__category {
+/* Cookie declaration block. Lives outside .mortar-consent, inside page content. */
+.mortar-consent-declaration__category + .mortar-consent-declaration__category {
 	margin-top: 2em;
 }
 
-.md-consent-declaration__table-wrap {
+.mortar-consent-declaration__table-wrap {
 	overflow-x: auto;
 }
 
-.md-consent-declaration__table {
+.mortar-consent-declaration__table {
 	width: 100%;
 	border-collapse: collapse;
 	font-size: 0.9375em;
 }
 
-.md-consent-declaration__table th,
-.md-consent-declaration__table td {
+.mortar-consent-declaration__table th,
+.mortar-consent-declaration__table td {
 	padding: 0.5em 0.75em;
 	border-bottom: 1px solid color-mix(in srgb, currentColor 20%, transparent);
 	text-align: start;
 	vertical-align: top;
 }
 
-.md-consent-declaration__table thead th {
+.mortar-consent-declaration__table thead th {
 	font-weight: 600;
 }
 
-.md-consent-declaration__always {
+.mortar-consent-declaration__always {
 	font-size: 0.75em;
 	font-weight: normal;
 }
 
-.md-consent .md-consent__meta {
+.mortar-consent .mortar-consent__meta {
 	margin: 0;
 	font-size: 0.8125rem;
 	color: var(--_muted);
@@ -328,7 +328,7 @@
 }
 
 /* A quiet footnote: the signal is honoured either way, so it needn't compete with the choices. */
-.md-consent .md-consent__gpc {
+.mortar-consent .mortar-consent__gpc {
 	margin: 0.75rem 0 0;
 	color: var(--_muted);
 	font-size: 0.8125rem;
@@ -337,11 +337,11 @@
 
 /* Click-to-load embeds. Inside WP's aspect-ratio wrappers the placeholder
    fills the reserved box; elsewhere it takes a sensible minimum height. */
-.md-consent-embed {
+.mortar-consent-embed {
 	position: relative;
 }
 
-.md-consent-embed__placeholder {
+.mortar-consent-embed__placeholder {
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
@@ -355,23 +355,23 @@
 	text-align: center;
 }
 
-.wp-has-aspect-ratio .md-consent-embed {
+.wp-has-aspect-ratio .mortar-consent-embed {
 	position: absolute;
 	inset: 0;
 }
 
-.wp-has-aspect-ratio .md-consent-embed__placeholder {
+.wp-has-aspect-ratio .mortar-consent-embed__placeholder {
 	height: 100%;
 	min-height: 0;
 }
 
-.md-consent-embed__notice,
-.md-consent-embed__actions {
+.mortar-consent-embed__notice,
+.mortar-consent-embed__actions {
 	margin: 0;
 	max-width: 32rem;
 }
 
-.md-consent-embed__actions {
+.mortar-consent-embed__actions {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
