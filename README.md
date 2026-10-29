@@ -1,51 +1,57 @@
-# Consent
+# Mortar Consent
 
-First-party cookie consent for Mortar Digital WordPress sites:
+[![CI](https://github.com/Mortar-Digital/consent/actions/workflows/ci.yml/badge.svg)](https://github.com/Mortar-Digital/consent/actions/workflows/ci.yml)
 
-- Opt-in for the UK and EU.
-- "Reject all" sits beside "Accept all" with the same styling.
-- Visitors choose per category, and a settings control on every page lets them withdraw consent.
-- No third-party services, and nothing for sites to build: the minified runtime is committed.
+Self-hosted cookie consent for WordPress. Opt-in by default, with "Reject all" beside "Accept all", per-category choices that visitors can change at any time, and no calls to third-party services.
 
-See [PLAN.md](PLAN.md) for the roadmap. Phases 1–3 are built:
+This is the development repository. Site owners should install the plugin from WordPress.org. [readme.txt](readme.txt) is the user-facing description.
 
-- The banner and preferences dialog.
-- Script gating.
-- The Settings → Cookie consent screen.
-- A consent log.
-- The cookie settings button and cookie declaration blocks.
-- Google Consent Mode v2.
-- Click-to-load embeds.
-- Global Privacy Control.
-- WP Consent API support.
+## Features
 
-Phase 4 is also done:
+- **Consent banner and preferences dialog.** "Accept all", "Reject all" and "Manage preferences" have equal weight. The dialog uses native `<dialog>`, is keyboard operable and passes axe WCAG 2.2 AA checks.
+- **Script gating.** Map script handles to categories, or mark hand-written tags with `type="text/plain" data-mortar-consent="analytics"`. Scripts that depend on a gated handle are gated too.
+- **Click-to-load embeds.** YouTube, Vimeo, Maps and other iframes become placeholders until the visitor allows them. Unknown third-party hosts are gated as well.
+- **Google Consent Mode v2**, **Global Privacy Control** and the **WP Consent API**.
+- **Consent log.** A random consent ID, the choice, the policy version and the time. No IP address, user agent or user ID. CSV export.
+- **Blocks and shortcodes.** A cookie declaration and a "Cookie settings" button.
+- **Page-cache safe.** The markup is identical for every visitor, and the runtime decides what to show.
+- **Small.** The visitor runtime is under 5 KB gzipped and has no dependencies.
 
-- An independent security review, with its findings fixed.
-- The minified runtime.
-- An end-to-end browser suite.
-- PHPStan at level 8.
-- A standalone plugin build.
+## Installation
 
-## How it loads
+**From WordPress.org:** Plugins → Add New, search for "Mortar Consent", then Settings → Cookie consent.
 
-`composer.json` declares `type: wordpress-muplugin`, so sites install it into `web/app/mu-plugins/mortar-consent/`. The site template's `web/app/mu-plugins/mortar-consent.php` adapter then boots it.
+**From a release zip:** download `mortar-consent-<version>.zip` from the [releases](https://github.com/Mortar-Digital/consent/releases) and upload it under Plugins → Add New → Upload Plugin.
 
-Only `assets/*.css|js` and `blocks/*/index.js` are public. The Helm chart's nginx config returns 403 for everything else under that directory.
+**As a must-use plugin**, for example in a Bedrock site that tracks it as a Git submodule or Composer path package, place the repository at `mu-plugins/mortar-consent/` and add a loader, `mu-plugins/mortar-consent.php`:
 
-To add it to an existing site:
+```php
+<?php
+/**
+ * Plugin Name: Mortar Consent
+ */
 
-1. Copy the `packages/consent` path repository, the `mortar-digital/consent` requirement and the `wordpress-muplugin` installer path from `sites/_template/composer.json`.
-2. Copy the adapter file.
-3. Run `ddev composer update mortar-digital/consent`.
+use MortarDigital\Consent\WordPress\Plugin;
+
+// Composer's autoloader provides the classes. Pass the MU paths explicitly,
+// because a symlinked package would otherwise resolve to its real location.
+if (class_exists(Plugin::class)) {
+    Plugin::boot(WPMU_PLUGIN_DIR . '/mortar-consent', WPMU_PLUGIN_URL . '/mortar-consent');
+    require_once WPMU_PLUGIN_DIR . '/mortar-consent/functions.php';
+}
+```
+
+Without Composer, `require WPMU_PLUGIN_DIR . '/mortar-consent/mortar-consent.php';` is enough: the main file has its own autoloader. If the plugin is loaded both ways, the regular copy stays inactive and shows a notice.
+
+Only `assets/` and `blocks/` need to be reachable over HTTP; you can deny the rest of the plugin directory at the web server.
 
 ## Configuration
 
 Settings come from three layers, with later ones winning:
 
-1. **Defaults:** translated copy and four categories.
-2. **Settings → Cookie consent:** also linked from the plugin's row under Plugins → Must-Use. An admin screen for the categories and cookie list, gated scripts, wording, policy version and log settings. It needs `manage_options`, which the `mortar_consent_capability` filter can change.
-3. **Code overrides:** any key returned from `mortar_consent_overrides` wins, and the admin screen shows it read-only. Values the admin saved earlier are kept, so they come back if the override is removed.
+1. **Defaults:** translated wording and four categories (necessary, functional, analytics, marketing).
+2. **Settings → Cookie consent:** categories and cookies, gated scripts, integrations, wording, the policy version and the log. It needs `manage_options`, which the `mortar_consent_capability` filter can change.
+3. **Code overrides:** any key returned from `mortar_consent_overrides` wins, and the settings screen shows it read-only. Values saved earlier come back if the override is removed.
 
 ```php
 add_filter('mortar_consent_overrides', fn (): array => [
@@ -57,32 +63,32 @@ add_filter('mortar_consent_overrides', fn (): array => [
 ]);
 ```
 
-`mortar_consent_config` still runs last on the merged array as an escape hatch. The admin screen does not reflect changes made there.
+`mortar_consent_config` runs last on the merged array as an escape hatch. The settings screen does not reflect changes made there.
 
-The admin screen stores only values that differ from the defaults. Untouched categories and wording therefore keep following translations.
+The settings screen stores only values that differ from the defaults, so untouched categories and wording keep following translations.
 
 | Key | Default | Notes |
 |---|---|---|
-| `policy_version` | `1` | Positive integer. Changing it re-prompts every visitor. |
+| `policy_version` | `1` | Positive integer. Raising it asks every visitor again. |
 | `lifetime_days` | `365` | 1–395. Visitors are asked again after this. |
-| `categories` | necessary, functional, analytics, marketing | `id`, `label`, `description`, `required`, and `cookies`. Each cookie is a name or `{name, provider, purpose, duration}`. A trailing `*` in the name matches a prefix. |
+| `categories` | necessary, functional, analytics, marketing | Each has `id`, `label`, `description`, `required` and `cookies`. A cookie is a name or `{name, provider, purpose, duration}`; a trailing `*` matches a prefix. |
 | `scripts` | `[]` | Script handle → category id, or a list of ids (all are required). |
-| `texts` | English copy | Every key in `Config::TEXT_KEYS`, as plain text. |
-| `privacy_policy_url` | WP privacy page | An http(s) URL or a site-relative path. |
-| `cookie_domain` | host only | For example `.example.com` to share consent across subdomains. |
-| `reopen_button` | `true` | A floating "Cookie settings" button. Turn it off when the theme provides its own link. |
+| `texts` | English wording | Every key in `Config::TEXT_KEYS`, as plain text. |
+| `privacy_policy_url` | the WordPress privacy page | An http(s) URL or a site-relative path. |
+| `cookie_domain` | this host only | For example `.example.com` to share consent across subdomains. |
+| `reopen_button` | `true` | The floating "Cookie settings" button. Turn it off when the theme links to `#cookie-settings` instead. |
 | `log_enabled` | `true` | Keep the consent log. |
 | `log_retention_days` | `1095` | 30–3650. A daily cron job deletes older records. |
-| `consent_mode` | off, standard mapping | `enabled`, plus `signals`: a Consent Mode v2 signal → category ids. |
-| `embeds` | `category: functional` | The category third-party embeds need. `""` loads them freely. `providers` overrides it per provider slug, e.g. `youtube`. |
+| `consent_mode` | off, standard mapping | `enabled`, plus `signals`: Consent Mode v2 signal → category ids. |
+| `embeds` | `category: functional` | The category third-party embeds need; `""` loads them freely. `providers` overrides it per provider slug, such as `youtube` or `other`. |
 | `gpc_categories` | `['marketing']` | Categories "Accept all" leaves off when the browser sends Global Privacy Control. |
 | `wp_consent_api` | standard mapping | WP Consent API category → category ids. |
 
-Configuration is validated strictly. If it is invalid, a warning is logged and the defaults are used. Every handle the bad config tried to gate stays gated and needs all optional categories, so a typo cannot let a tracker through.
+Configuration is validated strictly. If it is invalid, a warning is logged and the defaults are used. Every handle the bad configuration tried to gate stays gated and needs all optional categories, so a typo cannot let a tracker through.
 
 ## Gating scripts
 
-**Registered scripts:** map the handle in `scripts`, as in the example above.
+**Registered scripts:** map the handle under `scripts`, as above. Inline `before`/`after` scripts and translations attached to the handle are gated with it.
 
 **Hand-written tags:** use `type="text/plain"` plus the categories. Put the real type in `data-mortar-consent-type`, for example `module`:
 
@@ -91,182 +97,166 @@ Configuration is validated strictly. If it is invalid, a warning is logged and t
 <script type="text/plain" data-mortar-consent="analytics marketing">/* needs both */</script>
 ```
 
-The runtime activates these in document order once consent is given. When a visitor withdraws a category that was already allowed, the page reloads, because scripts that have already run cannot be unloaded.
+The runtime activates these in document order once consent is given. When a visitor withdraws a category they had allowed, the page reloads, because scripts that have already run cannot be unloaded. Known cookies in the withdrawn categories are deleted.
 
-## Consent log
+## Embedded content
 
-Each choice is sent to `POST /wp-json/mortar-consent/v1/records` and stored in `{prefix}mortar_consent_log`. A record holds:
+`core/embed` blocks, iframes in other blocks and iframes in post content (classic posts and auto-embedded URLs) are replaced with a placeholder. The original markup is kept inside an inert `<template>`, so nothing loads.
 
-- A random consent ID. The same ID is in the visitor's cookie and shown in their preferences dialog.
-- The categories allowed.
-- The policy version.
-- How the choice was made: accept all, reject all or custom.
-- The server time.
+- **Known providers** are named in the placeholder: YouTube, Vimeo, Dailymotion, Spotify, SoundCloud, X, Instagram, Facebook, TikTok, Google Maps, OpenStreetMap, Calendly and Typeform.
+- **Unknown third-party hosts** are gated under the provider slug `other`, and the placeholder names the host.
+- **Same-site iframes** are left alone.
 
-No IP address, user agent or user ID is stored.
-
-The endpoint is public by design, because visitors are anonymous. It is hardened as follows:
-
-- **Strict validation:** known fields only, the current policy version, and known optional categories.
-- **Size cap:** a 1 KB body limit.
-- **Rate limit:** 20 records per client per 10 minutes, plus a site-wide ceiling of 2000. Both are set with the `mortar_consent_rate_limits` filter.
-  - Clients are keyed by an HMAC of the IP, with IPv6 grouped by /64. The IP is never stored.
-  - With a persistent object cache, counters are atomic. Without one they use transients and can overshoot slightly under bursts.
-
-**Behind a proxy, set the real client IP.** Otherwise every visitor shares one bucket, and real records get rejected once the limit is hit. In the Helm chart, set `nginx.trustedProxies` to the ingress controller's pod CIDR, for example `["10.42.0.0/16"]`. Anywhere else, configure the web server's real-IP module, or the `mortar_consent_client_ip` filter.
-
-Limits of the log as evidence: the endpoint is public, so anyone can add records for a made-up consent ID. A record shows that a choice was submitted under that ID and policy version. It does not prove who made it.
-
-Admins can see 30-day totals, look up a consent ID and download a CSV from the **Consent log** tab. The CSV escapes values that spreadsheets would read as formulas.
-
-## Cookie declaration
-
-The **Cookie declaration** block, or the `[mortar_consent_declaration]` shortcode, lists every category with its cookies' name, provider, purpose and duration. By default it ends with a cookie settings button. Put it on the cookie policy page.
+The placeholder offers **Load this content** (that embed only, nothing stored) and **Always allow {category}** (saves consent and loads every embed in the category). Its buttons only work inside genuine placeholders, so a look-alike button in post content cannot grant consent.
 
 ## Google Consent Mode v2
 
 Turn it on under **Integrations**, or with `consent_mode.enabled` in code.
 
-A tiny inline script is printed first in `<head>`. It runs `gtag('consent', 'default', …)` before any Google tag:
+A small inline script is printed first in `<head>` and runs `gtag('consent', 'default', …)` before any Google tag. Each signal is `denied` unless the visitor's stored consent already grants it, so returning visitors start `granted` without waiting for the runtime. It also sets `wait_for_update: 500` and `ads_data_redaction`. The runtime sends `gtag('consent', 'update', …)` whenever the choice changes.
 
-- Each signal is `denied` unless the visitor's stored consent already grants it, so returning visitors start `granted` without waiting for the runtime.
-- It sets `wait_for_update: 500`.
-- It turns on `ads_data_redaction`.
+A signal is granted only when it lists at least one category and the visitor allows every listed one, so an empty mapping stays denied.
 
-The runtime then sends `gtag('consent', 'update', …)` whenever the visitor's choice changes.
-
-A signal is granted only when it lists at least one category and the visitor allows every listed one. So an empty mapping, for example after a category is deleted, stays denied.
-
-There are two ways to run it:
-
-- **Basic mode:** also gate the Google tag's script handle under `scripts`, so nothing loads until consent.
+- **Basic mode:** also gate the Google tag's script handle under `scripts`, so nothing loads before consent.
 - **Advanced mode:** leave the tag ungated and let Consent Mode send cookieless pings.
 
-Tags hard-coded in a theme's `header.php` before `wp_head()` run before the defaults. Move them after it.
-
-The snippet is printed with `wp_print_inline_script_tag()`, so CSP plugins can add nonces through `wp_inline_script_attributes`.
-
-## Embedded content
-
-`core/embed` blocks, iframes in other blocks, and iframes in post content are replaced with a placeholder. Post content includes classic posts and auto-embedded URLs. The original markup is kept inside an inert `<template>`, so nothing loads.
-
-- **Known providers** are named in the placeholder. They include YouTube, Vimeo, Google Maps, Spotify, SoundCloud, social networks, Calendly and Typeform.
-- **Unknown third-party hosts** are gated too, under the provider slug `other`, and the placeholder names the host.
-- **Same-site iframes** are left alone.
-- **Per-provider overrides:** `embeds.providers`, for example `['youtube' => 'marketing', 'other' => '']`.
-
-The placeholder's buttons only work inside genuine placeholders, which hold a `<template>` that post filtering strips from contributor content. So a look-alike "Always allow" button in a post cannot grant consent.
-
-The placeholder offers two buttons:
-
-- **Load this content:** that embed only. Nothing is stored.
-- **Always allow {category}:** saves consent for the category, loading every embed in it.
-
-Embeds load directly for visitors who have already allowed the category.
+Tags hard-coded before `wp_head()` run before the defaults; move them after it. The snippet is printed with `wp_print_inline_script_tag()`, so CSP plugins can add nonces through `wp_inline_script_attributes`.
 
 ## Global Privacy Control
 
-When the browser sends GPC (`navigator.globalPrivacyControl`):
-
-- A notice appears in the banner and the dialog.
-- "Accept all" leaves the `gpc_categories` off.
-
-Visitors can still switch those categories on individually, so an explicit choice wins.
+When the browser sends GPC (`navigator.globalPrivacyControl`), a notice appears in the banner and dialog, and "Accept all" leaves the `gpc_categories` off. Visitors can still switch those categories on individually.
 
 ## WP Consent API
 
-When the [WP Consent API](https://wordpress.org/plugins/wp-consent-api/) plugin is active, the site declares the `optin` consent type. Each choice is mirrored to `wp_set_consent()` through the `wp_consent_api` mapping, so plugins that check `wp_has_consent()` follow the visitor's choice. Nothing happens when the plugin is not installed.
+When the [WP Consent API](https://wordpress.org/plugins/wp-consent-api/) plugin is active, the site declares the `optin` consent type and each choice is mirrored to `wp_set_consent()` through the `wp_consent_api` mapping. Plugins that check `wp_has_consent()` then follow the visitor's choice.
 
 ## Letting visitors change their mind
 
-- The floating button, on by default.
-- The **Cookie settings button** block, or the `[mortar_consent_settings label="…"]` shortcode.
+- The floating "Cookie settings" button, on by default.
+- The **Cookie settings button** block, or `[mortar_consent_settings label="…"]`.
 - Any link to `#cookie-settings`, such as a menu item, or `/cookie-policy/#cookie-settings` from other pages.
+
+## Cookie declaration
+
+The **Cookie declaration** block, or `[mortar_consent_declaration]`, lists every category with each cookie's name, provider, purpose and duration, followed by a cookie settings button. Put it on the cookie policy page.
+
+## Consent log
+
+Each choice is sent to `POST /wp-json/mortar-consent/v1/records` and stored in `{prefix}mortar_consent_log`: the consent ID (also in the visitor's cookie and shown in their preferences dialog), the categories allowed, the policy version, how the choice was made and the server time.
+
+The endpoint is public, because visitors are anonymous. It accepts known fields only, the current policy version and known optional categories, with a 1 KB body limit. It is rate limited to 20 records per client per 10 minutes, plus a site-wide ceiling of 2000 (`mortar_consent_rate_limits`). Clients are keyed by an HMAC of the IP address, with IPv6 grouped by /64; the address is never stored.
+
+**Behind a reverse proxy or load balancer, make sure PHP sees the real client IP**, through the web server's real-IP module or the `mortar_consent_client_ip` filter. Otherwise every visitor shares one rate-limit bucket.
+
+Because the endpoint is public, anyone can add a record for a made-up consent ID. A record shows that a choice was submitted under that ID and policy version; it does not prove who made it.
+
+Admins can see 30-day totals, look up a consent ID and download a CSV from the **Consent log** tab. The CSV neutralises values that spreadsheets would read as formulas.
 
 ## Styling
 
-`assets/consent.css` is scoped under `.mortar-consent`. Restyle it from the theme with custom properties:
+`assets/consent.css` is scoped under `.mortar-consent`. Restyle it with custom properties:
 
 ```css
 .mortar-consent {
-    --mortar-consent-bg: var(--wp--preset--color--background);
-    --mortar-consent-fg: var(--wp--preset--color--ink);
-    --mortar-consent-button-bg: var(--wp--preset--color--brand-primary);
-    --mortar-consent-button-fg: var(--wp--preset--color--on-brand);
-    --mortar-consent-radius: var(--wp--custom--radius--control);
+    --mortar-consent-bg: var(--wp--preset--color--base);
+    --mortar-consent-fg: var(--wp--preset--color--contrast);
+    --mortar-consent-button-bg: var(--wp--preset--color--accent-1);
+    --mortar-consent-button-fg: var(--wp--preset--color--base);
+    --mortar-consent-radius: 4px;
 }
 ```
 
+The full set is `--mortar-consent-` followed by `bg`, `fg`, `muted`, `border`, `button-bg`, `button-fg`, `focus`, `radius`, `shadow`, `gap`, `font`, `banner-width`, `backdrop` and `z-index`.
+
 For full control, return `false` from `mortar_consent_load_styles`. Keep the three choice buttons visually equal.
 
-## JavaScript API
+## Developer reference
+
+### Filters
+
+| Filter | Receives | Use |
+|---|---|---|
+| `mortar_consent_overrides` | `array` | Settings that win over the settings screen and show there read-only. |
+| `mortar_consent_config` | `array` | Final say over the merged configuration. Not reflected in the settings screen. |
+| `mortar_consent_capability` | `'manage_options'` | Capability for the settings screen, consent log and REST routes. |
+| `mortar_consent_load_styles` | `true` | Return `false` to drop the fallback stylesheet. |
+| `mortar_consent_rate_limits` | `['per_client' => 20, 'global' => 2000]` | Consent log limits per 10 minutes. |
+| `mortar_consent_client_ip` | `string` | The client address used for rate limiting. |
+
+### PHP
+
+```php
+mortar_consent_has('analytics'); // bool, from the visitor's cookie
+```
+
+Output that varies on this cannot be full-page cached, so prefer client-side gating.
+
+### JavaScript
 
 ```js
 window.mortarConsent.has('analytics'); // boolean
 window.mortarConsent.get();            // { policyVersion, timestamp, consentId, granted } | null
 window.mortarConsent.open();           // open the preferences dialog
-document.addEventListener('mortar-consent:change', (e) => e.detail.categories);
+window.mortarConsent.acceptAll();
+window.mortarConsent.rejectAll();
+window.mortarConsent.set(['analytics']); // save a custom choice
+document.addEventListener('mortar-consent:change', (e) => e.detail.categories); // { id: boolean }
 ```
 
-On the server, `mortar_consent_has('analytics')` reads the same cookie. Output that varies on it cannot be full-page cached, so prefer client-side gating.
+### Uninstall
 
-## Standalone plugin
-
-```sh
-bin/build-plugin   # requires Composer + Node dev dependencies; build/mortar-consent-<version>.zip
-```
-
-The zip has its own autoloader, so it does not need Composer. Install it like any plugin. If the MU copy is also loaded, the standalone copy stays inactive and shows a notice.
-
-Deactivating the plugin clears its cron job. Deleting it keeps the settings and the consent log, unless `MORTAR_CONSENT_DELETE_DATA_ON_UNINSTALL` is defined as `true`.
-
-## Development
-
-```sh
-composer install && pnpm install
-pnpm build          # after editing assets/consent.js (commit consent.min.js)
-composer test       # PHPUnit + node --test (codec parity, min build freshness, 5 KB gzip budget)
-composer analyse    # PHPStan level 8 with WordPress stubs
-composer lint       # PHP/JavaScript syntax + ESLint
-pnpm lint           # ESLint recommended rules, zero warnings
-pnpm lint:fix       # apply safe ESLint auto-fixes
-composer format     # apply PSR-12 with PHP CS Fixer
-composer check      # lint + formatting check + PHPStan + unit/JS tests
-MORTAR_CONSENT_E2E_SITE=../../sites/<site> pnpm test:e2e
-```
-
-Sites load `consent.min.js`. When `SCRIPT_DEBUG` is on, they load the readable `consent.js` instead.
-
-`tests/fixtures/cookie-codec.json` is run against both the PHP codec and both JS builds, so the cookie parsers cannot drift apart.
-
-The e2e suite needs a running local DDEV site with the package installed. It adds a fixture MU-plugin and test pages, then runs Playwright specs:
-
-- **Visitor:** flows, axe accessibility checks, the consent log and endpoint abuse.
-- **Integrations:** Consent Mode, embeds, GPC, the WP Consent API and hardening cases.
-- **Admin:** the real admin app rendered on a stand-in page, with the settings it saves sent through the real server validation.
-
-The suite never contacts third parties. Afterwards it removes everything it added, including log rows written during the run. Screenshots go to `tests/e2e/artifacts/`.
+Deactivating the plugin clears its cron job. Deleting it keeps the settings and the consent log, which you may need as evidence, unless `MORTAR_CONSENT_DELETE_DATA_ON_UNINSTALL` is defined as `true` in `wp-config.php`. On multisite this applies to every site.
 
 ## Known limits
 
-- **Optimisation plugins:** plugins that combine or rewrite script tags, for example through `script_loader_tag`, can drop the `type="text/plain"` gate. Exclude gated handles from them.
-- **Lazy-loaded iframes:** iframes that load through JavaScript (`data-src`) rather than markup are not detected.
+- **Optimisation plugins** that combine or rewrite script tags (for example through `script_loader_tag`) can drop the `type="text/plain"` gate. Exclude gated handles from them.
+- **Iframes inserted by JavaScript**, or lazy-loaded through `data-src`, are not detected.
 - **Shared cookie domain:** with `cookie_domain` set to a parent domain, any subdomain can set the consent cookie.
 - **Capability:** whoever holds `mortar_consent_capability` controls what runs on the site. Keep it at `manage_options`.
 
-## Release review
+## Development
 
-Released under GPL-2.0-or-later; see [LICENSE](LICENSE). The standalone ZIP includes the licence and readable JavaScript source.
+Requires PHP 8.2+, Composer, Node 24+ and pnpm. The browser tests also need Docker.
 
-Before submitting to WordPress.org:
+```sh
+composer install && pnpm install
+composer check         # syntax lint, ESLint, formatting, PHPCS, PHPStan, PHPUnit and JS tests
+pnpm build             # after editing assets/consent.js; commit consent.min.js
+composer format        # apply PSR-12 with PHP CS Fixer
+bin/build-plugin       # build/mortar-consent-<version>.zip
+```
 
-- Run `composer check` and the DDEV browser suite, then `bin/build-plugin`. The build rejects a stale minified runtime.
-- Install the ZIP on a clean WordPress site without the MU adapter. Check activation, settings, blocks, consent changes, deactivation and uninstall.
-- Test on PHP 8.2 (the runtime minimum) as well as a current PHP version. PHPUnit 12 requires PHP 8.3 or newer for development.
-- Run the official [Plugin Check](https://wordpress.org/plugins/plugin-check/) against the built plugin and address its findings.
-- Confirm the contributor account and set `Tested up to` in `readme.txt` to the WordPress version actually tested. The existing value is not a substitute for a compatibility run.
-- Review the readme's privacy disclosure and cookie inventory against the release behaviour.
+`composer check` runs:
 
-The formatter uses only the PSR-12 preset, with no WordPress PHPCS ruleset or risky fixers. PHPStan checks WordPress API usage separately. `composer format:check` reports changes without writing files. All quality tools are development dependencies and are excluded from the plugin ZIP.
+- **PHPCS** with the WordPress security, database, i18n and prefix sniffs (formatting is PHP CS Fixer's job).
+- **PHPStan** at level 9 with WordPress stubs.
+- **PHPUnit** for the framework-agnostic classes in `src/`.
+- **Node tests** that check `consent.min.js` is current, under the 5 KB gzip budget, and parses cookies exactly like the PHP codec (`tests/fixtures/cookie-codec.json`).
 
-JavaScript uses ESLint's recommended rules with browser globals for shipped scripts and Node globals for test tooling. Playwright specs also allow browser globals for page callbacks. The generated `assets/consent.min.js` is excluded from ESLint; the existing build tests verify it matches the linted source. Vendor, build and test artifact directories are excluded too. ESLint runs through `pnpm lint`, `composer lint` and `composer check`. It does not impose a separate formatting preset or require WordPress's larger JavaScript toolchain.
+### Browser tests
+
+The Playwright suite runs against [wp-env](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/), with the plugin active as a regular plugin:
+
+```sh
+pnpm exec playwright install chromium   # once
+pnpm exec wp-env start
+pnpm test:e2e
+```
+
+It covers visitor flows with axe accessibility checks, the consent log and its abuse limits, Consent Mode, embeds, GPC, the WP Consent API, and the settings screen. It adds a fixture MU-plugin and test pages, never contacts third parties, and removes everything it added afterwards. Screenshots go to `tests/e2e/artifacts/`.
+
+To run it against a local DDEV site that loads the plugin as an MU-plugin instead:
+
+```sh
+MORTAR_CONSENT_E2E_ENV=ddev MORTAR_CONSENT_E2E_SITE=../path/to/site pnpm test:e2e
+```
+
+CI runs all of the above on every push, with PHPUnit on PHP 8.2–8.5 and the browser tests on WordPress 6.5 and the latest release.
+
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Please report security issues privately as described in [SECURITY.md](SECURITY.md), not in public issues.
+
+## Licence
+
+GPL-2.0-or-later. See [LICENSE](LICENSE).

@@ -24,7 +24,7 @@ OUT="$ROOT/build"
 STAGE="$OUT/mortar-consent"
 
 rm -rf "$STAGE" "$OUT/mortar-consent-$VERSION.zip"
-mkdir -p "$STAGE/assets" "$STAGE/languages"
+mkdir -p "$STAGE/assets"
 
 cp -R "$ROOT/src" "$ROOT/blocks" "$STAGE/"
 cp "$ROOT/mortar-consent.php" "$ROOT/uninstall.php" "$ROOT/functions.php" "$ROOT/readme.txt" "$ROOT/LICENSE" "$STAGE/"

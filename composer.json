@@ -1,6 +1,6 @@
 {
   "name": "mortar-digital/consent",
-  "description": "First-party cookie consent for Mortar Digital WordPress sites: granular opt-in, script gating and no third-party services.",
+  "description": "Self-hosted cookie consent for WordPress: opt-in by category, script and embed gating, Consent Mode v2, and no third-party services.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
   "require": {

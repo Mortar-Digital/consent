@@ -54,8 +54,8 @@ final class RateLimiter
 
     /**
      * The address the web server saw. Behind a proxy, configure the server's
-     * real-IP module (the Helm chart's nginx.trustedProxies) rather than
-     * trusting forwarded headers here.
+     * real-IP module (or the mortar_consent_client_ip filter) rather than
+     * trusting forwarded headers here, which any client can set.
      */
     public static function clientIp(): string
     {
