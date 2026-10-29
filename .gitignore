@@ -18,3 +18,6 @@ tests/e2e/artifacts/
 .vscode/
 .DS_Store
 *.log
+
+# wp-env writes the e2e fixture MU-plugin here
+tests/e2e/wp-env/mu-plugins/*.php

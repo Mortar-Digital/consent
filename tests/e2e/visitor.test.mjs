@@ -4,7 +4,7 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { BASE, ARTIFACTS, launch, context, ready } from './lib.mjs';
+import { BASE, ARTIFACTS, wp, launch, context, ready } from './lib.mjs';
 
 const require = createRequire(import.meta.url);
 const AXE = require.resolve('axe-core');
@@ -26,6 +26,19 @@ const waitRecords = async (n) => {
 	}
 	assert.equal(records.length, n, `expected ${n} consent records`);
 };
+// The record is posted with keepalive just before a reload, so check that
+// the server stored it rather than waiting for a response the page may lose.
+const storedFor = async (id, n) => {
+	let count = 0;
+	for (let t = 0; t < 50; t++) {
+		count = Number(wp(['eval', `global $wpdb; echo (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i WHERE consent_id = %s', $wpdb->prefix . 'mortar_consent_log', ${JSON.stringify(id)}));`]));
+		if (count >= n) {
+			break;
+		}
+		await page.waitForTimeout(100);
+	}
+	return count;
+};
 
 before(async () => {
 	browser = await launch();
@@ -35,9 +48,11 @@ before(async () => {
 			trackerRequests.push(r.url());
 		}
 	});
-	page.on('response', (r) => {
-		if (r.url().includes('mortar-consent/v1/records') && r.request().method() === 'POST') {
-			records.push({ status: r.status(), body: JSON.parse(r.request().postData() || 'null') });
+	// Count records when they are sent: the page often reloads straight after
+	// a keepalive POST, so its response may never reach this page.
+	page.on('request', (r) => {
+		if (r.url().includes('mortar-consent/v1/records') && r.method() === 'POST') {
+			records.push({ body: JSON.parse(r.postData() || 'null') });
 		}
 	});
 });
@@ -72,7 +87,7 @@ test('reject all is remembered, loads nothing and is logged', async () => {
 	assert.deepEqual(trackerRequests, []);
 	assert.equal(await log(), null);
 	await waitRecords(1);
-	assert.equal(records[0].status, 201);
+	assert.equal(await storedFor(consentId, 1), 1);
 	assert.deepEqual(records[0].body, { consentId, policyVersion: records[0].body.policyVersion, granted: [], method: 'reject-all' });
 });
 
@@ -113,6 +128,7 @@ test('withdrawal reloads, removes owned cookies, stops scripts and is logged', a
 	assert.equal(await log(), null);
 	await waitRecords(3);
 	assert.deepEqual(records[2].body.granted, []);
+	assert.equal(await storedFor(consentId, 3), 3);
 });
 
 test('Escape closes the dialog without saving and returns focus', async () => {

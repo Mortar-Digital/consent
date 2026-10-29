@@ -1,7 +1,7 @@
 <?php
 
 /**
- * E2E fixture for packages/consent. Installed into a local site by
+ * E2E fixture for Mortar Consent. Installed into the test site by
  * tests/e2e/run.mjs and removed afterwards. Never deploy it.
  */
 
@@ -35,7 +35,10 @@ add_filter('mortar_consent_config', static function (array $config): array {
 });
 
 add_action('wp_enqueue_scripts', static function (): void {
-    $src = WPMU_PLUGIN_URL . '/mortar-consent/tests/e2e/fixture/tracker.js';
+    // Regular plugin under wp-env, MU-plugin on a Bedrock site.
+    $src = is_file(WP_PLUGIN_DIR . '/mortar-consent/mortar-consent.php')
+        ? plugins_url('mortar-consent/tests/e2e/fixture/tracker.js')
+        : WPMU_PLUGIN_URL . '/mortar-consent/tests/e2e/fixture/tracker.js';
     wp_enqueue_script('md-test-analytics', $src, [], '1', ['in_footer' => true]);
     wp_add_inline_script('md-test-analytics', 'window.mdTestBefore = 1; window.mdTestLog = (window.mdTestLog||[]).concat("before");', 'before');
     wp_add_inline_script('md-test-analytics', 'window.mdTestLog = (window.mdTestLog||[]).concat("after");', 'after');

@@ -4,9 +4,9 @@
 // validation.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { BASE, ARTIFACTS, wp, launch, context } from './lib.mjs';
+import { BASE, ARTIFACTS, FIXTURES, wp, launch, context } from './lib.mjs';
 
-const fixture = (name) => `/var/www/html/web/app/mu-plugins/mortar-consent/tests/e2e/fixture/${name}`;
+const fixture = (name) => `${FIXTURES}/${name}`;
 
 let browser, page, errors;
 let putBody = null;

@@ -70,3 +70,39 @@ jobs:
 
       - run: composer install --no-interaction --no-progress
       - run: vendor/bin/phpunit
+
+  e2e:
+    name: E2E (WordPress ${{ matrix.wp }}, PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Oldest supported pair, then current WordPress on the oldest and newest PHP.
+          - { wp: '6.5', php: '8.2' }
+          - { wp: latest, php: '8.2' }
+          - { wp: latest, php: '8.5' }
+    env:
+      WP_ENV_PHP_VERSION: ${{ matrix.php }}
+      WP_ENV_CORE: ${{ matrix.wp != 'latest' && format('WordPress/WordPress#{0}', matrix.wp) || '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec wp-env start
+      - run: pnpm test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-screenshots-wp${{ matrix.wp }}-php${{ matrix.php }}
+          path: tests/e2e/artifacts/
+          if-no-files-found: ignore

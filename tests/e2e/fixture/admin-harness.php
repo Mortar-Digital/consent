@@ -7,10 +7,12 @@
  */
 
 wp_set_current_user(1);
+// Regular plugin under wp-env, MU-plugin on a Bedrock site.
+$base = is_file(WP_PLUGIN_DIR . '/mortar-consent/mortar-consent.php') ? plugins_url('mortar-consent') : WPMU_PLUGIN_URL . '/mortar-consent';
 remove_all_filters('mortar_consent_overrides');
-wp_enqueue_script('mortar-consent-admin', WPMU_PLUGIN_URL . '/mortar-consent/assets/admin.js', ['wp-element', 'wp-components', 'wp-api-fetch', 'wp-i18n'], (string) time(), ['in_footer' => true]);
+wp_enqueue_script('mortar-consent-admin', $base . '/assets/admin.js', ['wp-element', 'wp-components', 'wp-api-fetch', 'wp-i18n'], (string) time(), ['in_footer' => true]);
 wp_add_inline_script('mortar-consent-admin', 'window.mortarConsentAdmin = ' . wp_json_encode(['exportUrl' => '#export']) . ';', 'before');
-wp_register_style('mortar-consent-admin', WPMU_PLUGIN_URL . '/mortar-consent/assets/admin.css', ['wp-components'], (string) time());
+wp_register_style('mortar-consent-admin', $base . '/assets/admin.css', ['wp-components'], (string) time());
 ob_start();
 wp_styles()->do_items(['wp-components', 'common', 'forms', 'list-tables', 'mortar-consent-admin']);
 wp_scripts()->do_items(['mortar-consent-admin']);

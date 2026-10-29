@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/wp-env.json",
+  "core": null,
+  "testsEnvironment": false,
+  "phpVersion": "8.2",
+  "plugins": [],
+  "themes": [],
+  "mappings": {
+    "wp-content/plugins/mortar-consent": ".",
+    "wp-content/mu-plugins": "./tests/e2e/wp-env/mu-plugins"
+  },
+  "config": {
+    "WP_ENVIRONMENT_TYPE": "local",
+    "WP_DEBUG": true,
+    "SCRIPT_DEBUG": false
+  }
+}

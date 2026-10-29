@@ -1,27 +1,14 @@
-// Shared helpers for the e2e specs. Environment (set by run.mjs):
-//   MORTAR_CONSENT_E2E_URL   site home URL, e.g. https://example.dev.skelton.digital
-//   MORTAR_CONSENT_E2E_SITE  path to the site checkout (for `ddev wp`)
-import { spawnSync } from 'node:child_process';
+// Shared helpers for the e2e specs. run.mjs sets MORTAR_CONSENT_E2E_URL; the
+// environment (wp-env or DDEV) and its WP-CLI come from env.mjs.
 import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { env, wp } from './env.mjs';
 
-export const BASE = (process.env.MORTAR_CONSENT_E2E_URL || '').replace(/\/$/, '');
-export const SITE = process.env.MORTAR_CONSENT_E2E_SITE || '';
+export { wp };
+export const BASE = env.url.replace(/\/$/, '');
+export const FIXTURES = env.fixtures;
 export const ARTIFACTS = new URL('./artifacts/', import.meta.url).pathname;
 mkdirSync(ARTIFACTS, { recursive: true });
-
-if (!BASE || !SITE) {
-	throw new Error('Run the e2e suite through tests/e2e/run.mjs (it sets MORTAR_CONSENT_E2E_URL and MORTAR_CONSENT_E2E_SITE).');
-}
-
-/** Runs WP-CLI in the site's DDEV project. */
-export function wp(args, input) {
-	const result = spawnSync('ddev', ['wp', ...args], { cwd: SITE, input, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
-	if (result.status !== 0) {
-		throw new Error(`ddev wp ${args.join(' ')} failed: ${result.stderr || result.stdout}`);
-	}
-	return result.stdout.trim();
-}
 
 export const launch = () => chromium.launch();
 
