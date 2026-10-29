@@ -49,11 +49,10 @@ final class Plugin
     {
         // Loaded as an MU package or as the standalone plugin build.
         if (str_starts_with(wp_normalize_path($this->dir), wp_normalize_path(WPMU_PLUGIN_DIR))) {
-            load_muplugin_textdomain('md-consent', basename($this->dir) . '/languages');
+            load_muplugin_textdomain('mortar-consent', basename($this->dir) . '/languages');
         } else {
-            load_plugin_textdomain('md-consent', false, basename($this->dir) . '/languages');
+            load_plugin_textdomain('mortar-consent', false, basename($this->dir) . '/languages');
         }
-        (new LegacyMigration($this->log))->run();
         register_setting('md_consent', ConfigProvider::OPTION, [
             'type' => 'object',
             'default' => [],
@@ -105,7 +104,7 @@ final class Plugin
     public function has(string $category): bool
     {
         $policy = $this->configProvider->get()->policy;
-        $raw = $_COOKIE[ConsentCookieCodec::COOKIE_NAME] ?? $_COOKIE[ConsentCookieCodec::LEGACY_COOKIE_NAME] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- strictly validated by the codec.
+        $raw = $_COOKIE[ConsentCookieCodec::COOKIE_NAME] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- strictly validated by the codec.
         $state = is_string($raw) ? (new ConsentCookieCodec())->decode(wp_unslash($raw), $policy->categories) : null;
 
         return $policy->allows($state, $category, time());
@@ -140,7 +139,7 @@ final class Plugin
         $editorDeps = ['wp-blocks', 'wp-block-editor', 'wp-components', 'wp-element', 'wp-i18n', 'wp-server-side-render'];
         foreach (['settings-button', 'cookie-declaration'] as $block) {
             wp_register_script("md-consent-{$block}-editor", "{$this->url}/blocks/{$block}/index.js", $editorDeps, $this->version("blocks/{$block}/index.js"), ['in_footer' => true]);
-            wp_set_script_translations("md-consent-{$block}-editor", 'md-consent');
+            wp_set_script_translations("md-consent-{$block}-editor", 'mortar-consent');
         }
 
         register_block_type($this->dir . '/blocks/settings-button', [

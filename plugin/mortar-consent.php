@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name:       MD Consent
+ * Plugin Name:       Mortar Consent
  * Description:       Cookie consent that is opt-in, lets visitors choose and change their mind, and never calls third-party services.
  * Version:           __VERSION__
  * Requires at least: 6.5
@@ -9,7 +9,7 @@
  * Author:            Mortar Digital
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       md-consent
+ * Text Domain:       mortar-consent
  * Domain Path:       /languages
  */
 
@@ -25,7 +25,7 @@ if (! defined('ABSPATH')) {
 // Never boot twice.
 if (class_exists(Plugin::class) && Plugin::instance() !== null) {
     add_action('admin_notices', static function (): void {
-        echo '<div class="notice notice-warning"><p>' . esc_html__('MD Consent is already loaded as a must-use plugin. Deactivate one of them.', 'md-consent') . '</p></div>';
+        echo '<div class="notice notice-warning"><p>' . esc_html__('Mortar Consent is already loaded as a must-use plugin. Deactivate one of them.', 'mortar-consent') . '</p></div>';
     });
 
     return;

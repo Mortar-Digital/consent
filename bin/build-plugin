@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds the standalone plugin zip from this package:
-#   bin/build-plugin            -> build/md-consent-<version>.zip
+#   bin/build-plugin            -> build/mortar-consent-<version>.zip
 # Requires development dependencies (composer install; pnpm install).
 set -euo pipefail
 
@@ -15,21 +15,21 @@ if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   exit 1
 fi
 OUT="$ROOT/build"
-STAGE="$OUT/md-consent"
+STAGE="$OUT/mortar-consent"
 
-rm -rf "$STAGE" "$OUT/md-consent-$VERSION.zip"
+rm -rf "$STAGE" "$OUT/mortar-consent-$VERSION.zip"
 mkdir -p "$STAGE/assets" "$STAGE/languages"
 
 cp -R "$ROOT/src" "$ROOT/blocks" "$ROOT/functions.php" "$STAGE/"
 cp "$ROOT/assets/consent.js" "$ROOT/assets/consent.min.js" "$ROOT/assets/consent.css" "$ROOT/assets/admin.js" "$ROOT/assets/admin.css" "$STAGE/assets/"
 cp "$ROOT/LICENSE" "$STAGE/"
 cp "$ROOT/plugin/uninstall.php" "$STAGE/"
-for file in md-consent.php readme.txt; do
+for file in mortar-consent.php readme.txt; do
   sed "s/__VERSION__/$VERSION/g" "$ROOT/plugin/$file" > "$STAGE/$file"
 done
 
 # Fail on any PHP syntax error in what ships.
 find "$STAGE" -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
 
-(cd "$OUT" && zip -qr "md-consent-$VERSION.zip" md-consent)
-echo "Built $OUT/md-consent-$VERSION.zip"
+(cd "$OUT" && zip -qr "mortar-consent-$VERSION.zip" mortar-consent)
+echo "Built $OUT/mortar-consent-$VERSION.zip"

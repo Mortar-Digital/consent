@@ -178,7 +178,7 @@ final class EmbedGate
     private function placeholder(string $original, string $provider, string $category, string $host): string
     {
         $texts = $this->config->texts;
-        $name = self::NAMES[$provider] ?? ($host !== '' ? $host : ($provider !== '' && $provider !== 'other' ? ucwords(str_replace('-', ' ', $provider)) : __('a third party', 'md-consent')));
+        $name = self::NAMES[$provider] ?? ($host !== '' ? $host : ($provider !== '' && $provider !== 'other' ? ucwords(str_replace('-', ' ', $provider)) : __('a third party', 'mortar-consent')));
         $label = $this->config->policy->categories->get($category)->label;
 
         return sprintf(

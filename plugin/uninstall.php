@@ -20,5 +20,4 @@ if (defined('MD_CONSENT_DELETE_DATA_ON_UNINSTALL') && MD_CONSENT_DELETE_DATA_ON_
     $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $wpdb->prefix . 'md_consent_log'));
     delete_option('md_consent_settings');
     delete_option('md_consent_log_schema');
-    delete_option('md_consent_migrated');
 }

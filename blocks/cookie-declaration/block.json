@@ -7,7 +7,7 @@
   "icon": "list-view",
   "description": "Lists every cookie category and the cookies it sets, from the cookie consent settings.",
   "keywords": ["cookie", "consent", "privacy", "policy"],
-  "textdomain": "md-consent",
+  "textdomain": "mortar-consent",
   "attributes": {
     "showSettingsButton": {
       "type": "boolean",

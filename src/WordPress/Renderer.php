@@ -113,10 +113,10 @@ final class Renderer
 <div class="md-consent-declaration__table-wrap">
 <table class="md-consent-declaration__table">
 <thead><tr>
-<th scope="col"><?php esc_html_e('Cookie', 'md-consent'); ?></th>
-<th scope="col"><?php esc_html_e('Provider', 'md-consent'); ?></th>
-<th scope="col"><?php esc_html_e('Purpose', 'md-consent'); ?></th>
-<th scope="col"><?php esc_html_e('Duration', 'md-consent'); ?></th>
+<th scope="col"><?php esc_html_e('Cookie', 'mortar-consent'); ?></th>
+<th scope="col"><?php esc_html_e('Provider', 'mortar-consent'); ?></th>
+<th scope="col"><?php esc_html_e('Purpose', 'mortar-consent'); ?></th>
+<th scope="col"><?php esc_html_e('Duration', 'mortar-consent'); ?></th>
 </tr></thead>
 <tbody>
 <?php foreach ($category->cookies as $cookie) : ?>

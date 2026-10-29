@@ -13,7 +13,7 @@
 				...useBlockProps({ className: 'md-consent-open' }),
 				tagName: 'span',
 				value: attributes.label,
-				placeholder: __('Cookie settings', 'md-consent'),
+				placeholder: __('Cookie settings', 'mortar-consent'),
 				allowedFormats: [],
 				withoutInteractiveFormatting: true,
 				onChange: (label) => setAttributes({ label }),

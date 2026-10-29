@@ -26,8 +26,8 @@ final class AdminPage
     {
         add_action('admin_menu', function (): void {
             $this->hook = (string) add_options_page(
-                __('Cookie consent', 'md-consent'),
-                __('Cookie consent', 'md-consent'),
+                __('Cookie consent', 'mortar-consent'),
+                __('Cookie consent', 'mortar-consent'),
                 RestController::capability(),
                 self::SLUG,
                 $this->render(...),
@@ -37,14 +37,14 @@ final class AdminPage
         add_action('admin_post_' . self::EXPORT_ACTION, $this->export(...));
         // A "Settings" link on the plugin's row, whether it is listed under
         // Must-Use (the MU adapter) or as the standalone plugin; both files
-        // are named md-consent.php.
+        // are named mortar-consent.php.
         add_filter('plugin_action_links', static function (array $actions, string $file): array {
-            if (basename($file) !== 'md-consent.php' || ! current_user_can(RestController::capability())) {
+            if (basename($file) !== 'mortar-consent.php' || ! current_user_can(RestController::capability())) {
                 return $actions;
             }
 
             return [
-                'settings' => sprintf('<a href="%s">%s</a>', esc_url(admin_url('options-general.php?page=' . self::SLUG)), esc_html__('Settings', 'md-consent')),
+                'settings' => sprintf('<a href="%s">%s</a>', esc_url(admin_url('options-general.php?page=' . self::SLUG)), esc_html__('Settings', 'mortar-consent')),
                 ...$actions,
             ];
         }, 10, 2);
@@ -54,10 +54,10 @@ final class AdminPage
     {
         ?>
 <div class="wrap">
-<h1><?php esc_html_e('Cookie consent', 'md-consent'); ?></h1>
-<p class="md-consent-intro"><?php esc_html_e('Choose what visitors are asked, which scripts and embeds wait for their consent, and review the choices they make.', 'md-consent'); ?></p>
-<div id="md-consent-admin"><p class="md-consent-loading"><?php esc_html_e('Loading…', 'md-consent'); ?></p></div>
-<noscript><p><?php esc_html_e('This screen needs JavaScript.', 'md-consent'); ?></p></noscript>
+<h1><?php esc_html_e('Cookie consent', 'mortar-consent'); ?></h1>
+<p class="md-consent-intro"><?php esc_html_e('Choose what visitors are asked, which scripts and embeds wait for their consent, and review the choices they make.', 'mortar-consent'); ?></p>
+<div id="md-consent-admin"><p class="md-consent-loading"><?php esc_html_e('Loading…', 'mortar-consent'); ?></p></div>
+<noscript><p><?php esc_html_e('This screen needs JavaScript.', 'mortar-consent'); ?></p></noscript>
 </div>
         <?php
     }
@@ -73,7 +73,7 @@ final class AdminPage
             return $mtime === false ? '0' : (string) $mtime;
         };
         wp_enqueue_script('md-consent-admin', $this->url . '/assets/admin.js', ['wp-element', 'wp-components', 'wp-api-fetch', 'wp-i18n'], $version($this->dir . '/assets/admin.js'), ['in_footer' => true]);
-        wp_set_script_translations('md-consent-admin', 'md-consent');
+        wp_set_script_translations('md-consent-admin', 'mortar-consent');
         wp_add_inline_script('md-consent-admin', 'window.mdConsentAdmin = ' . wp_json_encode([
             'exportUrl' => wp_nonce_url(admin_url('admin-post.php?action=' . self::EXPORT_ACTION), self::EXPORT_ACTION),
         ], JSON_HEX_TAG | JSON_HEX_AMP) . ';', 'before');
@@ -84,7 +84,7 @@ final class AdminPage
     public function export(): void
     {
         if (! current_user_can(RestController::capability())) {
-            wp_die(esc_html__('You are not allowed to export consent records.', 'md-consent'), '', ['response' => 403]);
+            wp_die(esc_html__('You are not allowed to export consent records.', 'mortar-consent'), '', ['response' => 403]);
         }
         check_admin_referer(self::EXPORT_ACTION);
 

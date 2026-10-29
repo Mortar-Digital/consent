@@ -1,4 +1,4 @@
-=== MD Consent ===
+=== Mortar Consent ===
 Contributors: mortardigital
 Requires at least: 6.5
 Tested up to: 7.1
@@ -28,8 +28,8 @@ Deleting the plugin keeps your settings and consent log unless `MD_CONSENT_DELET
 
 == Installation ==
 
-1. Upload the md-consent directory to wp-content/plugins, or install the ZIP through Plugins → Add New → Upload Plugin.
-2. Activate MD Consent.
+1. Upload the mortar-consent directory to wp-content/plugins, or install the ZIP through Plugins → Add New → Upload Plugin.
+2. Activate Mortar Consent.
 3. Configure Settings → Cookie consent. Add your tracking script handles, cookie inventory and policy link before enabling trackers.
 4. Add the Cookie declaration block to your cookie policy page and test accepting, rejecting and withdrawing consent.
 

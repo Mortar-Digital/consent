@@ -10,7 +10,6 @@
 	const SCHEMA = 1;
 	const MAX_LENGTH = 1024;
 	const CLOCK_SKEW = 300;
-	const LEGACY_COOKIE = 'sd_consent';
 	const ID = '[a-z][a-z0-9_-]{0,31}';
 	const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}';
 	const PATTERN = new RegExp(`^${SCHEMA}\\|([1-9][0-9]{0,8})\\|([0-9]{1,12})\\|(${UUID})\\|((?:${ID})(?:\\.${ID})*)?$`);
@@ -482,16 +481,6 @@
 		}),
 	});
 
-	// Choices made before the rename live in the legacy cookie: carry them
-	// over once so visitors are not asked again, then drop the old one.
-	const legacy = readCookie(config.cookie.name) === null ? decode(readCookie(LEGACY_COOKIE), config.categories) : null;
-	if (legacy) {
-		writeCookie(legacy);
-	}
-	if (readCookie(LEGACY_COOKIE) !== null) {
-		const domain = config.cookie.domain ? `; Domain=${config.cookie.domain}` : '';
-		document.cookie = `${LEGACY_COOKIE}=; Max-Age=0; Path=/${domain}`;
-	}
 	const stored = decode(readCookie(config.cookie.name), config.categories);
 	if (stored && isCurrent(stored, config, now())) {
 		current = stored;

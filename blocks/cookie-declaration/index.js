@@ -19,9 +19,9 @@
 					null,
 					el(
 						PanelBody,
-						{ title: __('Settings', 'md-consent') },
+						{ title: __('Settings', 'mortar-consent') },
 						el(ToggleControl, {
-							label: __('Show cookie settings button', 'md-consent'),
+							label: __('Show cookie settings button', 'mortar-consent'),
 							checked: attributes.showSettingsButton,
 							onChange: (showSettingsButton) => setAttributes({ showSettingsButton }),
 						})

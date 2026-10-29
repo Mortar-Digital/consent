@@ -15,8 +15,6 @@ namespace MortarDigital\Consent;
 final class ConsentCookieCodec
 {
     public const COOKIE_NAME = 'md_consent';
-    /** Set before the rename; read until the runtime has carried it over. */
-    public const LEGACY_COOKIE_NAME = 'sd_consent';
     public const SCHEMA = 1;
     private const MAX_LENGTH = 1024;
 
