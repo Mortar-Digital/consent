@@ -1,0 +1,16 @@
+* text=auto eol=lf
+
+# Keep development files out of Composer dist archives.
+# The WordPress.org zip is built separately by bin/build-plugin from an explicit file list.
+/.github export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/.php-cs-fixer.dist.php export-ignore
+/bin export-ignore
+/eslint.config.js export-ignore
+/package.json export-ignore
+/phpstan.neon.dist export-ignore
+/phpunit.xml.dist export-ignore
+/PLAN.md export-ignore
+/pnpm-lock.yaml export-ignore
+/tests export-ignore

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "md-consent/cookie-declaration",
+  "title": "Cookie declaration",
+  "category": "widgets",
+  "icon": "list-view",
+  "description": "Lists every cookie category and the cookies it sets, from the cookie consent settings.",
+  "keywords": ["cookie", "consent", "privacy", "policy"],
+  "textdomain": "md-consent",
+  "attributes": {
+    "showSettingsButton": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": ["wide", "full"],
+    "spacing": { "margin": true, "padding": true },
+    "typography": { "fontSize": true }
+  },
+  "editorScript": "md-consent-cookie-declaration-editor"
+}

@@ -1,0 +1,58 @@
+{
+  "name": "mortar-digital/consent",
+  "description": "First-party cookie consent for Mortar Digital WordPress sites: granular opt-in, script gating and no third-party services.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "version": "0.1.0",
+  "require": {
+    "php": ">=8.2",
+    "composer/installers": "^2.3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^12.0",
+    "phpstan/phpstan": "^2.1",
+    "szepeviktor/phpstan-wordpress": "^2.0",
+    "php-cs-fixer/shim": "^3.95"
+  },
+  "autoload": {
+    "psr-4": {
+      "MortarDigital\\Consent\\": "src/"
+    },
+    "files": [
+      "functions.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MortarDigital\\Consent\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "installer-name": "md-consent"
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true
+    }
+  },
+  "scripts": {
+    "test": [
+      "phpunit",
+      "node --test --test-isolation=none tests/js"
+    ],
+    "analyse": "phpstan analyse --no-progress --memory-limit=1G",
+    "lint": [
+      "php bin/lint",
+      "@lint:js"
+    ],
+    "format": "php-cs-fixer fix",
+    "format:check": "php-cs-fixer fix --dry-run --diff",
+    "check": [
+      "@lint",
+      "@format:check",
+      "@analyse",
+      "@test"
+    ],
+    "lint:js": "node node_modules/eslint/bin/eslint.js . --max-warnings=0"
+  }
+}

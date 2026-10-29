@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+// Syntax-check owned PHP and JavaScript without including build/vendor trees.
+$root = dirname(__DIR__);
+$files = [__FILE__, $root . '/functions.php', $root . '/.php-cs-fixer.dist.php'];
+foreach (['src', 'plugin', 'tests', 'assets', 'blocks'] as $directory) {
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root . '/' . $directory, FilesystemIterator::SKIP_DOTS)) as $file) {
+        if ($file->isFile() && in_array($file->getExtension(), ['php', 'js', 'mjs'], true)) {
+            $files[] = $file->getPathname();
+        }
+    }
+}
+sort($files);
+foreach ($files as $file) {
+    $command = pathinfo($file, PATHINFO_EXTENSION) === 'php' || $file === __FILE__
+        ? [PHP_BINARY, '-l', $file]
+        : ['node', '--check', $file];
+    $process = proc_open($command, [STDIN, STDOUT, STDERR], $pipes, $root);
+    if (! is_resource($process) || proc_close($process) !== 0) {
+        exit(1);
+    }
+}
+echo "PHP and JavaScript syntax checks passed.\n";

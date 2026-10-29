@@ -1,0 +1,24 @@
+{
+  "name": "mortar-digital-consent",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "esbuild assets/consent.js --minify --target=es2020 --legal-comments=none --outfile=assets/consent.min.js",
+    "test": "node --test --test-isolation=none tests/js",
+    "test:e2e": "node tests/e2e/run.mjs",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix --max-warnings=0"
+  },
+  "devDependencies": {
+    "axe-core": "^4.10.0",
+    "esbuild": "^0.25.0",
+    "playwright": "^1.50.0",
+    "eslint": "^9.39.5",
+    "@eslint/js": "^9.39.5",
+    "globals": "^16.3.0"
+  },
+  "packageManager": "pnpm@10.18.3"
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "md-consent/settings-button",
+  "title": "Cookie settings button",
+  "category": "widgets",
+  "icon": "privacy",
+  "description": "Lets visitors reopen their cookie preferences at any time.",
+  "keywords": ["cookie", "consent", "privacy", "gdpr"],
+  "textdomain": "md-consent",
+  "attributes": {
+    "label": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false,
+    "color": { "background": true, "text": true },
+    "spacing": { "margin": true, "padding": true },
+    "typography": { "fontSize": true }
+  },
+  "editorScript": "md-consent-settings-button-editor"
+}
