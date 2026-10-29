@@ -1,6 +1,7 @@
 {
   "name": "mortar-digital-consent",
   "private": true,
+  "license": "GPL-2.0-or-later",
   "engines": {
     "node": ">=24"
   },

@@ -23,15 +23,15 @@ final class SignalMap
     {
         foreach ($map as $signal => $ids) {
             if (! is_string($signal) || ! in_array($signal, $signals, true)) {
-                throw new InvalidConfiguration(esc_html(sprintf('%s: unknown signal "%s".', $name, is_string($signal) ? $signal : (string) $signal)));
+                throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: setting name, 2: signal name */ __('%1$s: unknown signal "%2$s".', 'mortar-consent'), $name, is_string($signal) ? $signal : (string) $signal)));
             }
             $ids = is_string($ids) ? [$ids] : $ids;
             if (! is_array($ids) || ! array_is_list($ids)) {
-                throw new InvalidConfiguration(esc_html(sprintf('%s: "%s" must map to a category id or list of ids.', $name, $signal)));
+                throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: setting name, 2: signal name */ __('%1$s: "%2$s" must map to a category id or list of ids.', 'mortar-consent'), $name, $signal)));
             }
             foreach ($ids as $id) {
                 if (! is_string($id) || ! $categories->has($id)) {
-                    throw new InvalidConfiguration(esc_html(sprintf('%s: "%s" refers to unknown category "%s".', $name, $signal, is_string($id) ? $id : gettype($id))));
+                    throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: setting name, 2: signal name, 3: category id */ __('%1$s: "%2$s" refers to unknown category "%3$s".', 'mortar-consent'), $name, $signal, is_string($id) ? $id : gettype($id))));
                 }
             }
             $this->map[$signal] = array_values(array_unique($ids));

@@ -13,11 +13,11 @@ final class CategoryRegistry
     public function __construct(Category ...$categories)
     {
         if ($categories === []) {
-            throw new InvalidConfiguration('At least one category is required.');
+            throw new InvalidConfiguration(esc_html__('At least one category is required.', 'mortar-consent'));
         }
         foreach ($categories as $category) {
             if (isset($this->categories[$category->id])) {
-                throw new InvalidConfiguration(esc_html(sprintf('Duplicate category id "%s".', $category->id)));
+                throw new InvalidConfiguration(esc_html(sprintf(/* translators: %s: category id */ __('Duplicate category id "%s".', 'mortar-consent'), $category->id)));
             }
             $this->categories[$category->id] = $category;
         }
@@ -30,7 +30,7 @@ final class CategoryRegistry
 
     public function get(string $id): Category
     {
-        return $this->categories[$id] ?? throw new InvalidConfiguration(esc_html(sprintf('Unknown category "%s".', $id)));
+        return $this->categories[$id] ?? throw new InvalidConfiguration(esc_html(sprintf(/* translators: %s: category id */ __('Unknown category "%s".', 'mortar-consent'), $id)));
     }
 
     public function isOptional(string $id): bool

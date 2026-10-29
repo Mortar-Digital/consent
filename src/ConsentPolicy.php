@@ -19,10 +19,10 @@ final class ConsentPolicy
         public readonly int $lifetimeDays,
     ) {
         if ($version < 1) {
-            throw new InvalidConfiguration('Policy version must be a positive integer.');
+            throw new InvalidConfiguration(esc_html__('Policy version must be a positive integer.', 'mortar-consent'));
         }
         if ($lifetimeDays < 1 || $lifetimeDays > self::MAX_LIFETIME_DAYS) {
-            throw new InvalidConfiguration(esc_html(sprintf('Consent lifetime must be between 1 and %d days.', self::MAX_LIFETIME_DAYS)));
+            throw new InvalidConfiguration(esc_html(sprintf(/* translators: %d: maximum number of days */ __('Consent lifetime must be between 1 and %d days.', 'mortar-consent'), self::MAX_LIFETIME_DAYS)));
         }
     }
 

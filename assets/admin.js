@@ -24,10 +24,10 @@
 		privacy_link: __('Cookie policy link text', 'mortar-consent'),
 		settings_button: __('Cookie settings button', 'mortar-consent'),
 		consent_id: __('Consent ID label', 'mortar-consent'),
-		embed_notice: __('Embed placeholder text (%s = provider)', 'mortar-consent'),
+		embed_notice: /* translators: Field label. Keep %s as typed: it shows where the provider name goes. */ __('Embed placeholder text (%s = provider)', 'mortar-consent'),
 		embed_load: __('"Load this content" button', 'mortar-consent'),
-		embed_allow: __('"Always allow" button (%s = category)', 'mortar-consent'),
-		gpc_notice: __('Global Privacy Control notice (%s = categories)', 'mortar-consent'),
+		embed_allow: /* translators: Field label. Keep %s as typed: it shows where the category name goes. */ __('"Always allow" button (%s = category)', 'mortar-consent'),
+		gpc_notice: /* translators: Field label. Keep %s as typed: it shows where the category names go. */ __('Global Privacy Control notice (%s = categories)', 'mortar-consent'),
 	};
 	/** Wording grouped by where visitors see it; unknown keys join the last group. */
 	const TEXT_GROUPS = [
@@ -232,7 +232,7 @@
 					el('div', null,
 						el('span', { className: 'mortar-consent-version__label' }, __('Current version', 'mortar-consent')),
 						el('span', { className: 'mortar-consent-version__value' },
-							sprintf(__('Version %d', 'mortar-consent'), draft.policy_version),
+							sprintf(/* translators: %d: cookie policy version number */ __('Version %d', 'mortar-consent'), draft.policy_version),
 							bumped && badge(__('Visitors asked again on save', 'mortar-consent'), 'warning')
 						)
 					),
@@ -352,7 +352,7 @@
 			' ',
 			category.required && badge(__('Always on', 'mortar-consent'), 'success'),
 			category.required && ' ',
-			el('span', { className: 'mortar-consent-category-title__meta' }, sprintf(_n('%d cookie', '%d cookies', category.cookies.length, 'mortar-consent'), category.cookies.length))
+			el('span', { className: 'mortar-consent-category-title__meta' }, sprintf(/* translators: %d: number of cookies */ _n('%d cookie', '%d cookies', category.cookies.length, 'mortar-consent'), category.cookies.length))
 		);
 
 		return el(
@@ -397,7 +397,7 @@
 											isDestructive: true,
 											size: 'compact',
 											disabled: locked,
-											'aria-label': sprintf(__('Remove cookie %s', 'mortar-consent'), cookie.name || cookieIndex + 1),
+											'aria-label': sprintf(/* translators: %s: cookie name, or its position in the list */ __('Remove cookie %s', 'mortar-consent'), cookie.name || cookieIndex + 1),
 											onClick: () => update(index, { cookies: category.cookies.filter((_, i) => i !== cookieIndex) }),
 										}, __('Remove', 'mortar-consent')))
 									)
@@ -593,7 +593,7 @@
 									isDestructive: true,
 									size: 'compact',
 									disabled: locked,
-									'aria-label': sprintf(__('Remove script %s', 'mortar-consent'), row.handle || index + 1),
+									'aria-label': sprintf(/* translators: %s: script handle, or its position in the list */ __('Remove script %s', 'mortar-consent'), row.handle || index + 1),
 									onClick: () => set('scripts', draft.scripts.filter((_, i) => i !== index)),
 								}, __('Remove', 'mortar-consent')))
 							)
@@ -748,7 +748,7 @@
 							el('td', null, el('code', null, r.consentId)),
 							el('td', null, badge(METHOD_LABELS[r.method] || r.method, METHOD_TONES[r.method])),
 							el('td', null, r.granted.join(', ') || '—'),
-							el('td', null, sprintf(__('v%d', 'mortar-consent'), r.policyVersion))
+							el('td', null, sprintf(/* translators: %d: cookie policy version number, shown as v1, v2… */ __('v%d', 'mortar-consent'), r.policyVersion))
 						)))
 				)
 			))

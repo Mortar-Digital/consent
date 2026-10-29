@@ -80,80 +80,80 @@ final class Config
     {
         $categories = $data['categories'] ?? null;
         if (! is_array($categories) || ! array_is_list($categories)) {
-            throw new InvalidConfiguration('"categories" must be a list.');
+            throw new InvalidConfiguration(esc_html__('"categories" must be a list.', 'mortar-consent'));
         }
         $registry = new CategoryRegistry(...array_map(
-            static fn (mixed $c): Category => is_array($c) ? Category::fromArray($c) : throw new InvalidConfiguration('Each category must be an array.'),
+            static fn (mixed $c): Category => is_array($c) ? Category::fromArray($c) : throw new InvalidConfiguration(esc_html__('Each category must be an array.', 'mortar-consent')),
             $categories,
         ));
 
         $version = $data['policy_version'] ?? null;
         $lifetime = $data['lifetime_days'] ?? null;
         if (! is_int($version) || ! is_int($lifetime)) {
-            throw new InvalidConfiguration('"policy_version" and "lifetime_days" must be integers.');
+            throw new InvalidConfiguration(esc_html__('"policy_version" and "lifetime_days" must be integers.', 'mortar-consent'));
         }
         $policy = new ConsentPolicy($registry, $version, $lifetime);
 
         $scripts = $data['scripts'] ?? [];
         if (! is_array($scripts)) {
-            throw new InvalidConfiguration('"scripts" must be a map of handle => category.');
+            throw new InvalidConfiguration(esc_html__('"scripts" must be a map of handle => category.', 'mortar-consent'));
         }
 
         $texts = $data['texts'] ?? null;
         if (! is_array($texts)) {
-            throw new InvalidConfiguration('"texts" must be an array.');
+            throw new InvalidConfiguration(esc_html__('"texts" must be an array.', 'mortar-consent'));
         }
         $cleanTexts = [];
         foreach (self::TEXT_KEYS as $key) {
             $text = $texts[$key] ?? null;
             if (! is_string($text) || trim($text) === '' || strlen($text) > self::MAX_TEXT_LENGTH) {
-                throw new InvalidConfiguration(esc_html(sprintf('Text "%s" must be a non-empty string under %d bytes.', $key, self::MAX_TEXT_LENGTH)));
+                throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: text key, 2: maximum length in bytes */ __('Text "%1$s" must be a non-empty string under %2$d bytes.', 'mortar-consent'), $key, self::MAX_TEXT_LENGTH)));
             }
             $cleanTexts[$key] = $text;
         }
 
         $privacyUrl = $data['privacy_policy_url'] ?? '';
         if (! is_string($privacyUrl) || ($privacyUrl !== '' && ! self::isSafeUrl($privacyUrl))) {
-            throw new InvalidConfiguration('"privacy_policy_url" must be an http(s) URL or a site-relative path.');
+            throw new InvalidConfiguration(esc_html__('"privacy_policy_url" must be an http(s) URL or a site-relative path.', 'mortar-consent'));
         }
 
         $domain = $data['cookie_domain'] ?? '';
         if (! is_string($domain) || ($domain !== '' && preg_match('/^\.?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/D', $domain) !== 1)) {
-            throw new InvalidConfiguration('"cookie_domain" must be empty or a lowercase hostname.');
+            throw new InvalidConfiguration(esc_html__('"cookie_domain" must be empty or a lowercase hostname.', 'mortar-consent'));
         }
 
         $reopen = $data['reopen_button'] ?? true;
         if (! is_bool($reopen)) {
-            throw new InvalidConfiguration('"reopen_button" must be a boolean.');
+            throw new InvalidConfiguration(esc_html__('"reopen_button" must be a boolean.', 'mortar-consent'));
         }
 
         $logEnabled = $data['log_enabled'] ?? true;
         $retention = $data['log_retention_days'] ?? 1095;
         if (! is_bool($logEnabled) || ! is_int($retention) || $retention < self::MIN_RETENTION_DAYS || $retention > self::MAX_RETENTION_DAYS) {
-            throw new InvalidConfiguration(esc_html(sprintf('"log_enabled" must be a boolean and "log_retention_days" between %d and %d.', self::MIN_RETENTION_DAYS, self::MAX_RETENTION_DAYS)));
+            throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: minimum days, 2: maximum days */ __('"log_enabled" must be a boolean and "log_retention_days" between %1$d and %2$d.', 'mortar-consent'), self::MIN_RETENTION_DAYS, self::MAX_RETENTION_DAYS)));
         }
 
         $consentMode = $data['consent_mode'] ?? ['enabled' => false, 'signals' => []];
         if (! is_array($consentMode) || ! is_bool($consentMode['enabled'] ?? null) || ! is_array($consentMode['signals'] ?? null)) {
-            throw new InvalidConfiguration('"consent_mode" needs a boolean "enabled" and a "signals" map.');
+            throw new InvalidConfiguration(esc_html__('"consent_mode" needs a boolean "enabled" and a "signals" map.', 'mortar-consent'));
         }
         // Validated even when disabled, so turning it on later cannot fail.
         $signals = new SignalMap($consentMode['signals'], $registry, self::CONSENT_MODE_SIGNALS, 'Consent Mode');
 
         $wpConsentApi = $data['wp_consent_api'] ?? [];
         if (! is_array($wpConsentApi)) {
-            throw new InvalidConfiguration('"wp_consent_api" must be a map of WP Consent API category => category ids.');
+            throw new InvalidConfiguration(esc_html__('"wp_consent_api" must be a map of WP Consent API category => category ids.', 'mortar-consent'));
         }
 
         [$embedCategory, $embedProviders] = self::embeds($data['embeds'] ?? ['category' => '', 'providers' => []], $registry);
 
         $gpc = $data['gpc_categories'] ?? [];
         if (! is_array($gpc) || ! array_is_list($gpc)) {
-            throw new InvalidConfiguration('"gpc_categories" must be a list of category ids.');
+            throw new InvalidConfiguration(esc_html__('"gpc_categories" must be a list of category ids.', 'mortar-consent'));
         }
         foreach ($gpc as $id) {
             if (! is_string($id) || ! $registry->isOptional($id)) {
-                throw new InvalidConfiguration(esc_html(sprintf('"gpc_categories" refers to "%s", which is not an optional category.', is_string($id) ? $id : gettype($id))));
+                throw new InvalidConfiguration(esc_html(sprintf(/* translators: %s: category id */ __('"gpc_categories" refers to "%s", which is not an optional category.', 'mortar-consent'), is_string($id) ? $id : gettype($id))));
             }
         }
 
@@ -188,18 +188,18 @@ final class Config
     private static function embeds(mixed $embeds, CategoryRegistry $registry): array
     {
         if (! is_array($embeds) || ! is_string($embeds['category'] ?? null) || ! is_array($embeds['providers'] ?? [])) {
-            throw new InvalidConfiguration('"embeds" needs a "category" string and an optional "providers" map.');
+            throw new InvalidConfiguration(esc_html__('"embeds" needs a "category" string and an optional "providers" map.', 'mortar-consent'));
         }
         $check = static function (string $id, string $what) use ($registry): void {
             if ($id !== '' && ! $registry->isOptional($id)) {
-                throw new InvalidConfiguration(esc_html(sprintf('%s refers to "%s", which is not an optional category.', $what, $id)));
+                throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: setting name, 2: category id */ __('%1$s refers to "%2$s", which is not an optional category.', 'mortar-consent'), $what, $id)));
             }
         };
         $check($embeds['category'], 'The embed category');
         $providers = [];
         foreach ($embeds['providers'] ?? [] as $provider => $id) {
             if (! is_string($provider) || preg_match('/^[a-z0-9-]{1,40}$/D', $provider) !== 1 || ! is_string($id)) {
-                throw new InvalidConfiguration('Embed providers must map a provider slug to a category id (or "" to never gate it).');
+                throw new InvalidConfiguration(esc_html__('Embed providers must map a provider slug to a category id (or "" to never gate it).', 'mortar-consent'));
             }
             $check($id, sprintf('Embed provider "%s"', $provider));
             $providers[$provider] = $id;

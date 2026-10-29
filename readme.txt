@@ -1,5 +1,6 @@
 === Mortar Consent ===
 Contributors: mortardigital
+Tags: cookie consent, gdpr, cookies, privacy, consent mode
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.2
