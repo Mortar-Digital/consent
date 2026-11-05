@@ -5,7 +5,7 @@
  * Plugin URI:        https://mortar.digital/plugins/consent/
  * Description:       Cookie consent that is opt-in, lets visitors choose and change their mind, and never calls third-party services.
  * Version:           0.1.0
- * Requires at least: 6.5
+ * Requires at least: 6.6
  * Requires PHP:      8.2
  * Author:            Mortar Digital
  * Author URI:        https://mortar.digital/

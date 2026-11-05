@@ -38,6 +38,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: composer lint
+      - name: Committed admin build is current
+        run: pnpm run build:admin && git diff --exit-code -- assets/admin
       - run: composer format:check
       - run: composer sniff
       - run: composer analyse
@@ -79,7 +81,7 @@ jobs:
       matrix:
         include:
           # Oldest supported pair, then current WordPress on the oldest and newest PHP.
-          - { wp: '6.5', php: '8.2' }
+          - { wp: '6.6', php: '8.2' }
           - { wp: latest, php: '8.2' }
           - { wp: latest, php: '8.5' }
     env:

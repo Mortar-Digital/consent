@@ -222,7 +222,8 @@ Requires PHP 8.2+, Composer, Node 24+ and pnpm. The integration and browser test
 composer install && pnpm install
 composer check         # syntax lint, ESLint, formatting, PHPCS, PHPStan, PHPUnit and JS tests
 composer format        # format PHP (PHP CS Fixer) and JS, JSON, CSS, YAML (Prettier)
-pnpm build             # after editing assets/consent.js; commit consent.min.js
+pnpm build             # after editing assets/consent.js or admin/; commit consent.min.js and assets/admin/
+pnpm start:admin       # rebuild the settings app on save while you work on it
 bin/build-plugin       # build/mortar-consent-<version>.zip
 ```
 
@@ -261,7 +262,7 @@ To run it against a local DDEV site that loads the plugin as an MU-plugin instea
 MORTAR_CONSENT_E2E_ENV=ddev MORTAR_CONSENT_E2E_SITE=../path/to/site pnpm test:e2e
 ```
 
-CI runs all of the above on every push: unit tests on PHP 8.2–8.5, and the integration and browser tests on WordPress 6.5 and the latest release.
+CI runs all of the above on every push: unit tests on PHP 8.2–8.5, and the integration and browser tests on WordPress 6.6 and the latest release.
 
 ## Contributing and security
 

@@ -14,7 +14,7 @@
     <arg name="colors"/>
     <arg value="sp"/>
 
-    <config name="minimum_wp_version" value="6.5"/>
+    <config name="minimum_wp_version" value="6.6"/>
 
     <rule ref="WordPress.Security"/>
     <rule ref="WordPress.DB"/>

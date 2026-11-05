@@ -16,3 +16,6 @@ assets/consent-mode.js
 *.md
 *.php
 *.html
+
+# Built by pnpm build:admin
+assets/admin/

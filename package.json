@@ -9,7 +9,10 @@
   },
   "type": "module",
   "scripts": {
-    "build": "esbuild assets/consent.js --minify --target=es2020 --legal-comments=none --outfile=assets/consent.min.js",
+    "build": "pnpm run build:runtime && pnpm run build:admin",
+    "build:runtime": "esbuild assets/consent.js --minify --target=es2020 --legal-comments=none --outfile=assets/consent.min.js",
+    "build:admin": "wp-scripts build admin/index.js --output-path=assets/admin",
+    "start:admin": "wp-scripts start admin/index.js --output-path=assets/admin",
     "test": "node --test --test-isolation=none 'tests/js/*.test.mjs'",
     "test:e2e": "node tests/e2e/run.mjs",
     "lint": "eslint . --max-warnings=0",
@@ -20,9 +23,12 @@
   "devDependencies": {
     "@eslint/js": "^9.39.5",
     "@wordpress/env": "^12.0.0",
+    "@wordpress/scripts": "^37.1.0",
     "axe-core": "^4.10.0",
     "esbuild": "^0.25.0",
     "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^16.3.0",
     "playwright": "^1.50.0",
     "prettier": "3.9.10"

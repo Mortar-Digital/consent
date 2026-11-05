@@ -8,6 +8,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 composer lint
 node --test --test-isolation=none tests/js/build.test.mjs
+# The settings app ships built; build it fresh rather than trust the working tree.
+pnpm run --silent build:admin > /dev/null
 
 # The plugin header is the one place the version is set.
 VERSION="$(sed -n 's/^ \* Version: *//p' "$ROOT/mortar-consent.php")"
@@ -26,9 +28,11 @@ STAGE="$OUT/mortar-consent"
 rm -rf "$STAGE" "$OUT/mortar-consent-$VERSION.zip"
 mkdir -p "$STAGE/assets"
 
-cp -R "$ROOT/src" "$ROOT/blocks" "$STAGE/"
+# admin/ is the readable source of assets/admin/index.js, shipped alongside it.
+cp -R "$ROOT/src" "$ROOT/blocks" "$ROOT/admin" "$STAGE/"
 cp "$ROOT/mortar-consent.php" "$ROOT/uninstall.php" "$ROOT/functions.php" "$ROOT/readme.txt" "$ROOT/LICENSE" "$STAGE/"
-cp "$ROOT/assets/consent.js" "$ROOT/assets/consent.min.js" "$ROOT/assets/consent-mode.js" "$ROOT/assets/consent.css" "$ROOT/assets/admin.js" "$ROOT/assets/admin.css" "$STAGE/assets/"
+cp "$ROOT/assets/consent.js" "$ROOT/assets/consent.min.js" "$ROOT/assets/consent-mode.js" "$ROOT/assets/consent.css" "$ROOT/assets/admin.css" "$STAGE/assets/"
+cp -R "$ROOT/assets/admin" "$STAGE/assets/"
 
 # Fail on any PHP syntax error in what ships.
 find "$STAGE" -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null

@@ -6,7 +6,7 @@ namespace MortarDigital\Consent\WordPress;
 
 /**
  * Settings → Cookie consent. The screen itself is a small React app
- * (assets/admin.js) that talks to the mortar-consent/v1 REST routes.
+ * (built from admin/ into assets/admin/) that talks to the mortar-consent/v1 REST routes.
  */
 final class AdminPage
 {
@@ -94,12 +94,34 @@ final class AdminPage
             return $mtime === false ? '0' : (string) $mtime;
         };
 
-        wp_enqueue_script('mortar-consent-admin', $this->url . '/assets/admin.js', ['wp-element', 'wp-components', 'wp-api-fetch', 'wp-i18n'], $version($this->dir . '/assets/admin.js'), ['in_footer' => true]);
+        [$dependencies, $scriptVersion] = $this->scriptAsset();
+        wp_enqueue_script('mortar-consent-admin', $this->url . '/assets/admin/index.js', $dependencies, $scriptVersion, ['in_footer' => true]);
         wp_set_script_translations('mortar-consent-admin', 'mortar-consent');
         wp_add_inline_script('mortar-consent-admin', 'window.mortarConsentAdmin = ' . wp_json_encode([
             'exportUrl' => wp_nonce_url(admin_url('admin-post.php?action=' . self::EXPORT_ACTION), self::EXPORT_ACTION),
         ], JSON_HEX_TAG | JSON_HEX_AMP) . ';', 'before');
         wp_enqueue_style('mortar-consent-admin', $this->url . '/assets/admin.css', ['wp-components'], $version($this->dir . '/assets/admin.css'));
+    }
+
+    /**
+     * Dependencies and version of the settings app, from the file
+     * `pnpm build` writes beside it (assets/admin/index.asset.php).
+     *
+     * @return array{list<non-empty-string>, string}
+     */
+    private function scriptAsset(): array
+    {
+        $file = $this->dir . '/assets/admin/index.asset.php';
+        $asset = is_file($file) ? require $file : null;
+        $handles = [];
+
+        foreach (is_array($asset) && is_array($asset['dependencies'] ?? null) ? $asset['dependencies'] : [] as $handle) {
+            if (is_string($handle) && $handle !== '') {
+                $handles[] = $handle;
+            }
+        }
+
+        return [$handles, is_array($asset) && is_string($asset['version'] ?? null) ? $asset['version'] : '0'];
     }
 
     /** Streams the consent log as CSV. Capability and nonce checked first. */
