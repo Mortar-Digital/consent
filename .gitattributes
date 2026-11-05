@@ -19,3 +19,6 @@
 /CONTRIBUTING.md export-ignore
 /SECURITY.md export-ignore
 /.wordpress-org export-ignore
+/phpunit.integration.xml.dist export-ignore
+/.prettierrc.json export-ignore
+/.prettierignore export-ignore

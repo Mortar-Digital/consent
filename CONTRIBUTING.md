@@ -11,7 +11,7 @@ Thanks for helping. Bug reports, fixes and translations are all welcome.
 
 1. Set up the tools described under **Development** in the [README](README.md).
 2. Keep changes focused, and add or update tests for behaviour you change.
-3. Run `composer check`, and the browser tests if you touched the runtime, the settings screen or anything visitors see.
+3. Run `composer check` and `composer format`. If you changed WordPress-facing code (`src/WordPress/`), also run `composer test:integration`; if you touched the runtime, the settings screen or anything visitors see, run the browser tests too.
 4. If you edited `assets/consent.js`, run `pnpm build` and commit `assets/consent.min.js` with it.
 
 CI runs the same checks on every pull request.

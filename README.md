@@ -216,22 +216,32 @@ Deactivating the plugin clears its cron job. Deleting it keeps the settings and 
 
 ## Development
 
-Requires PHP 8.2+, Composer, Node 24+ and pnpm. The browser tests also need Docker.
+Requires PHP 8.2+, Composer, Node 24+ and pnpm. The integration and browser tests also need Docker.
 
 ```sh
 composer install && pnpm install
 composer check         # syntax lint, ESLint, formatting, PHPCS, PHPStan, PHPUnit and JS tests
+composer format        # format PHP (PHP CS Fixer) and JS, JSON, CSS, YAML (Prettier)
 pnpm build             # after editing assets/consent.js; commit consent.min.js
-composer format        # apply PSR-12 with PHP CS Fixer
 bin/build-plugin       # build/mortar-consent-<version>.zip
 ```
 
 `composer check` runs:
 
+- **Formatting checks:** PHP CS Fixer (PER-CS plus blank lines before control statements, trailing commas and ordered imports) and Prettier.
 - **PHPCS** with the WordPress security, database, i18n and prefix sniffs (formatting is PHP CS Fixer's job).
 - **PHPStan** at level 9 with WordPress stubs.
 - **PHPUnit** for the framework-agnostic classes in `src/`.
 - **Node tests** that check `consent.min.js` is current, under the 5 KB gzip budget, and parses cookies exactly like the PHP codec (`tests/fixtures/cookie-codec.json`).
+
+### Integration tests
+
+`tests/Integration` loads the real WordPress in wp-env, with the plugin active, and tests the WordPress-facing classes against it: script tags as WordPress prints them, embed gating, the REST routes and their validation, the fail-closed configuration fallback, escaping in the banner and declaration, and the consent log. Each test restores what it changes.
+
+```sh
+pnpm exec wp-env start
+composer test:integration   # runs PHPUnit inside the wp-env container
+```
 
 ### Browser tests
 
@@ -251,7 +261,7 @@ To run it against a local DDEV site that loads the plugin as an MU-plugin instea
 MORTAR_CONSENT_E2E_ENV=ddev MORTAR_CONSENT_E2E_SITE=../path/to/site pnpm test:e2e
 ```
 
-CI runs all of the above on every push, with PHPUnit on PHP 8.2–8.5 and the browser tests on WordPress 6.5 and the latest release.
+CI runs all of the above on every push: unit tests on PHP 8.2–8.5, and the integration and browser tests on WordPress 6.5 and the latest release.
 
 ## Contributing and security
 

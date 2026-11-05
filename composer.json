@@ -54,6 +54,10 @@
       "phpunit",
       "node --test --test-isolation=none 'tests/js/*.test.mjs'"
     ],
+    "test:integration": [
+      "node_modules/.bin/wp-env run cli -- wp plugin activate mortar-consent --quiet",
+      "node_modules/.bin/wp-env run cli --env-cwd=wp-content/plugins/mortar-consent -- php vendor/bin/phpunit -c phpunit.integration.xml.dist"
+    ],
     "analyse": "phpstan analyse --no-progress --memory-limit=1G",
     "lint": [
       "php bin/lint",

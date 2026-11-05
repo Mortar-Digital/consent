@@ -72,7 +72,7 @@ jobs:
       - run: vendor/bin/phpunit
 
   e2e:
-    name: E2E (WordPress ${{ matrix.wp }}, PHP ${{ matrix.php }})
+    name: WordPress ${{ matrix.wp }}, PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -88,6 +88,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Composer runs on the host to install PHPUnit; the tests themselves
+      # run on the matrix PHP inside wp-env.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
       - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
@@ -95,9 +103,11 @@ jobs:
           node-version: 24
           cache: pnpm
 
+      - run: composer install --no-interaction --no-progress
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm exec wp-env start
+      - run: composer test:integration
       - run: pnpm test:e2e
 
       - uses: actions/upload-artifact@v4
