@@ -3,6 +3,19 @@
   "description": "Self-hosted cookie consent for WordPress: opt-in by category, script and embed gating, Consent Mode v2, and no third-party services.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
+  "homepage": "https://mortar.digital/plugins/consent/",
+  "authors": [
+    {
+      "name": "Mortar Digital",
+      "homepage": "https://mortar.digital/"
+    }
+  ],
+  "support": {
+    "docs": "https://mortar.digital/plugins/consent/docs/",
+    "issues": "https://github.com/Mortar-Digital/consent/issues",
+    "source": "https://github.com/Mortar-Digital/consent",
+    "security": "https://github.com/Mortar-Digital/consent/security"
+  },
   "require": {
     "php": ">=8.2",
     "composer/installers": "^2.3"

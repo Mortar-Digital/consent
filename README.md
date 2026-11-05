@@ -4,7 +4,7 @@
 
 Self-hosted cookie consent for WordPress. Opt-in by default, with "Reject all" beside "Accept all", per-category choices that visitors can change at any time, and no calls to third-party services.
 
-This is the development repository. Site owners should install the plugin from WordPress.org. [readme.txt](readme.txt) is the user-facing description.
+Made by [Mortar Digital](https://mortar.digital/), who design, build, host and look after WordPress sites. This is the development repository: site owners should install the plugin from WordPress.org and read the [documentation](https://mortar.digital/plugins/consent/docs/). [readme.txt](readme.txt) is the WordPress.org description.
 
 ## Features
 
@@ -259,4 +259,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Please report security issues privately 
 
 ## Licence
 
-GPL-2.0-or-later. See [LICENSE](LICENSE).
+GPL-2.0-or-later. See [LICENSE](LICENSE). © Mortar Digital.

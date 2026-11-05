@@ -1,0 +1,134 @@
+<!doctype html>
+<!--
+	WordPress.org banner, laid out at 772×250 and rendered at 1× and 2× by
+	bin/render-wporg-assets. Mortar Digital's brick style: flat white, ink,
+	cobalt and signal-red bricks on mortar-grey joints, one heavy grotesk,
+	and a single red brick.
+-->
+<html lang="en">
+<meta charset="utf-8">
+<title>Mortar Consent banner</title>
+<style>
+	@font-face {
+		font-family: "Schibsted Grotesk";
+		src: url("fonts/schibsted-grotesk-variable.woff2") format("woff2");
+		font-weight: 400 900;
+	}
+
+	:root {
+		--mortar: #e3e1dc;
+		--white: #fbfbf9;
+		--ink: #141414;
+		--ink-2: #55534e;
+		--red: #cc3418;
+		--blue: #2346c8;
+		--joint: 5px;
+	}
+
+	html, body { margin: 0; }
+	body {
+		width: 772px;
+		height: 250px;
+		overflow: hidden;
+		display: grid;
+		grid-template-columns: 318px 1fr;
+		gap: 30px;
+		box-sizing: border-box;
+		padding: 30px 30px 30px 34px;
+		background: var(--mortar);
+		color: var(--ink);
+		font-family: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+	}
+
+	.copy {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+	.brand {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 14px;
+		font-weight: 850;
+		letter-spacing: -0.02em;
+	}
+	.brand svg { width: 24px; }
+	.brand span { font-weight: 400; }
+	h1 {
+		margin: 0;
+		font-size: 37px;
+		font-weight: 900;
+		line-height: 0.95;
+		letter-spacing: -0.04em;
+	}
+	h1 em { font-style: normal; color: var(--red); }
+	.name {
+		font-size: 15px;
+		font-weight: 400;
+		color: var(--ink-2);
+	}
+	.name b { font-weight: 850; color: var(--ink); }
+
+	/* The wall: three courses, the middle one offset by half a brick. */
+	.wall {
+		display: grid;
+		grid-template-rows: 1fr 1fr 1fr;
+		gap: var(--joint);
+	}
+	.course {
+		display: grid;
+		gap: var(--joint);
+	}
+	.course.top { grid-template-columns: 1fr 1fr 1fr; }
+	.course.mid { grid-template-columns: 0.5fr 1fr 1fr 1fr 0.5fr; }
+	.course.base { grid-template-columns: 1fr 1fr 1fr; }
+	.brick {
+		display: flex;
+		align-items: flex-end;
+		padding: 10px 12px;
+		font-size: 13.5px;
+		font-weight: 800;
+		line-height: 1.1;
+		letter-spacing: -0.005em;
+		word-spacing: 0.08em;
+	}
+	.white { background: var(--white); color: var(--ink); }
+	.blue { background: var(--blue); color: var(--white); }
+	.ink { background: var(--ink); color: var(--white); }
+	.red { background: var(--red); }
+</style>
+<body>
+<div class="copy">
+	<div class="brand">
+		<svg viewBox="0 0 34 26" aria-hidden="true">
+			<rect x="0" y="0" width="16" height="7" fill="currentColor"/><rect x="18" y="0" width="16" height="7" fill="currentColor"/>
+			<rect x="0" y="9.5" width="7" height="7" fill="currentColor"/><rect x="9" y="9.5" width="16" height="7" fill="#cc3418"/><rect x="27" y="9.5" width="7" height="7" fill="currentColor"/>
+			<rect x="0" y="19" width="16" height="7" fill="currentColor"/><rect x="18" y="19" width="16" height="7" fill="currentColor"/>
+		</svg>
+		<div>Mortar <span>Digital</span></div>
+	</div>
+	<h1>Cookie consent,<br><em>built properly.</em></h1>
+	<div class="name"><b>Mortar Consent</b> for WordPress</div>
+</div>
+<div class="wall" aria-hidden="true">
+	<div class="course top">
+		<div class="brick white">Accept all</div>
+		<div class="brick white">Reject all</div>
+		<div class="brick white">Manage preferences</div>
+	</div>
+	<div class="course mid">
+		<div class="brick blue"></div>
+		<div class="brick blue">Functional</div>
+		<div class="brick red"></div>
+		<div class="brick blue">Analytics</div>
+		<div class="brick blue"></div>
+	</div>
+	<div class="course base">
+		<div class="brick ink">No third parties</div>
+		<div class="brick ink">No IP addresses</div>
+		<div class="brick ink">Under 5 KB</div>
+	</div>
+</div>
+</body>
+</html>

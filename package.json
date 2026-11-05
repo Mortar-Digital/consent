@@ -2,6 +2,8 @@
   "name": "mortar-digital-consent",
   "private": true,
   "license": "GPL-2.0-or-later",
+  "author": "Mortar Digital (https://mortar.digital/)",
+  "homepage": "https://mortar.digital/plugins/consent/",
   "engines": {
     "node": ">=24"
   },

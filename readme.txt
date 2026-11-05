@@ -48,7 +48,10 @@ Mortar Consent asks visitors before your site sets optional cookies or loads thi
 
 Mortar Consent is a tool, not legal advice. It does not find trackers by itself, and you are responsible for configuring it to match the cookies and services your site uses.
 
-Developer documentation, hooks and source code: [github.com/Mortar-Digital/consent](https://github.com/Mortar-Digital/consent).
+Mortar Consent is made by [Mortar Digital](https://mortar.digital/), a WordPress studio that designs, builds, hosts and looks after WordPress sites. It runs on every site we build.
+
+* [Documentation](https://mortar.digital/plugins/consent/docs/)
+* [Source code and developer hooks](https://github.com/Mortar-Digital/consent)
 
 == Installation ==
 
@@ -106,12 +109,13 @@ Yes. Set the `--mortar-consent-*` CSS custom properties in your theme, for examp
 
 == Screenshots ==
 
-1. The consent banner: Accept all, Reject all and Manage preferences carry equal weight.
+1. The consent banner: Accept all, Reject all and Manage preferences carry equal weight. Shown here styled by the Mortar Digital theme.
 2. The preferences dialog, with a switch per category.
 3. A YouTube embed held back until the visitor loads it or allows the category.
-4. Settings → Cookie consent: policy version, consent lifetime and the consent log.
-5. Integrations: Google Consent Mode v2, Global Privacy Control and the WP Consent API.
-6. The banner and preferences dialog on a phone.
+4. Scripts: choose which registered scripts wait for consent, or mark up hand-written tags.
+5. Integrations: Google Consent Mode v2 signals mapped to your categories.
+6. The consent log: totals for the last 30 days, records by consent ID and a CSV export.
+7. The preferences dialog on a phone.
 
 == Changelog ==
 
