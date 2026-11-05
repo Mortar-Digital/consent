@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace MortarDigital\Consent\Tests\Unit;
 
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use MortarDigital\Consent\Category;
 use MortarDigital\Consent\CategoryRegistry;
 use MortarDigital\Consent\ConsentCookieCodec;
 use MortarDigital\Consent\ConsentState;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 
 final class ConsentCookieCodecTest extends TestCase
 {
@@ -18,10 +18,11 @@ final class ConsentCookieCodecTest extends TestCase
     {
         $fixture = json_decode((string) file_get_contents(__DIR__ . '/../fixtures/cookie-codec.json'), true, flags: JSON_THROW_ON_ERROR);
         $registry = new CategoryRegistry(...array_map(
-            static fn (array $c): Category => new Category($c['id'], $c['id'], '', $c['required']),
+            static fn(array $c): Category => new Category($c['id'], $c['id'], '', $c['required']),
             $fixture['categories'],
         ));
         $cases = [];
+
         foreach ($fixture['cases'] as $case) {
             $cases[$case['name']] = [$case, $registry];
         }

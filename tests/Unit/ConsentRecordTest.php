@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace MortarDigital\Consent\Tests\Unit;
 
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use MortarDigital\Consent\Category;
 use MortarDigital\Consent\CategoryRegistry;
 use MortarDigital\Consent\ConsentPolicy;
 use MortarDigital\Consent\ConsentRecord;
 use MortarDigital\Consent\InvalidRecord;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 
 final class ConsentRecordTest extends TestCase
 {

@@ -18,9 +18,7 @@ use MortarDigital\Consent\ConsentCookieCodec;
  */
 final class ConsentModeSnippet
 {
-    public function __construct(private readonly Config $config)
-    {
-    }
+    public function __construct(private readonly Config $config) {}
 
     public function register(): void
     {
@@ -38,8 +36,8 @@ final class ConsentModeSnippet
     {
         $categories = $this->config->policy->categories;
         $required = array_values(array_map(
-            static fn ($c): string => $c->id,
-            array_filter($categories->all(), static fn ($c): bool => $c->required),
+            static fn($c): string => $c->id,
+            array_filter($categories->all(), static fn($c): bool => $c->required),
         ));
 
         $data = wp_json_encode([

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace MortarDigital\Consent\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use MortarDigital\Consent\Category;
 use MortarDigital\Consent\CategoryRegistry;
 use MortarDigital\Consent\SignalMap;
+use PHPUnit\Framework\TestCase;
 
 final class SignalMapTest extends TestCase
 {
@@ -25,7 +25,7 @@ final class SignalMapTest extends TestCase
 
         self::assertSame(
             ['security_storage' => true, 'analytics_storage' => true, 'ad_storage' => false, 'ad_user_data' => false],
-            $map->resolve(static fn (string $id): bool => $allowed[$id]),
+            $map->resolve(static fn(string $id): bool => $allowed[$id]),
         );
     }
 }

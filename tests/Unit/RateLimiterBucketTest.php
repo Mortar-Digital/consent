@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MortarDigital\Consent\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use MortarDigital\Consent\WordPress\RateLimiter;
+use PHPUnit\Framework\TestCase;
 
 final class RateLimiterBucketTest extends TestCase
 {

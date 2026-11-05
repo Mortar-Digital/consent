@@ -111,6 +111,7 @@ final class ConfigProvider
     public function sanitizeOption(mixed $value): array
     {
         $old = $this->stored();
+
         if (! is_array($value)) {
             return $old;
         }
@@ -141,7 +142,7 @@ final class ConfigProvider
     {
         $defaults = self::rawDefaults();
         $defaults['categories'] = array_map(
-            static fn (array $c): array => Category::fromArray($c)->toArray(),
+            static fn(array $c): array => Category::fromArray($c)->toArray(),
             self::defaultCategories(),
         );
 
@@ -257,7 +258,7 @@ final class ConfigProvider
         error_log($message); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
         $optional = array_column(
-            array_values(array_filter(self::defaultCategories(), static fn (array $c): bool => empty($c['required']))),
+            array_values(array_filter(self::defaultCategories(), static fn(array $c): bool => empty($c['required']))),
             'id',
         );
 
@@ -279,6 +280,7 @@ final class ConfigProvider
         // "denied" default, which Google treats as granted. Keep it on with
         // every signal denied.
         $consentMode = is_array($filtered) && is_array($filtered['consent_mode'] ?? null) ? $filtered['consent_mode'] : [];
+
         if (($consentMode['enabled'] ?? false) === true) {
             $defaults['consent_mode'] = [
                 'enabled' => true,

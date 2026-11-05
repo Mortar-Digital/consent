@@ -15,6 +15,7 @@ final class CategoryRegistry
         if ($categories === []) {
             throw new InvalidConfiguration(esc_html__('At least one category is required.', 'mortar-consent'));
         }
+
         foreach ($categories as $category) {
             if (isset($this->categories[$category->id])) {
                 throw new InvalidConfiguration(esc_html(sprintf(/* translators: %s: category id */ __('Duplicate category id "%s".', 'mortar-consent'), $category->id)));
@@ -47,6 +48,6 @@ final class CategoryRegistry
     /** @return list<string> */
     public function optionalIds(): array
     {
-        return array_keys(array_filter($this->categories, static fn (Category $c): bool => ! $c->required));
+        return array_keys(array_filter($this->categories, static fn(Category $c): bool => ! $c->required));
     }
 }

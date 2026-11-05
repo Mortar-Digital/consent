@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MortarDigital\Consent\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use MortarDigital\Consent\Csv;
+use PHPUnit\Framework\TestCase;
 
 final class CsvTest extends TestCase
 {

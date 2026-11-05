@@ -13,7 +13,7 @@ if (! defined('ABSPATH') || (defined('WP_ENV') ? WP_ENV : wp_get_environment_typ
 }
 
 // Consent Mode on, via a code override (also exercises locking).
-add_filter('mortar_consent_overrides', static fn (): array => ['consent_mode' => ['enabled' => true, 'signals' => [
+add_filter('mortar_consent_overrides', static fn(): array => ['consent_mode' => ['enabled' => true, 'signals' => [
     'ad_storage' => ['marketing'],
     'ad_user_data' => ['marketing'],
     'ad_personalization' => ['marketing'],
@@ -25,6 +25,7 @@ add_filter('mortar_consent_overrides', static fn (): array => ['consent_mode' =>
 
 add_filter('mortar_consent_config', static function (array $config): array {
     $config['scripts']['md-test-analytics'] = 'analytics';
+
     foreach ($config['categories'] as &$category) {
         if ($category['id'] === 'analytics') {
             $category['cookies'] = [['name' => '_sdtest_*', 'provider' => 'Test & Co <b>', 'purpose' => 'Testing', 'duration' => 'Session']];

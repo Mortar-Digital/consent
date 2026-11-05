@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace MortarDigital\Consent\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use MortarDigital\Consent\Config;
 use MortarDigital\Consent\SettingsMerger;
+use PHPUnit\Framework\TestCase;
 
 final class SettingsMergerTest extends TestCase
 {

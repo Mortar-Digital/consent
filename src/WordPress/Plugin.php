@@ -70,7 +70,7 @@ final class Plugin
 
         // WP Consent API (wordpress.org/plugins/wp-consent-api), when active:
         // declare opt-in; the runtime mirrors choices with wp_set_consent().
-        add_filter('wp_get_consent_type', static fn (): string => 'optin');
+        add_filter('wp_get_consent_type', static fn(): string => 'optin');
 
         $this->renderer = new Renderer($config, [
             'log' => $config->logEnabled ? rest_url(RestController::NAMESPACE . '/records') : '',
@@ -140,6 +140,7 @@ final class Plugin
     private function registerBlocks(): void
     {
         $renderer = $this->renderer;
+
         if ($renderer === null) {
             return;
         }
@@ -147,6 +148,7 @@ final class Plugin
         // Editor scripts are registered by handle: block.json "file:" paths
         // resolve symlinks, which breaks URLs when the package is symlinked.
         $editorDeps = ['wp-blocks', 'wp-block-editor', 'wp-components', 'wp-element', 'wp-i18n', 'wp-server-side-render'];
+
         foreach (['settings-button', 'cookie-declaration'] as $block) {
             wp_register_script("mortar-consent-{$block}-editor", "{$this->url}/blocks/{$block}/index.js", $editorDeps, $this->version("blocks/{$block}/index.js"), ['in_footer' => true]);
             wp_set_script_translations("mortar-consent-{$block}-editor", 'mortar-consent');
@@ -154,7 +156,7 @@ final class Plugin
 
         register_block_type($this->dir . '/blocks/settings-button', [
             // RichText stores entity-encoded text; decode so esc_html() does not double-encode.
-            'render_callback' => static fn (array $attributes): string => $renderer->settingsButton(
+            'render_callback' => static fn(array $attributes): string => $renderer->settingsButton(
                 is_string($attributes['label'] ?? null) ? html_entity_decode(wp_strip_all_tags($attributes['label']), ENT_QUOTES | ENT_HTML5, 'UTF-8') : '',
                 // wp-element-button picks up the theme.json button styles.
                 get_block_wrapper_attributes(['class' => 'mortar-consent-open wp-element-button']),
@@ -162,16 +164,16 @@ final class Plugin
         ]);
 
         register_block_type($this->dir . '/blocks/cookie-declaration', [
-            'render_callback' => static fn (array $attributes): string => $renderer->declaration(
+            'render_callback' => static fn(array $attributes): string => $renderer->declaration(
                 ($attributes['showSettingsButton'] ?? true) === true,
                 get_block_wrapper_attributes(['class' => 'mortar-consent-declaration']),
             ),
         ]);
 
-        add_shortcode('mortar_consent_settings', static fn (mixed $atts): string => $renderer->settingsButton(
+        add_shortcode('mortar_consent_settings', static fn(mixed $atts): string => $renderer->settingsButton(
             is_array($atts) && is_string($atts['label'] ?? null) ? $atts['label'] : '',
         ));
-        add_shortcode('mortar_consent_declaration', static fn (): string => $renderer->declaration(true, 'class="mortar-consent-declaration"'));
+        add_shortcode('mortar_consent_declaration', static fn(): string => $renderer->declaration(true, 'class="mortar-consent-declaration"'));
     }
 
     private function scheduleRetention(int $retentionDays): void

@@ -26,14 +26,16 @@ final class Category
         if (preg_match('/^' . self::ID_PATTERN . '$/D', $id) !== 1) {
             throw new InvalidConfiguration(esc_html(sprintf(/* translators: %s: category id */ __('Category id "%s" must be lowercase letters, digits, "_" or "-", starting with a letter (max 32).', 'mortar-consent'), $id)));
         }
+
         if (trim($label) === '' || strlen($label) > 200 || strlen($description) > 2000) {
             throw new InvalidConfiguration(esc_html(sprintf(/* translators: %s: category id */ __('Category "%s" needs a label (max 200 bytes) and a description under 2000 bytes.', 'mortar-consent'), $id)));
         }
+
         if (! array_is_list($cookies)) {
             throw new InvalidConfiguration(esc_html(sprintf(/* translators: %s: category id */ __('Category "%s" cookies must be a list.', 'mortar-consent'), $id)));
         }
         $this->cookies = array_map(
-            static fn (mixed $c): CookieDefinition => $c instanceof CookieDefinition ? $c : CookieDefinition::from($c),
+            static fn(mixed $c): CookieDefinition => $c instanceof CookieDefinition ? $c : CookieDefinition::from($c),
             $cookies,
         );
     }
@@ -41,7 +43,7 @@ final class Category
     /** @return list<string> */
     public function cookieNames(): array
     {
-        return array_map(static fn (CookieDefinition $c): string => $c->name, $this->cookies);
+        return array_map(static fn(CookieDefinition $c): string => $c->name, $this->cookies);
     }
 
     /** @return array{id: string, label: string, description: string, required: bool, cookies: list<array<string, string>>} */
@@ -52,7 +54,7 @@ final class Category
             'label' => $this->label,
             'description' => $this->description,
             'required' => $this->required,
-            'cookies' => array_map(static fn (CookieDefinition $c): array => $c->toArray(), $this->cookies),
+            'cookies' => array_map(static fn(CookieDefinition $c): array => $c->toArray(), $this->cookies),
         ];
     }
 
@@ -67,6 +69,7 @@ final class Category
         $description = $data['description'] ?? '';
         $required = $data['required'] ?? false;
         $cookies = $data['cookies'] ?? [];
+
         if (! is_string($description) || ! is_bool($required) || ! is_array($cookies) || ! array_is_list($cookies)) {
             throw new InvalidConfiguration(esc_html(sprintf(/* translators: %s: category id */ __('Category "%s" has an invalid description, required flag or cookie list.', 'mortar-consent'), $data['id'])));
         }

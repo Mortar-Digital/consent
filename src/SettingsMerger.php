@@ -37,11 +37,12 @@ final class SettingsMerger
     public static function merge(array $defaults, array $stored, array $overrides): array
     {
         $config = $defaults;
+
         foreach ([self::editable($stored), self::editable($overrides)] as $layer) {
             foreach ($layer as $key => $value) {
                 // Texts merge per key, so unchanged copy keeps its translation.
                 $config[$key] = $key === 'texts' && is_array($value) && is_array($config['texts'] ?? null)
-                    ? array_merge($config['texts'], array_filter($value, static fn (mixed $t): bool => is_string($t) && trim($t) !== ''))
+                    ? array_merge($config['texts'], array_filter($value, static fn(mixed $t): bool => is_string($t) && trim($t) !== ''))
                     : $value;
             }
         }
@@ -65,17 +66,19 @@ final class SettingsMerger
         // copy keep following translations and future default changes.
         $stored = array_filter(
             $stored,
-            static fn (mixed $value, string $key): bool => $key === 'texts' || ! array_key_exists($key, $defaults) || $value !== $defaults[$key],
+            static fn(mixed $value, string $key): bool => $key === 'texts' || ! array_key_exists($key, $defaults) || $value !== $defaults[$key],
             ARRAY_FILTER_USE_BOTH,
         );
+
         if (isset($stored['texts'])) {
             $texts = is_array($stored['texts']) ? $stored['texts'] : [];
             $defaultTexts = is_array($defaults['texts'] ?? null) ? $defaults['texts'] : [];
             $stored['texts'] = array_filter(
                 array_intersect_key($texts, array_flip(Config::TEXT_KEYS)),
-                static fn (mixed $t, string $key): bool => is_string($t) && trim($t) !== '' && $t !== ($defaultTexts[$key] ?? null),
+                static fn(mixed $t, string $key): bool => is_string($t) && trim($t) !== '' && $t !== ($defaultTexts[$key] ?? null),
                 ARRAY_FILTER_USE_BOTH,
             );
+
             if ($stored['texts'] === []) {
                 unset($stored['texts']);
             }

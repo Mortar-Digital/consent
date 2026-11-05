@@ -17,6 +17,7 @@ if (! defined('WP_UNINSTALL_PLUGIN')) {
 // uninstall has to visit every site.
 $mortar_consent_uninstall = static function (): void {
     wp_clear_scheduled_hook('mortar_consent_purge_log');
+
     if (! defined('MORTAR_CONSENT_DELETE_DATA_ON_UNINSTALL') || MORTAR_CONSENT_DELETE_DATA_ON_UNINSTALL !== true) {
         return;
     }

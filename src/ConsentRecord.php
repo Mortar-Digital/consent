@@ -19,8 +19,7 @@ final class ConsentRecord
         public readonly array $granted,
         public readonly string $method,
         public readonly int $timestamp,
-    ) {
-    }
+    ) {}
 
     /**
      * Validates an untrusted payload from the browser. The policy version must
@@ -31,26 +30,32 @@ final class ConsentRecord
     public static function fromPayload(array $payload, ConsentPolicy $policy, int $now): self
     {
         $allowed = ['consentId', 'policyVersion', 'granted', 'method'];
+
         if (array_diff(array_keys($payload), $allowed) !== []) {
             throw new InvalidRecord('Unexpected fields.');
         }
         $id = $payload['consentId'] ?? null;
+
         if (! is_string($id) || preg_match('/^' . ConsentState::UUID_PATTERN . '$/D', $id) !== 1) {
             throw new InvalidRecord('Invalid consent id.');
         }
+
         if (($payload['policyVersion'] ?? null) !== $policy->version) {
             throw new InvalidRecord('Stale policy version.');
         }
         $granted = $payload['granted'] ?? null;
+
         if (! is_array($granted) || ! array_is_list($granted) || count($granted) > 32) {
             throw new InvalidRecord('Invalid categories.');
         }
+
         foreach ($granted as $categoryId) {
             if (! is_string($categoryId) || ! $policy->categories->isOptional($categoryId)) {
                 throw new InvalidRecord('Unknown category.');
             }
         }
         $method = $payload['method'] ?? null;
+
         if (! in_array($method, self::METHODS, true)) {
             throw new InvalidRecord('Invalid method.');
         }

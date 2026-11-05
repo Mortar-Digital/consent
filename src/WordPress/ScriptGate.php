@@ -19,9 +19,7 @@ final class ScriptGate
     /** @var array<string, list<string>> */
     private array $resolved = [];
 
-    public function __construct(private readonly ScriptMap $map)
-    {
-    }
+    public function __construct(private readonly ScriptMap $map) {}
 
     public function register(): void
     {
@@ -36,6 +34,7 @@ final class ScriptGate
     public function filterScript(array $attributes): array
     {
         $id = is_string($attributes['id'] ?? null) ? $attributes['id'] : '';
+
         if (preg_match('/^(.+)-js-module$/', $id, $m) === 1) {
             return $this->gate($attributes, $this->map->categoriesFor($m[1]));
         }
@@ -54,6 +53,7 @@ final class ScriptGate
     public function filterInlineScript(array $attributes): array
     {
         $id = is_string($attributes['id'] ?? null) ? $attributes['id'] : '';
+
         if (preg_match('/^(.+)-js-(?:before|after|extra|translations)$/', $id, $m) !== 1) {
             return $attributes;
         }
@@ -72,6 +72,7 @@ final class ScriptGate
             return $attributes;
         }
         $type = $attributes['type'] ?? '';
+
         if (is_string($type) && $type !== '' && $type !== 'text/javascript') {
             $attributes['data-mortar-consent-type'] = $type;
         }
@@ -96,6 +97,7 @@ final class ScriptGate
         if (isset($this->resolved[$handle])) {
             return $this->resolved[$handle];
         }
+
         if (isset($visiting[$handle])) {
             return [];
         }
@@ -103,6 +105,7 @@ final class ScriptGate
 
         $categories = $this->map->categoriesFor($handle);
         $registered = wp_scripts()->registered[$handle] ?? null;
+
         foreach ($registered->deps ?? [] as $dep) {
             if (is_string($dep)) {
                 $categories = [...$categories, ...$this->resolve($dep, $visiting)];

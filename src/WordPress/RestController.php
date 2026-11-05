@@ -27,8 +27,7 @@ final class RestController
         private readonly ConfigProvider $configProvider,
         private readonly ConsentLog $log,
         private readonly RateLimiter $limiter,
-    ) {
-    }
+    ) {}
 
     public static function capability(): string
     {
@@ -60,7 +59,7 @@ final class RestController
         register_rest_route(self::NAMESPACE, '/settings', [
             [
                 'methods' => 'GET',
-                'callback' => fn (): \WP_REST_Response => new \WP_REST_Response($this->settingsPayload()),
+                'callback' => fn(): \WP_REST_Response => new \WP_REST_Response($this->settingsPayload()),
                 'permission_callback' => $this->canManage(...),
             ],
             [
@@ -82,6 +81,7 @@ final class RestController
     public function createRecord(\WP_REST_Request $request): \WP_REST_Response|\WP_Error
     {
         $config = $this->configProvider->get();
+
         if (! $config->logEnabled) {
             return new \WP_Error('mortar_consent_log_disabled', 'Consent logging is disabled.', ['status' => 404]);
         }
@@ -91,6 +91,7 @@ final class RestController
         }
 
         $payload = $request->get_json_params();
+
         if (! is_array($payload)) {
             return new \WP_Error('mortar_consent_invalid', 'Expected a JSON object.', ['status' => 400]);
         }

@@ -55,16 +55,14 @@ final class EmbedGate
         'typeform' => 'Typeform',
     ];
 
-    public function __construct(private readonly Config $config)
-    {
-    }
+    public function __construct(private readonly Config $config) {}
 
     public function register(): void
     {
         add_filter('render_block', $this->filterBlock(...), 20, 2);
         // After do_blocks (9) and auto-embeds (8): catches classic content and
         // anything blocks left. Already-gated iframes sit in <template>s and are skipped.
-        add_filter('the_content', fn (string $content): string => is_feed() ? $content : $this->gateIframes($content), 20);
+        add_filter('the_content', fn(string $content): string => is_feed() ? $content : $this->gateIframes($content), 20);
     }
 
     /** @param array<string, mixed> $block */
@@ -88,6 +86,7 @@ final class EmbedGate
     private function gateEmbedBlock(string $content, string $provider): string
     {
         $category = $this->config->embedCategoryFor($provider);
+
         if ($category === null || ! preg_match('/<div class="wp-block-embed__wrapper">/', $content, $m, PREG_OFFSET_CAPTURE)) {
             return $content;
         }
@@ -95,11 +94,13 @@ final class EmbedGate
         $start = $m[0][1] + strlen($m[0][0]);
         $captionAt = strpos($content, '<figcaption', $start);
         $end = strrpos(substr($content, 0, $captionAt === false ? strlen($content) : $captionAt), '</div>');
+
         if ($end === false || $end < $start) {
             return $content;
         }
 
         $inner = substr($content, $start, $end - $start);
+
         if (trim($inner) === '' || str_contains($inner, 'data-mortar-consent-embed')) {
             return $content;
         }
@@ -116,6 +117,7 @@ final class EmbedGate
 
         // Odd parts are placeholder templates (already gated): leave them.
         $parts = preg_split('#(<template\b[^>]*>.*?</template>)#is', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
+
         if ($parts === false) {
             return $content;
         }
@@ -148,11 +150,13 @@ final class EmbedGate
 
         while ($tags->next_tag()) {
             $src = $tags->get_attribute('src');
+
             if (! in_array($tags->get_tag(), ['IFRAME', 'SCRIPT'], true) || ! is_string($src)) {
                 continue;
             }
 
             $host = strtolower((string) wp_parse_url($src, PHP_URL_HOST));
+
             if ($host === '' && str_starts_with($src, '//')) {
                 $host = strtolower((string) wp_parse_url('https:' . $src, PHP_URL_HOST));
             }

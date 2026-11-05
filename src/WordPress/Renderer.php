@@ -20,8 +20,7 @@ final class Renderer
     public function __construct(
         private readonly Config $config,
         private readonly array $clientExtras = [],
-    ) {
-    }
+    ) {}
 
     public function register(): void
     {
@@ -172,7 +171,7 @@ final class Renderer
         }
 
         $labels = array_map(
-            fn (string $id): string => $this->config->policy->categories->get($id)->label,
+            fn(string $id): string => $this->config->policy->categories->get($id)->label,
             $this->config->gpcCategories,
         );
 

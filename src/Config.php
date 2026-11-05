@@ -72,40 +72,45 @@ final class Config
         public readonly array $embedProviders,
         /** @var list<string> */
         public readonly array $gpcCategories,
-    ) {
-    }
+    ) {}
 
     /** @param array<mixed> $data */
     public static function fromArray(array $data): self
     {
         $categories = $data['categories'] ?? null;
+
         if (! is_array($categories) || ! array_is_list($categories)) {
             throw new InvalidConfiguration(esc_html__('"categories" must be a list.', 'mortar-consent'));
         }
         $registry = new CategoryRegistry(...array_map(
-            static fn (mixed $c): Category => is_array($c) ? Category::fromArray($c) : throw new InvalidConfiguration(esc_html__('Each category must be an array.', 'mortar-consent')),
+            static fn(mixed $c): Category => is_array($c) ? Category::fromArray($c) : throw new InvalidConfiguration(esc_html__('Each category must be an array.', 'mortar-consent')),
             $categories,
         ));
 
         $version = $data['policy_version'] ?? null;
         $lifetime = $data['lifetime_days'] ?? null;
+
         if (! is_int($version) || ! is_int($lifetime)) {
             throw new InvalidConfiguration(esc_html__('"policy_version" and "lifetime_days" must be integers.', 'mortar-consent'));
         }
         $policy = new ConsentPolicy($registry, $version, $lifetime);
 
         $scripts = $data['scripts'] ?? [];
+
         if (! is_array($scripts)) {
             throw new InvalidConfiguration(esc_html__('"scripts" must be a map of handle => category.', 'mortar-consent'));
         }
 
         $texts = $data['texts'] ?? null;
+
         if (! is_array($texts)) {
             throw new InvalidConfiguration(esc_html__('"texts" must be an array.', 'mortar-consent'));
         }
         $cleanTexts = [];
+
         foreach (self::TEXT_KEYS as $key) {
             $text = $texts[$key] ?? null;
+
             if (! is_string($text) || trim($text) === '' || strlen($text) > self::MAX_TEXT_LENGTH) {
                 throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: text key, 2: maximum length in bytes */ __('Text "%1$s" must be a non-empty string under %2$d bytes.', 'mortar-consent'), $key, self::MAX_TEXT_LENGTH)));
             }
@@ -113,27 +118,32 @@ final class Config
         }
 
         $privacyUrl = $data['privacy_policy_url'] ?? '';
+
         if (! is_string($privacyUrl) || ($privacyUrl !== '' && ! self::isSafeUrl($privacyUrl))) {
             throw new InvalidConfiguration(esc_html__('"privacy_policy_url" must be an http(s) URL or a site-relative path.', 'mortar-consent'));
         }
 
         $domain = $data['cookie_domain'] ?? '';
+
         if (! is_string($domain) || ($domain !== '' && preg_match('/^\.?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/D', $domain) !== 1)) {
             throw new InvalidConfiguration(esc_html__('"cookie_domain" must be empty or a lowercase hostname.', 'mortar-consent'));
         }
 
         $reopen = $data['reopen_button'] ?? true;
+
         if (! is_bool($reopen)) {
             throw new InvalidConfiguration(esc_html__('"reopen_button" must be a boolean.', 'mortar-consent'));
         }
 
         $logEnabled = $data['log_enabled'] ?? true;
         $retention = $data['log_retention_days'] ?? 1095;
+
         if (! is_bool($logEnabled) || ! is_int($retention) || $retention < self::MIN_RETENTION_DAYS || $retention > self::MAX_RETENTION_DAYS) {
             throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: minimum days, 2: maximum days */ __('"log_enabled" must be a boolean and "log_retention_days" between %1$d and %2$d.', 'mortar-consent'), self::MIN_RETENTION_DAYS, self::MAX_RETENTION_DAYS)));
         }
 
         $consentMode = $data['consent_mode'] ?? ['enabled' => false, 'signals' => []];
+
         if (! is_array($consentMode) || ! is_bool($consentMode['enabled'] ?? null) || ! is_array($consentMode['signals'] ?? null)) {
             throw new InvalidConfiguration(esc_html__('"consent_mode" needs a boolean "enabled" and a "signals" map.', 'mortar-consent'));
         }
@@ -141,6 +151,7 @@ final class Config
         $signals = new SignalMap($consentMode['signals'], $registry, self::CONSENT_MODE_SIGNALS, 'Consent Mode');
 
         $wpConsentApi = $data['wp_consent_api'] ?? [];
+
         if (! is_array($wpConsentApi)) {
             throw new InvalidConfiguration(esc_html__('"wp_consent_api" must be a map of WP Consent API category => category ids.', 'mortar-consent'));
         }
@@ -148,9 +159,11 @@ final class Config
         [$embedCategory, $embedProviders] = self::embeds($data['embeds'] ?? ['category' => '', 'providers' => []], $registry);
 
         $gpc = $data['gpc_categories'] ?? [];
+
         if (! is_array($gpc) || ! array_is_list($gpc)) {
             throw new InvalidConfiguration(esc_html__('"gpc_categories" must be a list of category ids.', 'mortar-consent'));
         }
+
         foreach ($gpc as $id) {
             if (! is_string($id) || ! $registry->isOptional($id)) {
                 throw new InvalidConfiguration(esc_html(sprintf(/* translators: %s: category id */ __('"gpc_categories" refers to "%s", which is not an optional category.', 'mortar-consent'), is_string($id) ? $id : gettype($id))));
@@ -197,6 +210,7 @@ final class Config
         };
         $check($embeds['category'], 'The embed category');
         $providers = [];
+
         foreach ($embeds['providers'] ?? [] as $provider => $id) {
             if (! is_string($provider) || preg_match('/^[a-z0-9-]{1,40}$/D', $provider) !== 1 || ! is_string($id)) {
                 throw new InvalidConfiguration(esc_html__('Embed providers must map a provider slug to a category id (or "" to never gate it).', 'mortar-consent'));
@@ -224,7 +238,7 @@ final class Config
             'policyVersion' => $this->policy->version,
             'lifetime' => $this->policy->lifetimeSeconds(),
             'categories' => array_map(
-                static fn (Category $c): array => ['id' => $c->id, 'required' => $c->required, 'cookies' => $c->cookieNames()],
+                static fn(Category $c): array => ['id' => $c->id, 'required' => $c->required, 'cookies' => $c->cookieNames()],
                 $this->policy->categories->all(),
             ),
             'consentMode' => $this->consentMode?->toArray(),

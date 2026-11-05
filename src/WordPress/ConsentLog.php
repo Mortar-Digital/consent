@@ -112,6 +112,7 @@ final class ConsentLog
         ), ARRAY_A);
 
         $summary = array_fill_keys(ConsentRecord::METHODS, 0);
+
         foreach ($rows ?: [] as $row) {
             $summary[(string) $row['method']] = (int) $row['total'];
         }
@@ -128,6 +129,7 @@ final class ConsentLog
 
         do {
             $rows = $wpdb->get_results($wpdb->prepare('SELECT * FROM %i WHERE id > %d ORDER BY id ASC LIMIT 1000', $this->table(), $after), ARRAY_A) ?: [];
+
             foreach ($rows as $row) {
                 $write(Csv::row([$row['id'], $row['consent_id'], $row['policy_version'], str_replace('.', ' ', (string) $row['granted']), $row['method'], $row['created_at']]));
                 $after = (int) $row['id'];
@@ -141,7 +143,7 @@ final class ConsentLog
      */
     private function rows(mixed $rows): array
     {
-        return array_values(array_map(static fn (array $r): array => [
+        return array_values(array_map(static fn(array $r): array => [
             'id' => (int) $r['id'],
             'consentId' => (string) $r['consent_id'],
             'policyVersion' => (int) $r['policy_version'],

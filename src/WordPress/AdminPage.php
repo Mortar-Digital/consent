@@ -19,8 +19,7 @@ final class AdminPage
         private readonly string $url,
         private readonly string $dir,
         private readonly ConsentLog $log,
-    ) {
-    }
+    ) {}
 
     public function register(): void
     {
@@ -66,7 +65,7 @@ final class AdminPage
 
         $content = '<p class="privacy-policy-tutorial">' . esc_html__('Mortar Consent stores the visitor choices described below. Match the retention period to your settings, drop the consent record paragraphs if logging is off, and list the cookies your other plugins and embeds set.', 'mortar-consent') . '</p>'
             . '<strong class="privacy-policy-tutorial">' . esc_html__('Suggested text:', 'mortar-consent') . '</strong> '
-            . implode('', array_map(static fn (string $p): string => '<p>' . esc_html($p) . '</p>', $paragraphs));
+            . implode('', array_map(static fn(string $p): string => '<p>' . esc_html($p) . '</p>', $paragraphs));
 
         wp_add_privacy_policy_content(__('Mortar Consent', 'mortar-consent'), $content);
     }

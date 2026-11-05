@@ -17,6 +17,7 @@ final class Csv
     private static function field(mixed $value): string
     {
         $value = (string) $value;
+
         // Neutralise formula injection (=, +, -, @, tab, CR) per OWASP guidance.
         if ($value !== '' && in_array($value[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
             $value = "'" . $value;

@@ -23,8 +23,7 @@ final class RateLimiter
         private readonly int $perClient,
         private readonly int $global,
         private readonly int $windowSeconds,
-    ) {
-    }
+    ) {}
 
     public function attempt(string $client): bool
     {

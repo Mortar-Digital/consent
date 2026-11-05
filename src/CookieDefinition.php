@@ -22,6 +22,7 @@ final class CookieDefinition
         if (preg_match(self::NAME_PATTERN, $name) !== 1) {
             throw new InvalidConfiguration(esc_html(sprintf(/* translators: %s: cookie name */ __('Invalid cookie name pattern "%s".', 'mortar-consent'), substr($name, 0, 100))));
         }
+
         foreach (['provider' => $provider, 'purpose' => $purpose, 'duration' => $duration] as $field => $value) {
             if (strlen($value) > self::MAX_TEXT) {
                 throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: cookie name, 2: field name (provider, purpose or duration) */ __('Cookie "%1$s" %2$s is too long.', 'mortar-consent'), $name, $field)));
@@ -35,12 +36,15 @@ final class CookieDefinition
         if (is_string($data)) {
             return new self($data);
         }
+
         if (! is_array($data) || ! is_string($data['name'] ?? null)) {
             throw new InvalidConfiguration(esc_html__('Each cookie needs a string "name".', 'mortar-consent'));
         }
         $text = [];
+
         foreach (['provider', 'purpose', 'duration'] as $field) {
             $value = $data[$field] ?? '';
+
             if (! is_string($value)) {
                 throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: cookie name, 2: field name (provider, purpose or duration) */ __('Cookie "%1$s" %2$s must be a string.', 'mortar-consent'), $data['name'], $field)));
             }

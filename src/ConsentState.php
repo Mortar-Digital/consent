@@ -22,6 +22,7 @@ final class ConsentState
         if ($policyVersion < 1 || $timestamp < 0) {
             throw new \InvalidArgumentException('Policy version must be positive and timestamp non-negative.');
         }
+
         if (preg_match('/^' . self::UUID_PATTERN . '$/D', $consentId) !== 1) {
             throw new \InvalidArgumentException('Consent id must be a lowercase UUIDv4.');
         }

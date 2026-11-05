@@ -26,9 +26,11 @@ final class SignalMap
                 throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: setting name, 2: signal name */ __('%1$s: unknown signal "%2$s".', 'mortar-consent'), $name, is_string($signal) ? $signal : (string) $signal)));
             }
             $ids = is_string($ids) ? [$ids] : $ids;
+
             if (! is_array($ids) || ! array_is_list($ids)) {
                 throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: setting name, 2: signal name */ __('%1$s: "%2$s" must map to a category id or list of ids.', 'mortar-consent'), $name, $signal)));
             }
+
             foreach ($ids as $id) {
                 if (! is_string($id) || ! $categories->has($id)) {
                     throw new InvalidConfiguration(esc_html(sprintf(/* translators: 1: setting name, 2: signal name, 3: category id */ __('%1$s: "%2$s" refers to unknown category "%3$s".', 'mortar-consent'), $name, $signal, is_string($id) ? $id : gettype($id))));
@@ -45,7 +47,7 @@ final class SignalMap
     public function resolve(callable $allows): array
     {
         return array_map(
-            static fn (array $ids): bool => $ids !== [] && array_reduce($ids, static fn (bool $carry, string $id): bool => $carry && $allows($id), true),
+            static fn(array $ids): bool => $ids !== [] && array_reduce($ids, static fn(bool $carry, string $id): bool => $carry && $allows($id), true),
             $this->map,
         );
     }

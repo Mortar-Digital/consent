@@ -50,6 +50,7 @@ final class ConsentCookieCodec
             return null;
         }
         $pattern = '/' . self::pattern() . '/D';
+
         if (preg_match($pattern, $value, $m) !== 1) {
             return null;
         }
