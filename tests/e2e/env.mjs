@@ -14,7 +14,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 function ddev() {
 	const site = resolve(process.env.MORTAR_CONSENT_E2E_SITE || '');
 	if (!process.env.MORTAR_CONSENT_E2E_SITE || !existsSync(resolve(site, 'web/app/mu-plugins/mortar-consent'))) {
-		throw new Error('Set MORTAR_CONSENT_E2E_SITE to a site checkout with the plugin in web/app/mu-plugins/mortar-consent.');
+		throw new Error(
+			'Set MORTAR_CONSENT_E2E_SITE to a site checkout with the plugin in web/app/mu-plugins/mortar-consent.',
+		);
 	}
 	const env = readFileSync(resolve(site, '.env'), 'utf8');
 	return {
@@ -47,7 +49,12 @@ if (!env.url) {
 /** Runs WP-CLI against the e2e site and returns its trimmed output. */
 export function wp(args, input) {
 	const [bin, prefix] = env.command;
-	const result = spawnSync(bin, [...prefix, ...args], { cwd: env.cwd, input, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+	const result = spawnSync(bin, [...prefix, ...args], {
+		cwd: env.cwd,
+		input,
+		encoding: 'utf8',
+		maxBuffer: 32 * 1024 * 1024,
+	});
 	if (result.status !== 0) {
 		throw new Error(`wp ${args.join(' ')} failed: ${result.stderr || result.stdout}`);
 	}

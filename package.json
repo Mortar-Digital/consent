@@ -13,7 +13,9 @@
     "test": "node --test --test-isolation=none 'tests/js/*.test.mjs'",
     "test:e2e": "node tests/e2e/run.mjs",
     "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix --max-warnings=0"
+    "lint:fix": "eslint . --fix --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
@@ -22,7 +24,8 @@
     "esbuild": "^0.25.0",
     "eslint": "^9.39.5",
     "globals": "^16.3.0",
-    "playwright": "^1.50.0"
+    "playwright": "^1.50.0",
+    "prettier": "3.9.10"
   },
   "packageManager": "pnpm@10.18.3"
 }

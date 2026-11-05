@@ -6,12 +6,7 @@
   "category": "widgets",
   "icon": "list-view",
   "description": "Lists every cookie category and the cookies it sets, from the cookie consent settings.",
-  "keywords": [
-    "cookie",
-    "consent",
-    "privacy",
-    "policy"
-  ],
+  "keywords": ["cookie", "consent", "privacy", "policy"],
   "textdomain": "mortar-consent",
   "attributes": {
     "showSettingsButton": {
@@ -21,10 +16,7 @@
   },
   "supports": {
     "html": false,
-    "align": [
-      "wide",
-      "full"
-    ],
+    "align": ["wide", "full"],
     "spacing": {
       "margin": true,
       "padding": true

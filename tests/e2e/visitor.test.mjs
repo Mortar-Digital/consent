@@ -18,7 +18,13 @@ let consentId;
 const log = () => page.evaluate(() => window.mdTestLog ?? null);
 const axe = async (selector) => {
 	await page.addScriptTag({ path: AXE });
-	return page.evaluate(async (s) => (await window.axe.run(s, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] })).violations.map((v) => `${v.id}: ${v.nodes.length}`), selector);
+	return page.evaluate(
+		async (s) =>
+			(await window.axe.run(s, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] })).violations.map(
+				(v) => `${v.id}: ${v.nodes.length}`,
+			),
+		selector,
+	);
 };
 const waitRecords = async (n) => {
 	for (let i = 0; i < 50 && records.length < n; i++) {
@@ -31,7 +37,12 @@ const waitRecords = async (n) => {
 const storedFor = async (id, n) => {
 	let count = 0;
 	for (let t = 0; t < 50; t++) {
-		count = Number(wp(['eval', `global $wpdb; echo (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i WHERE consent_id = %s', $wpdb->prefix . 'mortar_consent_log', ${JSON.stringify(id)}));`]));
+		count = Number(
+			wp([
+				'eval',
+				`global $wpdb; echo (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i WHERE consent_id = %s', $wpdb->prefix . 'mortar_consent_log', ${JSON.stringify(id)}));`,
+			]),
+		);
 		if (count >= n) {
 			break;
 		}
@@ -68,7 +79,10 @@ test('first visit: banner shown, no optional scripts, requests or cookies, no a1
 	assert.equal(await page.isVisible('.mortar-consent__reopen'), false);
 	assert.deepEqual(trackerRequests, []);
 	assert.equal(await log(), null);
-	assert.equal(Object.keys(await cookies()).some((n) => n.startsWith('_sdtest') || n === 'mortar_consent'), false);
+	assert.equal(
+		Object.keys(await cookies()).some((n) => n.startsWith('_sdtest') || n === 'mortar_consent'),
+		false,
+	);
 	await page.waitForTimeout(400);
 	await page.screenshot({ path: `${ARTIFACTS}/banner.png` });
 	assert.deepEqual(await axe('#mortar-consent'), []);
@@ -88,7 +102,12 @@ test('reject all is remembered, loads nothing and is logged', async () => {
 	assert.equal(await log(), null);
 	await waitRecords(1);
 	assert.equal(await storedFor(consentId, 1), 1);
-	assert.deepEqual(records[0].body, { consentId, policyVersion: records[0].body.policyVersion, granted: [], method: 'reject-all' });
+	assert.deepEqual(records[0].body, {
+		consentId,
+		policyVersion: records[0].body.policyVersion,
+		granted: [],
+		method: 'reject-all',
+	});
 });
 
 test('granting analytics runs gated scripts in order; marketing stays blocked', async () => {
@@ -120,7 +139,10 @@ test('withdrawal reloads, removes owned cookies, stops scripts and is logged', a
 	await page.click('.mortar-consent__reopen');
 	assert.equal(await page.isChecked('#mortar-consent-category-analytics'), true);
 	await page.uncheck('#mortar-consent-category-analytics');
-	await Promise.all([page.waitForNavigation(), page.click('#mortar-consent-dialog [data-mortar-consent-action="save"]')]);
+	await Promise.all([
+		page.waitForNavigation(),
+		page.click('#mortar-consent-dialog [data-mortar-consent-action="save"]'),
+	]);
 	await ready(page);
 	const c = await cookies();
 	assert.equal(c._sdtest_a, undefined);
@@ -185,9 +207,14 @@ test('mobile: banner and dialog fit without horizontal scrolling', async () => {
 test('cookie declaration lists categories and cookies, escapes text, opens preferences', async () => {
 	await page.goto(`${BASE}/mortar-consent-e2e-declaration/`);
 	await ready(page);
-	const headings = await page.evaluate(() => [...document.querySelectorAll('.mortar-consent-declaration h3')].map((h) => h.textContent.trim()));
+	const headings = await page.evaluate(() =>
+		[...document.querySelectorAll('.mortar-consent-declaration h3')].map((h) => h.textContent.trim()),
+	);
 	assert.deepEqual(headings, ['Strictly necessary (Always on)', 'Functional', 'Analytics', 'Marketing']);
-	assert.equal(await page.textContent('.mortar-consent-declaration tbody tr:has(code:text("_sdtest_*")) td'), 'Test & Co <b>');
+	assert.equal(
+		await page.textContent('.mortar-consent-declaration tbody tr:has(code:text("_sdtest_*")) td'),
+		'Test & Co <b>',
+	);
 	await page.click('.mortar-consent-declaration [data-mortar-consent-open]');
 	assert.equal(await page.isVisible('#mortar-consent-dialog'), true);
 	await page.keyboard.press('Escape');
@@ -197,7 +224,13 @@ test('records endpoint rejects oversized bodies and rate limits', async () => {
 	const abuse = await page.evaluate(async () => {
 		const url = JSON.parse(document.getElementById('mortar-consent-config').textContent).log;
 		const policyVersion = JSON.parse(document.getElementById('mortar-consent-config').textContent).policyVersion;
-		const post = (body) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), credentials: 'omit' }).then((r) => r.status);
+		const post = (body) =>
+			fetch(url, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body),
+				credentials: 'omit',
+			}).then((r) => r.status);
 		const valid = { consentId: crypto.randomUUID(), policyVersion, granted: [], method: 'reject-all' };
 		const big = await post({ ...valid, granted: Array(300).fill('analytics') });
 		const statuses = [];

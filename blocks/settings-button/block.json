@@ -6,12 +6,7 @@
   "category": "widgets",
   "icon": "privacy",
   "description": "Lets visitors reopen their cookie preferences at any time.",
-  "keywords": [
-    "cookie",
-    "consent",
-    "privacy",
-    "gdpr"
-  ],
+  "keywords": ["cookie", "consent", "privacy", "gdpr"],
   "textdomain": "mortar-consent",
   "attributes": {
     "label": {

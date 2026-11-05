@@ -6,12 +6,20 @@ import { BASE, ARTIFACTS, launch, context, ready } from './lib.mjs';
 
 const EMBEDS = `${BASE}/mortar-consent-e2e-embeds/`;
 const DENIED = {
-	ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied',
-	functionality_storage: 'granted', personalization_storage: 'denied', security_storage: 'granted',
+	ad_storage: 'denied',
+	ad_user_data: 'denied',
+	ad_personalization: 'denied',
+	analytics_storage: 'denied',
+	functionality_storage: 'granted',
+	personalization_storage: 'denied',
+	security_storage: 'granted',
 };
 
 let browser, page, errors, thirdParty, cookies;
-const consentEvents = () => page.evaluate(() => (window.dataLayer || []).filter((e) => e[0] === 'consent').map((e) => [e[1], JSON.parse(JSON.stringify(e[2]))]));
+const consentEvents = () =>
+	page.evaluate(() =>
+		(window.dataLayer || []).filter((e) => e[0] === 'consent').map((e) => [e[1], JSON.parse(JSON.stringify(e[2]))]),
+	);
 const consentCookie = async () => (await cookies()).mortar_consent;
 
 before(async () => {
@@ -47,7 +55,10 @@ test('"Load this content" loads one embed, focuses it and stores nothing', async
 });
 
 test('"Always allow" grants the category, loads the rest and updates Consent Mode', async () => {
-	await page.locator('.mortar-consent-embed').getByRole('button', { name: /Always allow/ }).click();
+	await page
+		.locator('.mortar-consent-embed')
+		.getByRole('button', { name: /Always allow/ })
+		.click();
 	await page.waitForFunction(() => document.querySelectorAll('.mortar-consent-embed').length === 0);
 	assert.equal((await consentCookie()).split('|')[4], 'functional');
 	assert.equal(await page.isVisible('#mortar-consent-banner'), false);
@@ -61,7 +72,13 @@ test('accept all: Consent Mode granted and WP Consent API set to allow', async (
 	assert.equal(last.ad_storage, 'granted');
 	assert.equal(last.analytics_storage, 'granted');
 	const wp = await page.evaluate(() => Object.fromEntries(window.__wpConsent.slice(-5)));
-	assert.deepEqual(wp, { functional: 'allow', preferences: 'allow', statistics: 'allow', 'statistics-anonymous': 'allow', marketing: 'allow' });
+	assert.deepEqual(wp, {
+		functional: 'allow',
+		preferences: 'allow',
+		statistics: 'allow',
+		'statistics-anonymous': 'allow',
+		marketing: 'allow',
+	});
 });
 
 test('returning visitor: head defaults already granted; embeds load directly', async () => {
@@ -96,9 +113,14 @@ test('hardening: classic auto-embeds stay gated despite marker strings; unknown 
 	const h = await context(browser);
 	await h.page.goto(`${BASE}/mortar-consent-e2e-hardening/`);
 	await ready(h.page);
-	const providers = await h.page.evaluate(() => [...document.querySelectorAll('.mortar-consent-embed')].map((e) => e.getAttribute('data-mortar-consent-provider')));
+	const providers = await h.page.evaluate(() =>
+		[...document.querySelectorAll('.mortar-consent-embed')].map((e) => e.getAttribute('data-mortar-consent-provider')),
+	);
 	assert.deepEqual(providers.sort(), ['other', 'youtube']);
-	assert.match(await h.page.textContent('[data-mortar-consent-provider="other"] .mortar-consent-embed__notice'), /player\.example-video\.test/);
+	assert.match(
+		await h.page.textContent('[data-mortar-consent-provider="other"] .mortar-consent-embed__notice'),
+		/player\.example-video\.test/,
+	);
 	assert.equal(await h.page.locator('#same-site').count(), 1, 'same-site iframe is not gated');
 	assert.equal(await h.page.locator('iframe:not(#same-site)').count(), 0);
 	assert.deepEqual(h.thirdParty, []);

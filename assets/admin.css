@@ -403,7 +403,7 @@
 
 .mortar-consent-savebar .components-button.is-primary,
 .mortar-consent-savebar .components-button.is-primary:disabled,
-.mortar-consent-savebar .components-button.is-primary[aria-disabled="true"] {
+.mortar-consent-savebar .components-button.is-primary[aria-disabled='true'] {
 	color: #fff;
 }
 
@@ -430,7 +430,7 @@
 	height: 8px;
 	border-radius: 50%;
 	background: #dba617;
-	content: "";
+	content: '';
 }
 
 .mortar-consent-savebar__status--saved {

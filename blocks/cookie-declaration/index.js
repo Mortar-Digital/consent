@@ -24,14 +24,14 @@
 							label: __('Show cookie settings button', 'mortar-consent'),
 							checked: attributes.showSettingsButton,
 							onChange: (showSettingsButton) => setAttributes({ showSettingsButton }),
-						})
-					)
+						}),
+					),
 				),
 				el(
 					'div',
 					useBlockProps(),
-					el(Disabled, null, el(ServerSideRender, { block: 'mortar-consent/cookie-declaration', attributes }))
-				)
+					el(Disabled, null, el(ServerSideRender, { block: 'mortar-consent/cookie-declaration', attributes })),
+				),
 			);
 		},
 		save: () => null,

@@ -39,11 +39,34 @@ try {
 		if (existing) {
 			wp('post', 'delete', ...existing.split(/\s+/), '--force');
 		}
-		pages.push(wp('post', 'create', '--post_type=page', '--post_status=publish', `--post_title=${title}`, `--post_name=${slug}`, `--post_content=${content}`, '--porcelain'));
+		pages.push(
+			wp(
+				'post',
+				'create',
+				'--post_type=page',
+				'--post_status=publish',
+				`--post_title=${title}`,
+				`--post_name=${slug}`,
+				`--post_content=${content}`,
+				'--porcelain',
+			),
+		);
 	};
-	createPage('mortar-consent-e2e-declaration', 'Consent e2e declaration', '<!-- wp:mortar-consent/cookie-declaration /-->');
-	createPage('mortar-consent-e2e-embeds', 'Consent e2e embeds', readFileSync(resolve(here, 'fixture/embeds.html'), 'utf8'));
-	createPage('mortar-consent-e2e-hardening', 'Consent e2e hardening', readFileSync(resolve(here, 'fixture/hardening.html'), 'utf8'));
+	createPage(
+		'mortar-consent-e2e-declaration',
+		'Consent e2e declaration',
+		'<!-- wp:mortar-consent/cookie-declaration /-->',
+	);
+	createPage(
+		'mortar-consent-e2e-embeds',
+		'Consent e2e embeds',
+		readFileSync(resolve(here, 'fixture/embeds.html'), 'utf8'),
+	);
+	createPage(
+		'mortar-consent-e2e-hardening',
+		'Consent e2e hardening',
+		readFileSync(resolve(here, 'fixture/hardening.html'), 'utf8'),
+	);
 
 	for (const spec of ['visitor', 'integrations', 'admin']) {
 		wp('transient', 'delete', '--all');
@@ -58,7 +81,10 @@ try {
 	if (pages.length) {
 		wp('post', 'delete', ...pages, '--force');
 	}
-	wp('eval', `global $wpdb; $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE created_at >= %s', $wpdb->prefix . 'mortar_consent_log', ${JSON.stringify(started)}));`);
+	wp(
+		'eval',
+		`global $wpdb; $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE created_at >= %s', $wpdb->prefix . 'mortar_consent_log', ${JSON.stringify(started)}));`,
+	);
 	wp('transient', 'delete', '--all');
 }
 console.log(failed ? '\nE2E: failures above.' : '\nE2E: all specs passed. Screenshots in tests/e2e/artifacts/.');

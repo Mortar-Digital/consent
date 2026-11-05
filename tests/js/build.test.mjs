@@ -39,6 +39,9 @@ test('minified codec matches the source codec', () => {
 	const min = load(minPath);
 	assert.equal(min.pattern, source.pattern);
 	for (const { value } of fixture.cases) {
-		assert.deepEqual(JSON.stringify(min.decode(value, fixture.categories)), JSON.stringify(source.decode(value, fixture.categories)));
+		assert.deepEqual(
+			JSON.stringify(min.decode(value, fixture.categories)),
+			JSON.stringify(source.decode(value, fixture.categories)),
+		);
 	}
 });

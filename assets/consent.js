@@ -50,9 +50,11 @@
 	 * @param {number} now unix seconds
 	 */
 	function isCurrent(state, config, now) {
-		return state.policyVersion === config.policyVersion
-			&& state.timestamp <= now + CLOCK_SKEW
-			&& now - state.timestamp <= config.lifetime;
+		return (
+			state.policyVersion === config.policyVersion &&
+			state.timestamp <= now + CLOCK_SKEW &&
+			now - state.timestamp <= config.lifetime
+		);
 	}
 
 	const codec = Object.freeze({ decode, encode, isCurrent, pattern: PATTERN.source });
@@ -140,9 +142,7 @@
 	 * @param {string[]} granted
 	 */
 	function removeDeniedCookies(granted) {
-		const patterns = config.categories
-			.filter((c) => !c.required && !granted.includes(c.id))
-			.flatMap((c) => c.cookies);
+		const patterns = config.categories.filter((c) => !c.required && !granted.includes(c.id)).flatMap((c) => c.cookies);
 
 		if (patterns.length === 0) {
 			return;
@@ -207,10 +207,12 @@
 			if (placeholder.hasAttribute('src')) {
 				if (!placeholder.hasAttribute('async')) {
 					script.async = false;
-					pending.push(new Promise((resolve) => {
-						script.addEventListener('load', resolve, { once: true });
-						script.addEventListener('error', resolve, { once: true });
-					}));
+					pending.push(
+						new Promise((resolve) => {
+							script.addEventListener('load', resolve, { once: true });
+							script.addEventListener('error', resolve, { once: true });
+						}),
+					);
 				}
 				placeholder.replaceWith(script);
 				return undefined;
@@ -278,9 +280,11 @@
 	function isGenuineEmbed(container, control) {
 		const placeholder = control.closest('.mortar-consent-embed__placeholder');
 
-		return container.querySelector(':scope > template') !== null
-			&& placeholder !== null
-			&& placeholder.parentElement === container;
+		return (
+			container.querySelector(':scope > template') !== null &&
+			placeholder !== null &&
+			placeholder.parentElement === container
+		);
 	}
 
 	/**
@@ -296,8 +300,15 @@
 		if (config.consentMode) {
 			const w = /** @type {any} */ (window);
 			w.dataLayer = w.dataLayer || [];
-			const gtag = typeof w.gtag === 'function' ? w.gtag : function () { w.dataLayer.push(arguments); };
-			const state = Object.fromEntries(Object.entries(resolveSignals(config.consentMode)).map(([k, v]) => [k, v ? 'granted' : 'denied']));
+			const gtag =
+				typeof w.gtag === 'function'
+					? w.gtag
+					: function () {
+							w.dataLayer.push(arguments);
+						};
+			const state = Object.fromEntries(
+				Object.entries(resolveSignals(config.consentMode)).map(([k, v]) => [k, v ? 'granted' : 'denied']),
+			);
 			gtag('consent', 'update', state);
 		}
 
@@ -345,7 +356,12 @@
 			fetch(config.log, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ consentId: state.consentId, policyVersion: state.policyVersion, granted: state.granted, method }),
+				body: JSON.stringify({
+					consentId: state.consentId,
+					policyVersion: state.policyVersion,
+					granted: state.granted,
+					method,
+				}),
 				credentials: 'omit',
 				keepalive: true,
 			}).catch(() => {});
@@ -417,8 +433,9 @@
 			return [];
 		}
 
-		return [...form.querySelectorAll('input[name="mortar-consent-category"]:checked')]
-			.map((input) => /** @type {HTMLInputElement} */ (input).value);
+		return [...form.querySelectorAll('input[name="mortar-consent-category"]:checked')].map(
+			(input) => /** @type {HTMLInputElement} */ (input).value,
+		);
 	}
 
 	document.addEventListener('click', (event) => {
@@ -491,7 +508,9 @@
 
 			const box = dialog.getBoundingClientRect();
 
-			return event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom;
+			return (
+				event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom
+			);
 		};
 
 		let pressedBackdrop = false;

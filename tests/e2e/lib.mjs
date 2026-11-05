@@ -16,10 +16,13 @@ export const launch = () => chromium.launch();
 export async function context(browser, { gpc = false, viewport = { width: 1280, height: 900 } } = {}) {
 	const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport });
 	const thirdParty = [];
-	await ctx.route((url) => !url.href.startsWith(BASE), (route) => {
-		thirdParty.push(route.request().url());
-		route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>stub</title>' });
-	});
+	await ctx.route(
+		(url) => !url.href.startsWith(BASE),
+		(route) => {
+			thirdParty.push(route.request().url());
+			route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>stub</title>' });
+		},
+	);
 	await ctx.addInitScript((gpcOn) => {
 		window.__wpConsent = [];
 		window.wp_set_consent = (category, value) => window.__wpConsent.push([category, value]);

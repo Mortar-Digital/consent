@@ -25,7 +25,12 @@ for (const { name, value, expect } of fixture.cases) {
 }
 
 test('encode round-trips', () => {
-	const state = { policyVersion: 2, timestamp: 1761480000, consentId: '3f1c2a9e-8b7d-4c2e-9f10-2a3b4c5d6e7f', granted: ['marketing'] };
+	const state = {
+		policyVersion: 2,
+		timestamp: 1761480000,
+		consentId: '3f1c2a9e-8b7d-4c2e-9f10-2a3b4c5d6e7f',
+		granted: ['marketing'],
+	};
 	assert.equal(encode(state), '1|2|1761480000|3f1c2a9e-8b7d-4c2e-9f10-2a3b4c5d6e7f|marketing');
 	assert.deepEqual(JSON.parse(JSON.stringify(decode(encode(state), fixture.categories))), state);
 });

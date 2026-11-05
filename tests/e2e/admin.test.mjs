@@ -21,10 +21,12 @@ before(async () => {
 		}
 	});
 	const split = tags.indexOf('<script');
-	await page.route(`${BASE}/mortar-consent-e2e-admin`, (route) => route.fulfill({
-		contentType: 'text/html',
-		body: `<!doctype html><html><head><meta charset="utf-8">${tags.slice(0, split)}</head><body class="wp-admin wp-core-ui"><div class="wrap"><h1>Cookie consent</h1><div id="mortar-consent-admin"></div></div>${tags.slice(split)}</body></html>`,
-	}));
+	await page.route(`${BASE}/mortar-consent-e2e-admin`, (route) =>
+		route.fulfill({
+			contentType: 'text/html',
+			body: `<!doctype html><html><head><meta charset="utf-8">${tags.slice(0, split)}</head><body class="wp-admin wp-core-ui"><div class="wrap"><h1>Cookie consent</h1><div id="mortar-consent-admin"></div></div>${tags.slice(split)}</body></html>`,
+		}),
+	);
 	await page.route(/mortar-consent(\/|%2F)v1(\/|%2F)settings/, (route) => {
 		if (route.request().method() !== 'GET') {
 			putBody = JSON.parse(route.request().postData());
@@ -32,10 +34,23 @@ before(async () => {
 		}
 		return route.fulfill({ json: settings });
 	});
-	await page.route(/mortar-consent(\/|%2F)v1(\/|%2F)records/, (route) => route.fulfill({ json: {
-		summary: { 'accept-all': 12, 'reject-all': 7, custom: 3 },
-		records: [{ id: 1, consentId: '3f1c2a9e-8b7d-4c2e-9f10-2a3b4c5d6e7f', policyVersion: 1, granted: ['analytics'], method: 'custom', createdAt: '2026-10-26T18:01:40Z' }],
-	} }));
+	await page.route(/mortar-consent(\/|%2F)v1(\/|%2F)records/, (route) =>
+		route.fulfill({
+			json: {
+				summary: { 'accept-all': 12, 'reject-all': 7, custom: 3 },
+				records: [
+					{
+						id: 1,
+						consentId: '3f1c2a9e-8b7d-4c2e-9f10-2a3b4c5d6e7f',
+						policyVersion: 1,
+						granted: ['analytics'],
+						method: 'custom',
+						createdAt: '2026-10-26T18:01:40Z',
+					},
+				],
+			},
+		}),
+	);
 	await page.goto(`${BASE}/mortar-consent-e2e-admin`);
 	await page.waitForSelector('.mortar-consent-admin');
 });
@@ -95,7 +110,9 @@ test('saved settings have the expected shape and pass server validation', async 
 	assert.equal(s.lifetime_days, 180);
 	assert.deepEqual(s.scripts, { 'google-analytics': ['analytics'] });
 	assert.equal(s.texts.accept_all, 'Allow all');
-	assert.deepEqual(s.categories.find((c) => c.id === 'analytics').cookies, [{ name: '_ga_*', provider: 'Google', purpose: '', duration: '' }]);
+	assert.deepEqual(s.categories.find((c) => c.id === 'analytics').cookies, [
+		{ name: '_ga_*', provider: 'Google', purpose: '', duration: '' },
+	]);
 	assert.ok(s.categories.some((c) => c.id === 'social'));
 	assert.ok(!s.categories.some((c) => c.id === 'marketing'));
 	assert.equal(s.consent_mode.enabled, true);
@@ -106,5 +123,8 @@ test('saved settings have the expected shape and pass server validation', async 
 
 	const result = JSON.parse(wp(['eval-file', fixture('validate-settings.php')], JSON.stringify(putBody)));
 	assert.equal(result.status, 200, JSON.stringify(result.data));
-	assert.deepEqual(errors.filter((e) => !e.includes('favicon')), []);
+	assert.deepEqual(
+		errors.filter((e) => !e.includes('favicon')),
+		[],
+	);
 });

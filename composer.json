@@ -59,8 +59,14 @@
       "php bin/lint",
       "@lint:js"
     ],
-    "format": "php-cs-fixer fix",
-    "format:check": "php-cs-fixer fix --dry-run --diff",
+    "format": [
+      "php-cs-fixer fix",
+      "node node_modules/prettier/bin/prettier.cjs --write ."
+    ],
+    "format:check": [
+      "php-cs-fixer fix --dry-run --diff",
+      "node node_modules/prettier/bin/prettier.cjs --check ."
+    ],
     "sniff": "phpcs",
     "check": [
       "@lint",

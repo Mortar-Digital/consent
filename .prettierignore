@@ -1,0 +1,18 @@
+# Generated, vendored or not ours
+assets/consent.min.js
+build/
+vendor/
+node_modules/
+pnpm-lock.yaml
+composer.lock
+tests/e2e/artifacts/
+.wordpress-org/
+
+# Inlined by ConsentModeSnippet with a call appended, so it must stay a bare
+# ES5 function expression with no trailing semicolon or trailing commas.
+assets/consent-mode.js
+
+# Prose and PHP are formatted elsewhere
+*.md
+*.php
+*.html
