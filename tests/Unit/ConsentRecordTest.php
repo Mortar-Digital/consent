@@ -39,19 +39,22 @@ final class ConsentRecordTest extends TestCase
         self::assertSame(1761480000, $record->timestamp, 'server time, never client time');
     }
 
-    /** @return iterable<string, array{array<string, mixed>}> */
-    public static function invalidPayloads(): iterable
+    /** @return array<string, array{array<string, mixed>}> */
+    public static function invalidPayloads(): array
     {
         $valid = ['consentId' => self::ID, 'policyVersion' => 3, 'granted' => [], 'method' => 'reject-all'];
-        yield 'extra field' => [[...$valid, 'ip' => '1.2.3.4']];
-        yield 'bad id' => [[...$valid, 'consentId' => 'abc']];
-        yield 'stale policy' => [[...$valid, 'policyVersion' => 2]];
-        yield 'string policy' => [[...$valid, 'policyVersion' => '3']];
-        yield 'required category' => [[...$valid, 'granted' => ['necessary']]];
-        yield 'unknown category' => [[...$valid, 'granted' => ['ads']]];
-        yield 'granted map' => [[...$valid, 'granted' => ['a' => 'analytics']]];
-        yield 'bad method' => [[...$valid, 'method' => 'gpc']];
-        yield 'missing method' => [array_diff_key($valid, ['method' => true])];
+
+        return [
+            'extra field' => [[...$valid, 'ip' => '1.2.3.4']],
+            'bad id' => [[...$valid, 'consentId' => 'abc']],
+            'stale policy' => [[...$valid, 'policyVersion' => 2]],
+            'string policy' => [[...$valid, 'policyVersion' => '3']],
+            'required category' => [[...$valid, 'granted' => ['necessary']]],
+            'unknown category' => [[...$valid, 'granted' => ['ads']]],
+            'granted map' => [[...$valid, 'granted' => ['a' => 'analytics']]],
+            'bad method' => [[...$valid, 'method' => 'gpc']],
+            'missing method' => [array_diff_key($valid, ['method' => true])],
+        ];
     }
 
     /** @param array<string, mixed> $payload */

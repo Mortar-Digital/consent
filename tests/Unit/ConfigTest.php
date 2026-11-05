@@ -78,33 +78,35 @@ final class ConfigTest extends TestCase
         self::assertNull($config->toClientArray()['consentMode']);
     }
 
-    /** @return iterable<string, array{callable(array<string, mixed>): array<string, mixed>}> */
-    public static function invalidMutations(): iterable
+    /** @return array<string, array{callable(array<string, mixed>): array<string, mixed>}> */
+    public static function invalidMutations(): array
     {
-        yield 'duplicate category' => [static fn(array $c): array => [...$c, 'categories' => [...$c['categories'], ['id' => 'analytics', 'label' => 'Again']]]];
-        yield 'bad category id' => [static fn(array $c): array => [...$c, 'categories' => [['id' => 'Bad Id', 'label' => 'X']]]];
-        yield 'empty label' => [static fn(array $c): array => [...$c, 'categories' => [['id' => 'x', 'label' => ' ']]]];
-        yield 'bad cookie pattern' => [static fn(array $c): array => [...$c, 'categories' => [['id' => 'x', 'label' => 'X', 'cookies' => ['a;b']]]]];
-        yield 'script to required category' => [static fn(array $c): array => [...$c, 'scripts' => ['x' => 'necessary']]];
-        yield 'script to unknown category' => [static fn(array $c): array => [...$c, 'scripts' => ['x' => 'ads']]];
-        yield 'string policy version' => [static fn(array $c): array => [...$c, 'policy_version' => '1']];
-        yield 'zero lifetime' => [static fn(array $c): array => [...$c, 'lifetime_days' => 0]];
-        yield 'missing text' => [static function (array $c): array {
-            unset($c['texts']['reject_all']);
+        return [
+            'duplicate category' => [static fn(array $c): array => [...$c, 'categories' => [...$c['categories'], ['id' => 'analytics', 'label' => 'Again']]]],
+            'bad category id' => [static fn(array $c): array => [...$c, 'categories' => [['id' => 'Bad Id', 'label' => 'X']]]],
+            'empty label' => [static fn(array $c): array => [...$c, 'categories' => [['id' => 'x', 'label' => ' ']]]],
+            'bad cookie pattern' => [static fn(array $c): array => [...$c, 'categories' => [['id' => 'x', 'label' => 'X', 'cookies' => ['a;b']]]]],
+            'script to required category' => [static fn(array $c): array => [...$c, 'scripts' => ['x' => 'necessary']]],
+            'script to unknown category' => [static fn(array $c): array => [...$c, 'scripts' => ['x' => 'ads']]],
+            'string policy version' => [static fn(array $c): array => [...$c, 'policy_version' => '1']],
+            'zero lifetime' => [static fn(array $c): array => [...$c, 'lifetime_days' => 0]],
+            'missing text' => [static function (array $c): array {
+                unset($c['texts']['reject_all']);
 
-            return $c;
-        }];
-        yield 'javascript url' => [static fn(array $c): array => [...$c, 'privacy_policy_url' => 'javascript:alert(1)']];
-        yield 'protocol-relative url' => [static fn(array $c): array => [...$c, 'privacy_policy_url' => '//evil.example/']];
-        yield 'cookie without name' => [static fn(array $c): array => [...$c, 'categories' => [['id' => 'x', 'label' => 'X', 'cookies' => [['provider' => 'Google']]]]]];
-        yield 'retention too short' => [static fn(array $c): array => [...$c, 'log_retention_days' => 7]];
-        yield 'unknown consent mode signal' => [static fn(array $c): array => [...$c, 'consent_mode' => ['enabled' => false, 'signals' => ['ad_stuff' => 'marketing']]]];
-        yield 'consent mode unknown category' => [static fn(array $c): array => [...$c, 'consent_mode' => ['enabled' => true, 'signals' => ['ad_storage' => 'ads']]]];
-        yield 'wp consent api unknown category' => [static fn(array $c): array => [...$c, 'wp_consent_api' => ['statistics' => 'stats']]];
-        yield 'embed required category' => [static fn(array $c): array => [...$c, 'embeds' => ['category' => 'necessary']]];
-        yield 'embed bad provider slug' => [static fn(array $c): array => [...$c, 'embeds' => ['category' => '', 'providers' => ['You Tube' => 'marketing']]]];
-        yield 'gpc required category' => [static fn(array $c): array => [...$c, 'gpc_categories' => ['necessary']]];
-        yield 'bad cookie domain' => [static fn(array $c): array => [...$c, 'cookie_domain' => 'example.com; path=/']];
+                return $c;
+            }],
+            'javascript url' => [static fn(array $c): array => [...$c, 'privacy_policy_url' => 'javascript:alert(1)']],
+            'protocol-relative url' => [static fn(array $c): array => [...$c, 'privacy_policy_url' => '//evil.example/']],
+            'cookie without name' => [static fn(array $c): array => [...$c, 'categories' => [['id' => 'x', 'label' => 'X', 'cookies' => [['provider' => 'Google']]]]]],
+            'retention too short' => [static fn(array $c): array => [...$c, 'log_retention_days' => 7]],
+            'unknown consent mode signal' => [static fn(array $c): array => [...$c, 'consent_mode' => ['enabled' => false, 'signals' => ['ad_stuff' => 'marketing']]]],
+            'consent mode unknown category' => [static fn(array $c): array => [...$c, 'consent_mode' => ['enabled' => true, 'signals' => ['ad_storage' => 'ads']]]],
+            'wp consent api unknown category' => [static fn(array $c): array => [...$c, 'wp_consent_api' => ['statistics' => 'stats']]],
+            'embed required category' => [static fn(array $c): array => [...$c, 'embeds' => ['category' => 'necessary']]],
+            'embed bad provider slug' => [static fn(array $c): array => [...$c, 'embeds' => ['category' => '', 'providers' => ['You Tube' => 'marketing']]]],
+            'gpc required category' => [static fn(array $c): array => [...$c, 'gpc_categories' => ['necessary']]],
+            'bad cookie domain' => [static fn(array $c): array => [...$c, 'cookie_domain' => 'example.com; path=/']],
+        ];
     }
 
     /** @param callable(array<string, mixed>): array<string, mixed> $mutate */
