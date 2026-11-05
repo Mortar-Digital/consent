@@ -51,7 +51,7 @@ Mortar Consent is a tool, not legal advice. It does not find trackers by itself,
 Mortar Consent is made by [Mortar Digital](https://mortar.digital/), a WordPress studio that designs, builds, hosts and looks after WordPress sites. It runs on every site we build.
 
 * [Documentation](https://mortar.digital/plugins/consent/docs/)
-* [Source code and developer hooks](https://github.com/Mortar-Digital/consent)
+* [Source code, build tools and developer hooks](https://github.com/Mortar-Digital/consent): the minified scripts are built from `assets/consent.js` and the `admin/` folder, which ship with the plugin; the README explains the build.
 
 == Installation ==
 
