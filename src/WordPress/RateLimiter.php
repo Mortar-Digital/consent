@@ -47,6 +47,7 @@ final class RateLimiter
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === false) {
             return $ip;
         }
+
         $packed = inet_pton($ip);
 
         return $packed === false ? $ip : bin2hex(substr($packed, 0, 8)) . '::/64';
@@ -73,6 +74,7 @@ final class RateLimiter
 
             return $count === false ? PHP_INT_MAX : $count;
         }
+
         $stored = get_transient($key);
         $count = (is_numeric($stored) ? (int) $stored : 0) + 1;
         set_transient($key, $count, $this->windowSeconds);

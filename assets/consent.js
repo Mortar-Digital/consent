@@ -23,10 +23,12 @@
 		if (typeof value !== 'string' || value.length > MAX_LENGTH) {
 			return null;
 		}
+
 		const m = PATTERN.exec(value);
 		if (!m) {
 			return null;
 		}
+
 		const optional = new Set(categories.filter((c) => !c.required).map((c) => c.id));
 
 		return {
@@ -78,6 +80,7 @@
 	// visitor can still switch them on individually in the preferences.
 	const gpc = /** @type {any} */ (navigator).globalPrivacyControl === true;
 	const acceptAllIds = gpc ? optionalIds.filter((id) => !(config.gpc || []).includes(id)) : optionalIds;
+
 	if (gpc) {
 		for (const notice of root.querySelectorAll('[data-mortar-consent-gpc]')) {
 			/** @type {HTMLElement} */ (notice).hidden = false;
@@ -93,10 +96,12 @@
 		if (typeof crypto.randomUUID === 'function') {
 			return crypto.randomUUID();
 		}
+
 		// randomUUID needs a secure context; plain-HTTP dev sites fall back here.
 		const b = crypto.getRandomValues(new Uint8Array(16));
 		b[6] = (b[6] & 0x0f) | 0x40;
 		b[8] = (b[8] & 0x3f) | 0x80;
+
 		const h = [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
 
 		return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
@@ -120,9 +125,11 @@
 		if (config.cookie.domain) {
 			cookie += `; Domain=${config.cookie.domain}`;
 		}
+
 		if (location.protocol === 'https:') {
 			cookie += '; Secure';
 		}
+
 		document.cookie = cookie;
 	}
 
@@ -136,14 +143,18 @@
 		const patterns = config.categories
 			.filter((c) => !c.required && !granted.includes(c.id))
 			.flatMap((c) => c.cookies);
+
 		if (patterns.length === 0) {
 			return;
 		}
+
 		const parts = location.hostname.split('.');
 		const domains = [''];
+
 		for (let i = 0; i < parts.length - 1; i++) {
 			domains.push(`; Domain=.${parts.slice(i).join('.')}`);
 		}
+
 		for (const part of document.cookie.split(';')) {
 			const name = part.split('=')[0].trim();
 			const owned = patterns.some((p) => (p.endsWith('*') ? name.startsWith(p.slice(0, -1)) : name === p));
@@ -182,14 +193,17 @@
 					script.setAttribute(name, value);
 				}
 			}
+
 			const type = placeholder.getAttribute('data-mortar-consent-type');
 			if (type) {
 				script.type = type;
 			}
+
 			// The nonce attribute is hidden after parsing; the property survives.
 			if (placeholder.nonce) {
 				script.nonce = placeholder.nonce;
 			}
+
 			if (placeholder.hasAttribute('src')) {
 				if (!placeholder.hasAttribute('async')) {
 					script.async = false;
@@ -201,21 +215,25 @@
 				placeholder.replaceWith(script);
 				return undefined;
 			}
+
 			script.text = placeholder.text;
 			const waitFor = pending;
 			pending = [];
+
 			return Promise.all(waitFor).then(() => placeholder.replaceWith(script));
 		});
 	}
 
 	function activateAllowed() {
 		const placeholders = document.querySelectorAll('script[type="text/plain"][data-mortar-consent]');
+
 		for (const placeholder of /** @type {NodeListOf<HTMLScriptElement>} */ (placeholders)) {
 			const needs = (placeholder.getAttribute('data-mortar-consent') || '').split(/\s+/).filter(Boolean);
 			if (needs.length > 0 && needs.every(has)) {
 				activate(placeholder);
 			}
 		}
+
 		for (const embed of document.querySelectorAll('[data-mortar-consent-embed]')) {
 			if (has(embed.getAttribute('data-mortar-consent-embed') || '')) {
 				activateEmbed(embed, false);
@@ -235,6 +253,7 @@
 		if (!(template instanceof HTMLTemplateElement)) {
 			return;
 		}
+
 		const fragment = /** @type {DocumentFragment} */ (template.content.cloneNode(true));
 		for (const old of fragment.querySelectorAll('script')) {
 			const script = document.createElement('script');
@@ -244,6 +263,7 @@
 			script.text = old.text;
 			old.replaceWith(script);
 		}
+
 		const target = fragment.querySelector('iframe, a, button, [tabindex]');
 		container.replaceWith(fragment);
 		if (focus && target instanceof HTMLElement) {
@@ -257,6 +277,7 @@
 	 */
 	function isGenuineEmbed(container, control) {
 		const placeholder = control.closest('.mortar-consent-embed__placeholder');
+
 		return container.querySelector(':scope > template') !== null
 			&& placeholder !== null
 			&& placeholder.parentElement === container;
@@ -279,6 +300,7 @@
 			const state = Object.fromEntries(Object.entries(resolveSignals(config.consentMode)).map(([k, v]) => [k, v ? 'granted' : 'denied']));
 			gtag('consent', 'update', state);
 		}
+
 		const setConsent = /** @type {any} */ (window).wp_set_consent;
 		if (config.wpConsentApi && typeof setConsent === 'function') {
 			for (const [category, allowed] of Object.entries(resolveSignals(config.wpConsentApi))) {
@@ -290,7 +312,9 @@
 	/** @param {boolean} initial */
 	function announce(initial) {
 		const categories = Object.fromEntries(config.categories.map((c) => [c.id, has(c.id)]));
+
 		syncIntegrations();
+
 		document.dispatchEvent(new CustomEvent('mortar-consent:change', { detail: { categories, initial } }));
 	}
 
@@ -299,6 +323,7 @@
 		if (banner) {
 			banner.hidden = !visible;
 		}
+
 		if (reopen) {
 			reopen.hidden = visible;
 		}
@@ -315,6 +340,7 @@
 		if (!config.log) {
 			return;
 		}
+
 		try {
 			fetch(config.log, {
 				method: 'POST',
@@ -334,16 +360,19 @@
 	 */
 	function save(granted, method) {
 		const previous = current;
+
 		current = {
 			policyVersion: config.policyVersion,
 			timestamp: now(),
 			consentId: previous ? previous.consentId : uuid(),
 			granted: optionalIds.filter((id) => granted.includes(id)),
 		};
+
 		writeCookie(current);
 		record(current, method);
 		removeDeniedCookies(current.granted);
 		showBanner(false);
+
 		if (dialog && dialog.open) {
 			dialog.close();
 		}
@@ -355,6 +384,7 @@
 			location.reload();
 			return;
 		}
+
 		activateAllowed();
 		announce(false);
 	}
@@ -363,10 +393,12 @@
 		if (!dialog || !form) {
 			return;
 		}
+
 		for (const input of form.querySelectorAll('input[name="mortar-consent-category"]')) {
 			const box = /** @type {HTMLInputElement} */ (input);
 			box.checked = current !== null && current.granted.includes(box.value);
 		}
+
 		// Shown so visitors can quote it if they ask what they agreed to.
 		const meta = /** @type {HTMLElement | null} */ (form.querySelector('[data-mortar-consent-meta]'));
 		const idSlot = form.querySelector('[data-mortar-consent-id]');
@@ -374,6 +406,7 @@
 			meta.hidden = current === null;
 			idSlot.textContent = current ? current.consentId : '';
 		}
+
 		if (!dialog.open) {
 			dialog.showModal();
 		}
@@ -393,12 +426,14 @@
 		if (!target) {
 			return;
 		}
+
 		const opener = target.closest('[data-mortar-consent-open], a[href="#cookie-settings"]');
 		if (opener) {
 			event.preventDefault();
 			openPreferences();
 			return;
 		}
+
 		const embedControl = target.closest('[data-mortar-consent-embed-load], [data-mortar-consent-embed-allow]');
 		const embed = embedControl && embedControl.closest('[data-mortar-consent-embed]');
 		// Only real placeholders count: they hold a <template> (which post
@@ -415,10 +450,12 @@
 			}
 			return;
 		}
+
 		const control = target.closest('[data-mortar-consent-action]');
 		if (!control || !root.contains(control)) {
 			return;
 		}
+
 		switch (control.getAttribute('data-mortar-consent-action')) {
 			case 'accept-all':
 				save(acceptAllIds, 'accept-all');
@@ -451,14 +488,18 @@
 			if (event.target !== dialog) {
 				return false;
 			}
+
 			const box = dialog.getBoundingClientRect();
 
 			return event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom;
 		};
+
 		let pressedBackdrop = false;
+
 		dialog.addEventListener('pointerdown', (event) => {
 			pressedBackdrop = onBackdrop(event);
 		});
+
 		dialog.addEventListener('click', (event) => {
 			if (pressedBackdrop && onBackdrop(event)) {
 				dialog.close();
@@ -491,6 +532,7 @@
 		showBanner(true);
 		removeDeniedCookies([]);
 	}
+
 	announce(true);
 
 	// Deep link, e.g. "Change your cookie settings" on a cookie policy page.
@@ -499,6 +541,7 @@
 			openPreferences();
 		}
 	};
+
 	window.addEventListener('hashchange', openFromHash);
 	openFromHash();
 })();

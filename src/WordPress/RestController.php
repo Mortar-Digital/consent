@@ -56,6 +56,7 @@ final class RestController
                 ],
             ],
         ]);
+
         register_rest_route(self::NAMESPACE, '/settings', [
             [
                 'methods' => 'GET',
@@ -84,21 +85,26 @@ final class RestController
         if (! $config->logEnabled) {
             return new \WP_Error('mortar_consent_log_disabled', 'Consent logging is disabled.', ['status' => 404]);
         }
+
         if (strlen($request->get_body()) > self::MAX_BODY_BYTES) {
             return new \WP_Error('mortar_consent_too_large', 'Payload too large.', ['status' => 413]);
         }
+
         $payload = $request->get_json_params();
         if (! is_array($payload)) {
             return new \WP_Error('mortar_consent_invalid', 'Expected a JSON object.', ['status' => 400]);
         }
+
         if (! $this->limiter->attempt(RateLimiter::clientIp())) {
             return new \WP_Error('mortar_consent_rate_limited', 'Too many requests.', ['status' => 429]);
         }
+
         try {
             $record = ConsentRecord::fromPayload($payload, $config->policy, time());
         } catch (InvalidRecord $e) {
             return new \WP_Error('mortar_consent_invalid', wp_specialchars_decode($e->getMessage(), ENT_QUOTES), ['status' => 400]);
         }
+
         if (! $this->log->insert($record)) {
             return new \WP_Error('mortar_consent_storage', 'Could not store the record.', ['status' => 500]);
         }
@@ -119,6 +125,7 @@ final class RestController
     public function updateSettings(\WP_REST_Request $request): \WP_REST_Response|\WP_Error
     {
         $settings = $request->get_param('settings');
+
         try {
             $this->configProvider->save(is_array($settings) ? $settings : []);
         } catch (InvalidConfiguration $e) {

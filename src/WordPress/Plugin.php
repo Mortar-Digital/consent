@@ -33,7 +33,9 @@ final class Plugin
         if (self::$instance !== null) {
             return self::$instance;
         }
+
         self::$instance = new self(rtrim($dir, '/'), rtrim($url, '/'), new ConfigProvider());
+
         // Config uses translated defaults and theme filters, so build it late.
         add_action('init', self::$instance->init(...), 5);
 
@@ -52,29 +54,35 @@ final class Plugin
         if (str_starts_with(wp_normalize_path($this->dir), wp_normalize_path(WPMU_PLUGIN_DIR))) {
             load_muplugin_textdomain('mortar-consent', basename($this->dir) . '/languages');
         }
+
         register_setting('mortar_consent', ConfigProvider::OPTION, [
             'type' => 'object',
             'default' => [],
             'show_in_rest' => false,
             'sanitize_callback' => $this->configProvider->sanitizeOption(...),
         ]);
+
         $config = $this->configProvider->get();
 
         (new ScriptGate($config->scripts))->register();
         (new ConsentModeSnippet($config))->register();
         (new EmbedGate($config))->register();
+
         // WP Consent API (wordpress.org/plugins/wp-consent-api), when active:
         // declare opt-in; the runtime mirrors choices with wp_set_consent().
         add_filter('wp_get_consent_type', static fn (): string => 'optin');
+
         $this->renderer = new Renderer($config, [
             'log' => $config->logEnabled ? rest_url(RestController::NAMESPACE . '/records') : '',
         ]);
         $this->renderer->register();
 
         add_action('wp_enqueue_scripts', $this->enqueueAssets(...), 1);
+
         $this->registerBlocks();
 
         $this->log->install();
+
         /**
          * Consent-log rate limits per 10 minutes: per client, and site-wide.
          * Raise the global ceiling for very busy sites.
@@ -88,7 +96,9 @@ final class Plugin
             max(1, (int) ($limits['global'] ?? 2000)),
             600,
         ));
+
         add_action('rest_api_init', $rest->register(...));
+
         $this->scheduleRetention($config->logRetentionDays);
 
         if (is_admin()) {
@@ -133,6 +143,7 @@ final class Plugin
         if ($renderer === null) {
             return;
         }
+
         // Editor scripts are registered by handle: block.json "file:" paths
         // resolve symlinks, which breaks URLs when the package is symlinked.
         $editorDeps = ['wp-blocks', 'wp-block-editor', 'wp-components', 'wp-element', 'wp-i18n', 'wp-server-side-render'];
@@ -149,6 +160,7 @@ final class Plugin
                 get_block_wrapper_attributes(['class' => 'mortar-consent-open wp-element-button']),
             ),
         ]);
+
         register_block_type($this->dir . '/blocks/cookie-declaration', [
             'render_callback' => static fn (array $attributes): string => $renderer->declaration(
                 ($attributes['showSettingsButton'] ?? true) === true,
@@ -167,6 +179,7 @@ final class Plugin
         add_action(self::PURGE_HOOK, function () use ($retentionDays): void {
             $this->log->purge($retentionDays);
         });
+
         if (! wp_next_scheduled(self::PURGE_HOOK)) {
             wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', self::PURGE_HOOK);
         }

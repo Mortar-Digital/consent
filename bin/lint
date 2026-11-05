@@ -12,7 +12,9 @@ foreach (['src', 'tests', 'assets', 'blocks'] as $directory) {
         }
     }
 }
+
 sort($files);
+
 foreach ($files as $file) {
     $command = pathinfo($file, PATHINFO_EXTENSION) === 'php' || $file === __FILE__
         ? [PHP_BINARY, '-l', $file]
@@ -22,4 +24,5 @@ foreach ($files as $file) {
         exit(1);
     }
 }
+
 echo "PHP and JavaScript syntax checks passed.\n";

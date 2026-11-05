@@ -73,6 +73,7 @@ final class EmbedGate
         if ($content === '' || is_feed() || is_admin() || ! empty($block['innerBlocks'])) {
             return $content;
         }
+
         if (($block['blockName'] ?? '') === 'core/embed') {
             $attrs = is_array($block['attrs'] ?? null) ? $block['attrs'] : [];
             $slug = is_string($attrs['providerNameSlug'] ?? null) ? $attrs['providerNameSlug'] : '';
@@ -90,12 +91,14 @@ final class EmbedGate
         if ($category === null || ! preg_match('/<div class="wp-block-embed__wrapper">/', $content, $m, PREG_OFFSET_CAPTURE)) {
             return $content;
         }
+
         $start = $m[0][1] + strlen($m[0][0]);
         $captionAt = strpos($content, '<figcaption', $start);
         $end = strrpos(substr($content, 0, $captionAt === false ? strlen($content) : $captionAt), '</div>');
         if ($end === false || $end < $start) {
             return $content;
         }
+
         $inner = substr($content, $start, $end - $start);
         if (trim($inner) === '' || str_contains($inner, 'data-mortar-consent-embed')) {
             return $content;
@@ -110,11 +113,13 @@ final class EmbedGate
         if (stripos($content, '<iframe') === false) {
             return $content;
         }
+
         // Odd parts are placeholder templates (already gated): leave them.
         $parts = preg_split('#(<template\b[^>]*>.*?</template>)#is', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
         if ($parts === false) {
             return $content;
         }
+
         foreach ($parts as $i => $part) {
             if ($i % 2 === 1 || stripos($part, '<iframe') === false) {
                 continue;
@@ -140,18 +145,22 @@ final class EmbedGate
     private function providerFromHtml(string $html): array
     {
         $tags = new \WP_HTML_Tag_Processor($html);
+
         while ($tags->next_tag()) {
             $src = $tags->get_attribute('src');
             if (! in_array($tags->get_tag(), ['IFRAME', 'SCRIPT'], true) || ! is_string($src)) {
                 continue;
             }
+
             $host = strtolower((string) wp_parse_url($src, PHP_URL_HOST));
             if ($host === '' && str_starts_with($src, '//')) {
                 $host = strtolower((string) wp_parse_url('https:' . $src, PHP_URL_HOST));
             }
+
             if ($host === '' || $this->isSameSite($host)) {
                 continue;
             }
+
             foreach (self::HOSTS as $known => $provider) {
                 if ($host === $known || str_ends_with($host, '.' . $known)) {
                     // google.com only counts for Maps embeds.

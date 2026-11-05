@@ -32,8 +32,11 @@ final class ConsentLog
         if (get_option(self::SCHEMA_OPTION) === self::SCHEMA_VERSION) {
             return;
         }
+
         global $wpdb;
+
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
         dbDelta(sprintf(
             "CREATE TABLE %s (
   id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -49,6 +52,7 @@ final class ConsentLog
             $this->table(),
             $wpdb->get_charset_collate(),
         ));
+
         update_option(self::SCHEMA_OPTION, self::SCHEMA_VERSION, true);
     }
 
@@ -71,6 +75,7 @@ final class ConsentLog
         global $wpdb;
         $cutoff = gmdate('Y-m-d H:i:s', time() - $retentionDays * 86400);
         $deleted = 0;
+
         do {
             $batch = (int) $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE created_at < %s LIMIT %d', $this->table(), $cutoff, self::PURGE_BATCH));
             $deleted += $batch;
@@ -99,11 +104,13 @@ final class ConsentLog
     public function summary(int $days): array
     {
         global $wpdb;
+
         $rows = $wpdb->get_results($wpdb->prepare(
             'SELECT method, COUNT(*) AS total FROM %i WHERE created_at >= %s GROUP BY method',
             $this->table(),
             gmdate('Y-m-d H:i:s', time() - $days * 86400),
         ), ARRAY_A);
+
         $summary = array_fill_keys(ConsentRecord::METHODS, 0);
         foreach ($rows ?: [] as $row) {
             $summary[(string) $row['method']] = (int) $row['total'];
@@ -118,6 +125,7 @@ final class ConsentLog
         global $wpdb;
         $write(Csv::row(['id', 'consent_id', 'policy_version', 'granted', 'method', 'created_at_utc']));
         $after = 0;
+
         do {
             $rows = $wpdb->get_results($wpdb->prepare('SELECT * FROM %i WHERE id > %d ORDER BY id ASC LIMIT 1000', $this->table(), $after), ARRAY_A) ?: [];
             foreach ($rows as $row) {

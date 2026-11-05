@@ -36,6 +36,7 @@ final class Renderer
         if ($this->rendered || is_admin() || is_feed() || is_embed()) {
             return;
         }
+
         $this->rendered = true;
 
         $t = $this->config->texts;
@@ -169,10 +170,12 @@ final class Renderer
         if ($this->config->gpcCategories === []) {
             return;
         }
+
         $labels = array_map(
             fn (string $id): string => $this->config->policy->categories->get($id)->label,
             $this->config->gpcCategories,
         );
+
         printf(
             '<p class="mortar-consent__gpc" data-mortar-consent-gpc hidden>%s</p>',
             esc_html(str_replace('%s', implode(', ', $labels), $this->config->texts['gpc_notice'])),
@@ -184,6 +187,7 @@ final class Renderer
         if ($this->config->privacyPolicyUrl === '') {
             return;
         }
+
         printf(
             ' <a class="mortar-consent__link" href="%s">%s</a>',
             esc_url($this->config->privacyPolicyUrl, ['http', 'https']),

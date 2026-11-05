@@ -41,6 +41,7 @@ final class ConsentModeSnippet
             static fn ($c): string => $c->id,
             array_filter($categories->all(), static fn ($c): bool => $c->required),
         ));
+
         $data = wp_json_encode([
             'signals' => $this->config->consentMode?->toArray() ?? [],
             'required' => $required,

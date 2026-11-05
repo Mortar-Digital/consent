@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds the WordPress.org plugin zip from the files that ship:
-#   bin/build-plugin            -> build/mortar-consent-<version>.zip
+#   bin/build-plugin => build/mortar-consent-<version>.zip
 # Requires development dependencies (composer install; pnpm install).
 set -euo pipefail
 

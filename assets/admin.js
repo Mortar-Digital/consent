@@ -1,11 +1,20 @@
 (function (wp) {
 	'use strict';
 
-	const { createElement: el, Fragment, useState, useEffect, useMemo, createRoot } = wp.element;
+	const {
+		createElement: el,
+		Fragment,
+		useState,
+		useEffect,
+		useMemo,
+		createRoot
+	} = wp.element;
+
 	const {
 		TabPanel, Panel, PanelBody, TextControl, TextareaControl, ToggleControl, CheckboxControl, SelectControl,
 		Button, Notice, Spinner, Card, CardBody,
 	} = wp.components;
+
 	const apiFetch = wp.apiFetch;
 	const { __, _n, sprintf } = wp.i18n;
 	const boot = window.mortarConsentAdmin || {};
@@ -29,6 +38,7 @@
 		embed_allow: /* translators: Field label. Keep %s as typed: it shows where the category name goes. */ __('"Always allow" button (%s = category)', 'mortar-consent'),
 		gpc_notice: /* translators: Field label. Keep %s as typed: it shows where the category names go. */ __('Global Privacy Control notice (%s = categories)', 'mortar-consent'),
 	};
+
 	/** Wording grouped by where visitors see it; unknown keys join the last group. */
 	const TEXT_GROUPS = [
 		{
@@ -47,6 +57,7 @@
 			keys: ['settings_button', 'embed_notice', 'embed_load', 'embed_allow', 'gpc_notice'],
 		},
 	];
+
 	const SIGNAL_LABELS = {
 		ad_storage: __('Advertising storage', 'mortar-consent'),
 		ad_user_data: __('Send user data to Google for ads', 'mortar-consent'),
@@ -56,16 +67,23 @@
 		personalization_storage: __('Personalisation storage', 'mortar-consent'),
 		security_storage: __('Security storage', 'mortar-consent'),
 	};
+
 	const METHOD_LABELS = {
 		'accept-all': __('Accepted all', 'mortar-consent'),
 		'reject-all': __('Rejected all', 'mortar-consent'),
 		custom: __('Chose categories', 'mortar-consent'),
 	};
-	const METHOD_TONES = { 'accept-all': 'success', 'reject-all': 'error', custom: 'info' };
+
+	const METHOD_TONES = {
+		'accept-all': 'success',
+		'reject-all': 'error',
+		custom: 'info',
+	};
 
 	/** Removes a deleted category from every setting that refers to it. */
 	function withoutCategory(draft, id) {
 		const strip = (map) => Object.fromEntries(Object.entries(map || {}).map(([k, ids]) => [k, (Array.isArray(ids) ? ids : [ids]).filter((x) => x !== id)]));
+
 		return {
 			...draft,
 			categories: draft.categories.filter((c) => c.id !== id),
@@ -79,6 +97,7 @@
 			gpc_categories: draft.gpc_categories.filter((x) => x !== id),
 		};
 	}
+
 	const LONG_TEXTS = ['banner_body', 'dialog_body'];
 
 	/** Settings as the server returns them → editable form state. */

@@ -39,6 +39,7 @@ final class ScriptGate
         if (preg_match('/^(.+)-js-module$/', $id, $m) === 1) {
             return $this->gate($attributes, $this->map->categoriesFor($m[1]));
         }
+
         if (preg_match('/^(.+)-js$/', $id, $m) === 1) {
             return $this->gate($attributes, $this->categoriesFor($m[1]));
         }

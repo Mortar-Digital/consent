@@ -26,6 +26,7 @@ final class ConfigProvider
         if ($this->config !== null) {
             return $this->config;
         }
+
         $defaults = $this->defaults();
         $merged = SettingsMerger::merge($defaults, $this->stored(), $this->overrides());
 
@@ -85,12 +86,14 @@ final class ConfigProvider
     {
         $defaults = $this->defaults();
         $locked = $this->lockedKeys();
+
         // Locked keys keep whatever was saved before, so removing the code
         // override later restores the admin's value rather than the default.
         $stored = [
             ...array_intersect_key($this->stored(), array_flip($locked)),
             ...SettingsMerger::storable($submitted, $defaults, $locked),
         ];
+
         Config::fromArray(SettingsMerger::merge($defaults, $stored, $this->overrides()));
 
         update_option(self::OPTION, $stored, true);
@@ -111,7 +114,9 @@ final class ConfigProvider
         if (! is_array($value)) {
             return $old;
         }
+
         $value = array_intersect_key($value, array_flip(SettingsMerger::EDITABLE_KEYS));
+
         try {
             Config::fromArray(SettingsMerger::merge($this->defaults(), $value, $this->overrides()));
         } catch (InvalidConfiguration $e) {
@@ -246,6 +251,7 @@ final class ConfigProvider
     {
         $message = 'mortar-consent: invalid configuration, using defaults: ' . wp_specialchars_decode($error->getMessage(), ENT_QUOTES);
         wp_trigger_error(__METHOD__, $message, E_USER_WARNING);
+
         // wp_trigger_error() is silent without WP_DEBUG; a site quietly running
         // on defaults must still leave a trace in production.
         error_log($message); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -254,8 +260,10 @@ final class ConfigProvider
             array_values(array_filter(self::defaultCategories(), static fn (array $c): bool => empty($c['required']))),
             'id',
         );
+
         $scripts = is_array($filtered) && is_array($filtered['scripts'] ?? null) ? $filtered['scripts'] : [];
         $gated = [];
+
         foreach ($scripts as $key => $value) {
             // Gate both map keys and list-shaped typos such as ['google-analytics'].
             foreach ([$key, $value] as $handle) {
@@ -264,6 +272,7 @@ final class ConfigProvider
                 }
             }
         }
+
         $defaults['scripts'] = $gated;
 
         // Dropping Consent Mode would leave ungated Google tags with no

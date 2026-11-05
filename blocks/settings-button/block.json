@@ -6,7 +6,12 @@
   "category": "widgets",
   "icon": "privacy",
   "description": "Lets visitors reopen their cookie preferences at any time.",
-  "keywords": ["cookie", "consent", "privacy", "gdpr"],
+  "keywords": [
+    "cookie",
+    "consent",
+    "privacy",
+    "gdpr"
+  ],
   "textdomain": "mortar-consent",
   "attributes": {
     "label": {
@@ -16,9 +21,17 @@
   },
   "supports": {
     "html": false,
-    "color": { "background": true, "text": true },
-    "spacing": { "margin": true, "padding": true },
-    "typography": { "fontSize": true }
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "typography": {
+      "fontSize": true
+    }
   },
   "editorScript": "mortar-consent-settings-button-editor"
 }

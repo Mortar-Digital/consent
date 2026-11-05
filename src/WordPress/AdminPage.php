@@ -33,9 +33,11 @@ final class AdminPage
                 $this->render(...),
             );
         });
+
         add_action('admin_enqueue_scripts', $this->enqueue(...));
         add_action('admin_post_' . self::EXPORT_ACTION, $this->export(...));
         add_action('admin_init', $this->suggestPrivacyPolicyText(...));
+
         // A "Settings" link on the plugin's row, whether it is listed under
         // Must-Use (the MU adapter) or as the standalone plugin; both files
         // are named mortar-consent.php.
@@ -61,6 +63,7 @@ final class AdminPage
             __('Embedded content such as videos and maps is not loaded until you allow it. Once loaded, it comes from the provider (for example YouTube or Google Maps), which may set its own cookies and collect data under its own privacy policy.', 'mortar-consent'),
             __('You can change or withdraw your consent at any time using the cookie settings link. Your consent ID is shown there, so you can quote it if you ask us about your record.', 'mortar-consent'),
         ];
+
         $content = '<p class="privacy-policy-tutorial">' . esc_html__('Mortar Consent stores the visitor choices described below. Match the retention period to your settings, drop the consent record paragraphs if logging is off, and list the cookies your other plugins and embeds set.', 'mortar-consent') . '</p>'
             . '<strong class="privacy-policy-tutorial">' . esc_html__('Suggested text:', 'mortar-consent') . '</strong> '
             . implode('', array_map(static fn (string $p): string => '<p>' . esc_html($p) . '</p>', $paragraphs));
@@ -85,11 +88,13 @@ final class AdminPage
         if ($hook !== $this->hook || $this->hook === '') {
             return;
         }
+
         $version = static function (string $path): string {
             $mtime = @filemtime($path);
 
             return $mtime === false ? '0' : (string) $mtime;
         };
+
         wp_enqueue_script('mortar-consent-admin', $this->url . '/assets/admin.js', ['wp-element', 'wp-components', 'wp-api-fetch', 'wp-i18n'], $version($this->dir . '/assets/admin.js'), ['in_footer' => true]);
         wp_set_script_translations('mortar-consent-admin', 'mortar-consent');
         wp_add_inline_script('mortar-consent-admin', 'window.mortarConsentAdmin = ' . wp_json_encode([
@@ -104,6 +109,7 @@ final class AdminPage
         if (! current_user_can(RestController::capability())) {
             wp_die(esc_html__('You are not allowed to export consent records.', 'mortar-consent'), '', ['response' => 403]);
         }
+
         check_admin_referer(self::EXPORT_ACTION);
 
         nocache_headers();
