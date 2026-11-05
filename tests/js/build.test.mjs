@@ -19,11 +19,13 @@ test('consent.min.js is up to date (run `pnpm build`)', async () => {
 		legalComments: 'none',
 		write: false,
 	});
+
 	assert.equal(readFileSync(minPath, 'utf8'), result.outputFiles[0].text);
 });
 
 test(`consent.min.js is under ${BUDGET} bytes gzipped`, () => {
 	const size = gzipSync(readFileSync(minPath), { level: 9 }).length;
+
 	assert.ok(size < BUDGET, `${size} bytes`);
 });
 
@@ -35,9 +37,12 @@ test('minified codec matches the source codec', () => {
 		runInNewContext(readFileSync(path, 'utf8'), context);
 		return context.mortarConsentCodec;
 	};
+
 	const source = load(sourcePath);
 	const min = load(minPath);
+
 	assert.equal(min.pattern, source.pattern);
+
 	for (const { value } of fixture.cases) {
 		assert.deepEqual(
 			JSON.stringify(min.decode(value, fixture.categories)),

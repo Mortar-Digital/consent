@@ -68,6 +68,7 @@ final class ConsentPolicyTest extends TestCase
     public function testLifetimeIsCapped(): void
     {
         $this->expectException(InvalidConfiguration::class);
+
         new ConsentPolicy($this->policy->categories, 1, ConsentPolicy::MAX_LIFETIME_DAYS + 1);
     }
 

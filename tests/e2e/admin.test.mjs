@@ -14,12 +14,14 @@ let putBody = null;
 before(async () => {
 	const { tags, settings } = JSON.parse(wp(['eval-file', fixture('admin-harness.php')]));
 	browser = await launch();
+
 	({ page, errors } = await context(browser, { viewport: { width: 1200, height: 900 } }));
 	page.on('console', (m) => {
 		if (m.type() === 'error') {
 			errors.push(m.text());
 		}
 	});
+
 	const split = tags.indexOf('<script');
 	await page.route(`${BASE}/mortar-consent-e2e-admin`, (route) =>
 		route.fulfill({
@@ -27,6 +29,7 @@ before(async () => {
 			body: `<!doctype html><html><head><meta charset="utf-8">${tags.slice(0, split)}</head><body class="wp-admin wp-core-ui"><div class="wrap"><h1>Cookie consent</h1><div id="mortar-consent-admin"></div></div>${tags.slice(split)}</body></html>`,
 		}),
 	);
+
 	await page.route(/mortar-consent(\/|%2F)v1(\/|%2F)settings/, (route) => {
 		if (route.request().method() !== 'GET') {
 			putBody = JSON.parse(route.request().postData());
@@ -34,6 +37,7 @@ before(async () => {
 		}
 		return route.fulfill({ json: settings });
 	});
+
 	await page.route(/mortar-consent(\/|%2F)v1(\/|%2F)records/, (route) =>
 		route.fulfill({
 			json: {
@@ -51,6 +55,7 @@ before(async () => {
 			},
 		}),
 	);
+
 	await page.goto(`${BASE}/mortar-consent-e2e-admin`);
 	await page.waitForSelector('.mortar-consent-admin');
 });
@@ -71,6 +76,7 @@ test('categories: add a cookie and a category', async () => {
 	await page.getByRole('tab', { name: 'Categories & cookies' }).click();
 	await page.getByRole('button', { name: /^Analytics analytics/ }).click();
 	await page.getByRole('button', { name: 'Add cookie' }).first().click();
+
 	const row = page.locator('tbody tr').last();
 	await row.getByLabel('name').fill('_ga_*');
 	await row.getByLabel('provider').fill('Google');
@@ -98,7 +104,9 @@ test('removing a category clears every reference to it', async () => {
 test('wording and consent log tabs', async () => {
 	await page.getByRole('tab', { name: 'Wording' }).click();
 	await page.getByLabel('"Accept all" button').fill('Allow all');
+
 	assert.equal(await page.getByRole('button', { name: 'Reset to default' }).count(), 1);
+
 	await page.getByRole('tab', { name: 'Consent log' }).click();
 	await page.locator('.mortar-consent-stat', { hasText: 'Accepted all' }).getByText('12', { exact: false }).waitFor();
 });
@@ -107,6 +115,7 @@ test('saved settings have the expected shape and pass server validation', async 
 	await page.getByRole('button', { name: 'Save settings' }).click();
 	await page.waitForSelector('text=Settings saved.');
 	const s = putBody.settings;
+
 	assert.equal(s.lifetime_days, 180);
 	assert.deepEqual(s.scripts, { 'google-analytics': ['analytics'] });
 	assert.equal(s.texts.accept_all, 'Allow all');

@@ -114,6 +114,7 @@ final class ConfigTest extends TestCase
     public function testRejectsInvalidConfig(callable $mutate): void
     {
         $this->expectException(InvalidConfiguration::class);
+
         Config::fromArray($mutate(self::valid()));
     }
 }

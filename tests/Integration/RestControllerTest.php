@@ -22,7 +22,9 @@ final class RestControllerTest extends IntegrationTestCase
     {
         global $wpdb;
         $wpdb->delete((new ConsentLog())->table(), ['consent_id' => self::CONSENT_ID]);
+
         $this->clearRateLimits();
+
         parent::tearDown();
     }
 
@@ -31,7 +33,9 @@ final class RestControllerTest extends IntegrationTestCase
         $response = $this->post(['granted' => ['analytics'], 'method' => 'custom']);
 
         $this->assertSame(201, $response->get_status());
+
         $records = (new ConsentLog())->forConsentId(self::CONSENT_ID);
+
         $this->assertCount(1, $records);
         $this->assertSame(['analytics'], $records[0]['granted']);
         $this->assertSame('custom', $records[0]['method']);
@@ -62,6 +66,7 @@ final class RestControllerTest extends IntegrationTestCase
         $this->assertSame(401, rest_do_request($request)->get_status());
 
         wp_set_current_user($this->administrator());
+
         $response = rest_do_request($request);
 
         $this->assertSame(200, $response->get_status());
@@ -130,6 +135,7 @@ final class RestControllerTest extends IntegrationTestCase
             $wpdb->esc_like('_transient_mortar_consent_rl_') . '%',
             $wpdb->esc_like('_transient_timeout_mortar_consent_rl_') . '%',
         ));
+
         wp_cache_flush();
     }
 }

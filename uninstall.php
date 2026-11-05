@@ -21,8 +21,10 @@ $mortar_consent_uninstall = static function (): void {
     if (! defined('MORTAR_CONSENT_DELETE_DATA_ON_UNINSTALL') || MORTAR_CONSENT_DELETE_DATA_ON_UNINSTALL !== true) {
         return;
     }
+
     global $wpdb;
     $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $wpdb->prefix . 'mortar_consent_log')); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- dropping the plugin's own table.
+
     delete_option('mortar_consent_settings');
     delete_option('mortar_consent_log_schema');
 };

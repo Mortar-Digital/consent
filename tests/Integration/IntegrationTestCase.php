@@ -20,6 +20,7 @@ abstract class IntegrationTestCase extends TestCase
     protected function setUp(): void
     {
         $this->savedSettings = get_option(ConfigProvider::OPTION, null);
+
         wp_set_current_user(0);
     }
 

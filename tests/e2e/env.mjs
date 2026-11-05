@@ -18,7 +18,9 @@ function ddev() {
 			'Set MORTAR_CONSENT_E2E_SITE to a site checkout with the plugin in web/app/mu-plugins/mortar-consent.',
 		);
 	}
+
 	const env = readFileSync(resolve(site, '.env'), 'utf8');
+
 	return {
 		name: 'ddev',
 		url: process.env.MORTAR_CONSENT_E2E_URL || (env.match(/^WP_HOME=['"]?([^'"\n]+)/m) || [])[1],
@@ -55,8 +57,10 @@ export function wp(args, input) {
 		encoding: 'utf8',
 		maxBuffer: 32 * 1024 * 1024,
 	});
+
 	if (result.status !== 0) {
 		throw new Error(`wp ${args.join(' ')} failed: ${result.stderr || result.stdout}`);
 	}
+
 	return result.stdout.trim();
 }

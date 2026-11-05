@@ -24,6 +24,7 @@ final class SettingsMergerTest extends TestCase
         self::assertSame('Yes please', $merged['texts']['accept_all']);
         self::assertSame('Text', $merged['texts']['reject_all'], 'blank text falls back to default');
         self::assertArrayNotHasKey('unknown', $merged);
+
         Config::fromArray($merged);
     }
 

@@ -29,6 +29,7 @@ final class ConfigProviderTest extends IntegrationTestCase
         $everyOptional = ['functional', 'analytics', 'marketing'];
         $this->assertSame($everyOptional, $config->scripts->categoriesFor('it-analytics'));
         $this->assertSame($everyOptional, $config->scripts->categoriesFor('it-typo'));
+
         // Consent Mode stays on, with every signal denied.
         $this->assertNotNull($config->consentMode);
         $this->assertSame([], array_filter($config->consentMode->toArray()));
@@ -42,7 +43,6 @@ final class ConfigProviderTest extends IntegrationTestCase
     public function testInvalidWriteToTheOptionKeepsThePreviousValue(): void
     {
         update_option(ConfigProvider::OPTION, ['lifetime_days' => 100]);
-
         update_option(ConfigProvider::OPTION, ['lifetime_days' => -1]);
 
         $this->assertSame(['lifetime_days' => 100], get_option(ConfigProvider::OPTION));
@@ -67,6 +67,7 @@ final class ConfigProviderTest extends IntegrationTestCase
     {
         $warnings = [];
         $errorLog = (string) ini_get('error_log');
+
         ini_set('error_log', '/dev/null');
         set_error_handler(static function (int $level, string $message) use (&$warnings): bool {
             $warnings[] = $message;

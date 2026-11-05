@@ -62,6 +62,7 @@ final class ConsentRecordTest extends TestCase
     public function testRejectsInvalidPayloads(array $payload): void
     {
         $this->expectException(InvalidRecord::class);
+
         ConsentRecord::fromPayload($payload, self::policy(), 1761480000);
     }
 }

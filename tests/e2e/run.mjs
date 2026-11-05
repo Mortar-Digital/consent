@@ -34,11 +34,13 @@ let failed = false;
 
 try {
 	copyFileSync(resolve(here, 'fixture/mu-plugin.php'), muPlugin);
+
 	const createPage = (slug, title, content) => {
 		const existing = wp('post', 'list', '--post_type=page', `--name=${slug}`, '--field=ID', '--post_status=any');
 		if (existing) {
 			wp('post', 'delete', ...existing.split(/\s+/), '--force');
 		}
+
 		pages.push(
 			wp(
 				'post',
@@ -52,16 +54,19 @@ try {
 			),
 		);
 	};
+
 	createPage(
 		'mortar-consent-e2e-declaration',
 		'Consent e2e declaration',
 		'<!-- wp:mortar-consent/cookie-declaration /-->',
 	);
+
 	createPage(
 		'mortar-consent-e2e-embeds',
 		'Consent e2e embeds',
 		readFileSync(resolve(here, 'fixture/embeds.html'), 'utf8'),
 	);
+
 	createPage(
 		'mortar-consent-e2e-hardening',
 		'Consent e2e hardening',
@@ -74,6 +79,7 @@ try {
 			stdio: 'inherit',
 			env: { ...process.env, MORTAR_CONSENT_E2E_URL: env.url },
 		});
+
 		failed ||= r.status !== 0;
 	}
 } finally {
@@ -81,11 +87,13 @@ try {
 	if (pages.length) {
 		wp('post', 'delete', ...pages, '--force');
 	}
+
 	wp(
 		'eval',
 		`global $wpdb; $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE created_at >= %s', $wpdb->prefix . 'mortar_consent_log', ${JSON.stringify(started)}));`,
 	);
 	wp('transient', 'delete', '--all');
 }
+
 console.log(failed ? '\nE2E: failures above.' : '\nE2E: all specs passed. Screenshots in tests/e2e/artifacts/.');
 process.exit(failed ? 1 : 0);

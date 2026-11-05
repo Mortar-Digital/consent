@@ -33,6 +33,7 @@ final class ScriptGateTest extends IntegrationTestCase
         remove_all_filters('wp_script_attributes', 20);
         remove_all_filters('wp_inline_script_attributes', 20);
         $GLOBALS['wp_scripts'] = $this->savedScripts;
+
         parent::tearDown();
     }
 

@@ -50,14 +50,17 @@ test('withoutCategory removes a deleted category from every setting that refers 
 		draft.categories.map((c) => c.id),
 		['necessary', 'analytics'],
 	);
+
 	assert.deepEqual(draft.scripts, [
 		{ handle: 'google-analytics', categories: ['analytics'] },
 		{ handle: 'ads', categories: ['analytics'] },
 	]);
+
 	assert.deepEqual(draft.consent_mode, {
 		enabled: true,
 		signals: { ad_storage: [], analytics_storage: ['analytics'] },
 	});
+
 	assert.deepEqual(draft.wp_consent_api, { marketing: [], statistics: ['analytics'] });
 	assert.deepEqual(draft.embeds, { category: '', providers: { youtube: '', vimeo: 'analytics' } });
 	assert.deepEqual(draft.gpc_categories, []);

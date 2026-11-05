@@ -16,6 +16,7 @@ final class ConsentLogTest extends IntegrationTestCase
     {
         global $wpdb;
         $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE consent_id IN (%s, %s)', (new ConsentLog())->table(), self::OLD_ID, self::NEW_ID));
+
         parent::tearDown();
     }
 

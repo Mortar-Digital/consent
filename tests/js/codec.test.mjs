@@ -20,6 +20,7 @@ test('cookie regex matches the PHP codec (also reused by the Consent Mode head s
 for (const { name, value, expect } of fixture.cases) {
 	test(`decode: ${name}`, () => {
 		const state = decode(value, fixture.categories);
+
 		assert.deepEqual(state === null ? null : JSON.parse(JSON.stringify(state)), expect);
 	});
 }
@@ -31,6 +32,7 @@ test('encode round-trips', () => {
 		consentId: '3f1c2a9e-8b7d-4c2e-9f10-2a3b4c5d6e7f',
 		granted: ['marketing'],
 	};
+
 	assert.equal(encode(state), '1|2|1761480000|3f1c2a9e-8b7d-4c2e-9f10-2a3b4c5d6e7f|marketing');
 	assert.deepEqual(JSON.parse(JSON.stringify(decode(encode(state), fixture.categories))), state);
 });
@@ -39,6 +41,7 @@ test('isCurrent matches the PHP policy rules', () => {
 	const config = { policyVersion: 2, lifetime: 180 * 86400 };
 	const now = 1761480000;
 	const state = (policyVersion, timestamp) => ({ policyVersion, timestamp, consentId: '', granted: [] });
+
 	assert.equal(isCurrent(state(2, now), config, now), true);
 	assert.equal(isCurrent(state(1, now), config, now), false);
 	assert.equal(isCurrent(state(2, now), config, now + config.lifetime), true);

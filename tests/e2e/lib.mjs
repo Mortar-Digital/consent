@@ -16,6 +16,7 @@ export const launch = () => chromium.launch();
 export async function context(browser, { gpc = false, viewport = { width: 1280, height: 900 } } = {}) {
 	const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport });
 	const thirdParty = [];
+
 	await ctx.route(
 		(url) => !url.href.startsWith(BASE),
 		(route) => {
@@ -23,6 +24,7 @@ export async function context(browser, { gpc = false, viewport = { width: 1280, 
 			route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>stub</title>' });
 		},
 	);
+
 	await ctx.addInitScript((gpcOn) => {
 		window.__wpConsent = [];
 		window.wp_set_consent = (category, value) => window.__wpConsent.push([category, value]);
@@ -30,10 +32,14 @@ export async function context(browser, { gpc = false, viewport = { width: 1280, 
 			Object.defineProperty(Navigator.prototype, 'globalPrivacyControl', { get: () => true });
 		}
 	}, gpc);
+
 	const page = await ctx.newPage();
 	const errors = [];
+
 	page.on('pageerror', (e) => errors.push(e.message));
+
 	const cookies = async () => Object.fromEntries((await ctx.cookies()).map((c) => [c.name, c.value]));
+
 	return { ctx, page, errors, thirdParty, cookies };
 }
 
