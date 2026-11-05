@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "build": "esbuild assets/consent.js --minify --target=es2020 --legal-comments=none --outfile=assets/consent.min.js",
-    "test": "node --test --test-isolation=none tests/js",
+    "test": "node --test --test-isolation=none 'tests/js/*.test.mjs'",
     "test:e2e": "node tests/e2e/run.mjs",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix --max-warnings=0"

@@ -39,7 +39,7 @@
   "scripts": {
     "test": [
       "phpunit",
-      "node --test --test-isolation=none tests/js"
+      "node --test --test-isolation=none 'tests/js/*.test.mjs'"
     ],
     "analyse": "phpstan analyse --no-progress --memory-limit=1G",
     "lint": [
