@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MortarDigital\Consent\WordPress;
 
+use MortarDigital\Consent\Config;
 use MortarDigital\Consent\ConsentCookieCodec;
 
 /**
@@ -49,57 +50,14 @@ final class Plugin
 
     public function init(): void
     {
-        // WordPress loads translations for regular plugins on its own; an
-        // MU-plugin install has to load them itself.
-        if (str_starts_with(wp_normalize_path($this->dir), wp_normalize_path(WPMU_PLUGIN_DIR))) {
-            load_muplugin_textdomain('mortar-consent', basename($this->dir) . '/languages');
-        }
-
-        register_setting('mortar_consent', ConfigProvider::OPTION, [
-            'type' => 'object',
-            'default' => [],
-            'show_in_rest' => false,
-            'sanitize_callback' => $this->configProvider->sanitizeOption(...),
-        ]);
+        $this->loadMuPluginTranslations();
+        $this->registerSetting();
 
         $config = $this->configProvider->get();
 
-        (new ScriptGate($config->scripts))->register();
-        (new ConsentModeSnippet($config))->register();
-        (new EmbedGate($config))->register();
-
-        // WP Consent API (wordpress.org/plugins/wp-consent-api), when active:
-        // declare opt-in; the runtime mirrors choices with wp_set_consent().
-        add_filter('wp_get_consent_type', static fn(): string => 'optin');
-
-        $this->renderer = new Renderer($config, [
-            'log' => $config->logEnabled ? rest_url(RestController::NAMESPACE . '/records') : '',
-        ]);
-        $this->renderer->register();
-
-        add_action('wp_enqueue_scripts', $this->enqueueAssets(...), 1);
-
+        $this->registerFrontEnd($config);
         $this->registerBlocks();
-
-        $this->log->install();
-
-        /**
-         * Consent-log rate limits per 10 minutes: per client, and site-wide.
-         * Raise the global ceiling for very busy sites.
-         *
-         * @param array{per_client: int, global: int} $limits
-         */
-        $limits = apply_filters('mortar_consent_rate_limits', ['per_client' => 20, 'global' => 2000]);
-        $rest = new RestController($this->configProvider, $this->log, new RateLimiter(
-            'mortar_consent_rl_',
-            max(1, (int) ($limits['per_client'] ?? 20)),
-            max(1, (int) ($limits['global'] ?? 2000)),
-            600,
-        ));
-
-        add_action('rest_api_init', $rest->register(...));
-
-        $this->scheduleRetention($config->logRetentionDays);
+        $this->registerConsentLog($config);
 
         if (is_admin()) {
             (new AdminPage($this->url, $this->dir, $this->log))->register();
@@ -117,6 +75,72 @@ final class Plugin
         $state = is_string($raw) ? (new ConsentCookieCodec())->decode(wp_unslash($raw), $policy->categories) : null;
 
         return $policy->allows($state, $category, time());
+    }
+
+    /**
+     * WordPress loads translations for regular plugins on its own; an
+     * MU-plugin install has to load them itself.
+     */
+    private function loadMuPluginTranslations(): void
+    {
+        if (str_starts_with(wp_normalize_path($this->dir), wp_normalize_path(WPMU_PLUGIN_DIR))) {
+            load_muplugin_textdomain('mortar-consent', basename($this->dir) . '/languages');
+        }
+    }
+
+    /** Sanitises writes to the settings option that bypass the settings screen. */
+    private function registerSetting(): void
+    {
+        register_setting('mortar_consent', ConfigProvider::OPTION, [
+            'type' => 'object',
+            'default' => [],
+            'show_in_rest' => false,
+            'sanitize_callback' => $this->configProvider->sanitizeOption(...),
+        ]);
+    }
+
+    /** Gating, the Consent Mode defaults, the banner markup and its assets. */
+    private function registerFrontEnd(Config $config): void
+    {
+        (new ScriptGate($config->scripts))->register();
+        (new ConsentModeSnippet($config))->register();
+        (new EmbedGate($config))->register();
+
+        // WP Consent API (wordpress.org/plugins/wp-consent-api), when active:
+        // declare opt-in; the runtime mirrors choices with wp_set_consent().
+        add_filter('wp_get_consent_type', static fn(): string => 'optin');
+
+        $this->renderer = new Renderer($config, [
+            'log' => $config->logEnabled ? rest_url(RestController::NAMESPACE . '/records') : '',
+        ]);
+        $this->renderer->register();
+
+        add_action('wp_enqueue_scripts', $this->enqueueAssets(...), 1);
+    }
+
+    /** The log table, its REST routes and the daily purge. */
+    private function registerConsentLog(Config $config): void
+    {
+        $this->log->install();
+
+        /**
+         * Consent-log rate limits per 10 minutes: per client, and site-wide.
+         * Raise the global ceiling for very busy sites.
+         *
+         * @param array{per_client: int, global: int} $limits
+         */
+        $limits = apply_filters('mortar_consent_rate_limits', ['per_client' => 20, 'global' => 2000]);
+        $limiter = new RateLimiter(
+            'mortar_consent_rl_',
+            max(1, (int) ($limits['per_client'] ?? 20)),
+            max(1, (int) ($limits['global'] ?? 2000)),
+            600,
+        );
+        $rest = new RestController($this->configProvider, $this->log, $limiter);
+
+        add_action('rest_api_init', $rest->register(...));
+
+        $this->scheduleRetention($config->logRetentionDays);
     }
 
     private function enqueueAssets(): void
@@ -150,14 +174,22 @@ final class Plugin
         $editorDeps = ['wp-blocks', 'wp-block-editor', 'wp-components', 'wp-element', 'wp-i18n', 'wp-server-side-render'];
 
         foreach (['settings-button', 'cookie-declaration'] as $block) {
-            wp_register_script("mortar-consent-{$block}-editor", "{$this->url}/blocks/{$block}/index.js", $editorDeps, $this->version("blocks/{$block}/index.js"), ['in_footer' => true]);
+            wp_register_script(
+                "mortar-consent-{$block}-editor",
+                "{$this->url}/blocks/{$block}/index.js",
+                $editorDeps,
+                $this->version("blocks/{$block}/index.js"),
+                ['in_footer' => true],
+            );
             wp_set_script_translations("mortar-consent-{$block}-editor", 'mortar-consent');
         }
 
         register_block_type($this->dir . '/blocks/settings-button', [
             // RichText stores entity-encoded text; decode so esc_html() does not double-encode.
             'render_callback' => static fn(array $attributes): string => $renderer->settingsButton(
-                is_string($attributes['label'] ?? null) ? html_entity_decode(wp_strip_all_tags($attributes['label']), ENT_QUOTES | ENT_HTML5, 'UTF-8') : '',
+                is_string($attributes['label'] ?? null)
+                    ? html_entity_decode(wp_strip_all_tags($attributes['label']), ENT_QUOTES | ENT_HTML5, 'UTF-8')
+                    : '',
                 // wp-element-button picks up the theme.json button styles.
                 get_block_wrapper_attributes(['class' => 'mortar-consent-open wp-element-button']),
             ),
@@ -173,7 +205,10 @@ final class Plugin
         add_shortcode('mortar_consent_settings', static fn(mixed $atts): string => $renderer->settingsButton(
             is_array($atts) && is_string($atts['label'] ?? null) ? $atts['label'] : '',
         ));
-        add_shortcode('mortar_consent_declaration', static fn(): string => $renderer->declaration(true, 'class="mortar-consent-declaration"'));
+        add_shortcode(
+            'mortar_consent_declaration',
+            static fn(): string => $renderer->declaration(true, 'class="mortar-consent-declaration"'),
+        );
     }
 
     private function scheduleRetention(int $retentionDays): void
