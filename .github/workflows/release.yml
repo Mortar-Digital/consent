@@ -1,0 +1,122 @@
+# Releases the plugin when a version tag is pushed:
+#
+#   git tag -a v0.2.0 -m "Mortar Consent 0.2.0" && git push origin v0.2.0
+#
+# The tag must match the plugin header's Version and readme.txt's Stable tag,
+# and CHANGELOG.md needs a dated entry for it. The job builds the zip with
+# bin/build-plugin, deploys it to WordPress.org (SVN trunk and tags/<version>,
+# plus the listing artwork in assets/), then creates the GitHub release with
+# the zip attached.
+#
+# Run it by hand (Actions → Release → Run workflow) for a dry run: everything
+# except the SVN commit and the GitHub release, with the zip kept as a build
+# artifact.
+#
+# Needs the repository secrets SVN_USERNAME and SVN_PASSWORD (the SVN password
+# from the WordPress.org profile's Account & Security page).
+name: Release
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Dry run (build and stage everything, commit nothing)
+        type: boolean
+        default: true
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      DRY_RUN: ${{ github.event_name != 'push' && inputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: composer install --no-interaction --no-progress
+      - run: pnpm install --frozen-lockfile
+
+      - name: Check the version
+        id: version
+        run: |
+          version=$(sed -n 's/^ \* Version: *//p' mortar-consent.php)
+          stable=$(sed -n 's/^Stable tag: *//p' readme.txt)
+          if [[ "$stable" != "$version" ]]; then
+            echo "::error::readme.txt Stable tag ($stable) does not match the plugin Version ($version)."
+            exit 1
+          fi
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "${GITHUB_REF_NAME#v}" != "$version" ]]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match the plugin Version ($version)."
+            exit 1
+          fi
+          # The release notes: this version's CHANGELOG.md section, which must be dated.
+          awk -v v="$version" '$0 ~ "^## \\[" v "\\]" { found = 1; next } /^## \[/ { found = 0 } found' CHANGELOG.md > release-notes.md
+          if ! grep -qE "^## \[$version\] - [0-9]{4}-[0-9]{2}-[0-9]{2}" CHANGELOG.md || ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "::error::CHANGELOG.md needs a dated entry for $version, e.g. \"## [$version] - $(date +%F)\"."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build the plugin
+        run: bin/build-plugin
+
+      # Only the listing images: .wordpress-org/src holds the sources and the
+      # OFL-licensed font they use, which must not reach WordPress.org.
+      - name: Stage the listing artwork
+        run: |
+          mkdir -p build/wporg-assets
+          cp .wordpress-org/*.png .wordpress-org/*.svg build/wporg-assets/
+          ls build/wporg-assets
+
+      # Pinned to a commit: this step receives the SVN password.
+      - name: Deploy to WordPress.org
+        uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
+        with:
+          dry-run: ${{ env.DRY_RUN }}
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: mortar-consent
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD_DIR: build/mortar-consent
+          ASSETS_DIR: build/wporg-assets
+
+      - name: Create the GitHub release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "build/mortar-consent-$VERSION.zip" \
+            --verify-tag --title "Mortar Consent $VERSION" --notes-file release-notes.md
+
+      - name: Keep the zip (dry run)
+        if: github.event_name != 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mortar-consent-${{ steps.version.outputs.version }}
+          path: build/mortar-consent-*.zip
+          if-no-files-found: error
