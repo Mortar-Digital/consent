@@ -1,12 +1,13 @@
-# Releases the plugin when a version tag is pushed:
+# Releases the plugin when a version tag is pushed, either from the command
+# line or by publishing a release on GitHub with a new tag:
 #
 #   git tag -a v0.2.0 -m "Mortar Consent 0.2.0" && git push origin v0.2.0
 #
 # The tag must match the plugin header's Version and readme.txt's Stable tag,
 # and CHANGELOG.md needs a dated entry for it. The job builds the zip with
 # bin/build-plugin, deploys it to WordPress.org (SVN trunk and tags/<version>,
-# plus the listing artwork in assets/), then creates the GitHub release with
-# the zip attached.
+# plus the listing artwork in assets/), then attaches the zip to the GitHub
+# release, creating one from the changelog if the tag came without one.
 #
 # Run it by hand (Actions → Release → Run workflow) for a dry run: everything
 # except the SVN commit and the GitHub release, with the zip kept as a build
@@ -104,14 +105,22 @@ jobs:
           BUILD_DIR: build/mortar-consent
           ASSETS_DIR: build/wporg-assets
 
-      - name: Create the GitHub release
+      # A release drafted on GitHub (with this tag) keeps its title and notes
+      # and just gets the zip; a plain tag push gets a release made from the
+      # changelog.
+      - name: Publish the zip on the GitHub release
         if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          gh release create "$GITHUB_REF_NAME" "build/mortar-consent-$VERSION.zip" \
-            --verify-tag --title "Mortar Consent $VERSION" --notes-file release-notes.md
+          zip="build/mortar-consent-$VERSION.zip"
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$zip" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$zip" \
+              --verify-tag --title "Mortar Consent $VERSION" --notes-file release-notes.md
+          fi
 
       - name: Keep the zip (dry run)
         if: github.event_name != 'push'
