@@ -1,0 +1,54 @@
+# Updates the WordPress.org listing between releases: the icon, banner and
+# screenshots in .wordpress-org/, and readme.txt (description, FAQ, "Tested up
+# to"). The plugin code in SVN is never touched; releases do that.
+#
+# Manual only (Actions → Update WordPress.org listing → Run workflow), because
+# the readme on main may already describe the next, unreleased version. It
+# refuses to run unless readme.txt's Stable tag is the latest released version.
+#
+# Needs the same SVN_USERNAME and SVN_PASSWORD secrets as the release workflow.
+name: Update WordPress.org listing
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  listing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check the readme describes the released version
+        run: |
+          stable=$(sed -n 's/^Stable tag: *//p' readme.txt)
+          latest=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-version:refname | head -n1)
+          if [[ "v$stable" != "$latest" ]]; then
+            echo "::error::readme.txt Stable tag ($stable) is not the latest release (${latest:-none}). Release first, or update the listing from that tag."
+            exit 1
+          fi
+
+      # Only the listing images, not the sources and font in .wordpress-org/src.
+      - name: Stage the listing artwork
+        run: |
+          mkdir -p build/wporg-assets
+          cp .wordpress-org/*.png .wordpress-org/*.svg build/wporg-assets/
+
+      # Pinned to a commit: this step receives the SVN password. It has no dry
+      # run; it commits whatever differs from SVN.
+      - name: Update the readme and artwork
+        uses: 10up/action-wordpress-plugin-asset-update@2480306f6f693672726d08b5917ea114cb2825f7 # 2.2.0
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: mortar-consent
+          ASSETS_DIR: build/wporg-assets
+          IGNORE_OTHER_FILES: true

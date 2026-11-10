@@ -27,10 +27,21 @@ CI runs the same checks on every pull request.
 
 ## Releasing
 
-Maintainers only.
+Maintainers only. Releases are built and deployed by `.github/workflows/release.yml` when a version tag is pushed.
 
-1. Set the new version in the `mortar-consent.php` header and as `Stable tag` in `readme.txt`. Add the release to the readme changelog (and upgrade notice if needed) and to `CHANGELOG.md`.
+1. Set the new version in the `mortar-consent.php` header and as `Stable tag` in `readme.txt`. Add it to the readme changelog (and upgrade notice if needed) and to `CHANGELOG.md` as a dated entry, `## [X.Y.Z] - YYYY-MM-DD`; that entry becomes the GitHub release notes.
 2. Check `Tested up to` in `readme.txt` against the WordPress version the browser tests ran on.
-3. Run `bin/build-plugin`. It fails if the readme and header versions disagree or the minified runtime is stale.
-4. Install the zip on a clean site and run the official [Plugin Check](https://wordpress.org/plugins/plugin-check/) against it.
-5. Tag the release (`vX.Y.Z`) and push the tag.
+3. Run `bin/build-plugin` and run the official [Plugin Check](https://wordpress.org/plugins/plugin-check/) against the zip on a clean site.
+4. Optional: run the **Release** workflow by hand from the Actions tab. It is a dry run by default: it builds and stages everything but commits nothing, and keeps the zip as an artifact.
+5. Commit, then tag and push:
+
+   ```sh
+   git tag -a vX.Y.Z -m "Mortar Consent X.Y.Z"
+   git push origin vX.Y.Z
+   ```
+
+   The workflow checks the tag matches the header and readme, builds the zip, deploys it to WordPress.org (SVN `trunk`, `tags/X.Y.Z` and the listing artwork) and creates the GitHub release with the zip attached.
+
+To change only the listing between releases (artwork, description, FAQ, `Tested up to`), run **Update WordPress.org listing** from the Actions tab. It refuses to run if `readme.txt` already describes an unreleased version.
+
+Both workflows need the repository secrets `SVN_USERNAME` and `SVN_PASSWORD` (the SVN password from the WordPress.org profile's Account & Security page).
