@@ -40,7 +40,9 @@ Maintainers only. Releases are built and deployed by `.github/workflows/release.
    git push origin vX.Y.Z
    ```
 
-   The workflow checks the tag matches the header and readme, builds the zip, deploys it to WordPress.org (SVN `trunk`, `tags/X.Y.Z` and the listing artwork) and creates the GitHub release with the zip attached.
+   Or publish a release on GitHub (Releases → Draft a new release) with a new `vX.Y.Z` tag on `main`, if you want to write the release notes yourself.
+
+   Either way, the workflow checks the tag matches the header and readme, builds the zip, deploys it to WordPress.org (SVN `trunk`, `tags/X.Y.Z` and the listing artwork) and attaches the zip to the GitHub release. A release you published keeps your title and notes; a plain tag push gets a release made from the changelog.
 
 To change only the listing between releases (artwork, description, FAQ, `Tested up to`), run **Update WordPress.org listing** from the Actions tab. It refuses to run if `readme.txt` already describes an unreleased version.
 
